@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+
+</head>
+<body>
+<h2>Course List</h2>
+<a th:href="@{/course/add}" class="btn btn-success">ADD Course</a>
+<table class="table" border="1">
+    <thead>
+        <tr>
+            <th>CourseId</th>
+            <th>CourseName</th>
+            <th>StartDate</th>
+            <th>EndDate</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        <tr th:each="c : ${course}">
+            <td th:text="${c.courseId}"></td>
+            <td th:text="${c.courseName}"></td>
+            <td th:text="${#dates.format(c.startDate, 'yyyy/MM/dd')}"></td>
+            <td th:text="${#dates.format(c.endDate, 'yyyy/MM/dd')}"></td>
+            <td >
+                <a th:href="@{/course/edit/{courseId}(courseId = ${c.courseId})}" class="btn btn-warning" >Update</a>
+                <a th:href="@{/course/delete/{courseId}(courseId = ${c.courseId})}" class="btn btn-danger"
+                   onclick="return confirm('are you sure you want to delete?')"
+                >Delete</a>
+            </td>
+        </tr>
+    </tbody>
+
+</table>
+
+</body>
+</html>

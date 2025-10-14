@@ -1,0 +1,140 @@
+package org.example.student_testing.test.controller;
+
+import lombok.RequiredArgsConstructor;
+
+import org.example.student_testing.test.dto.AnswerResultDTO;
+import org.example.student_testing.test.dto.DynamicAnswerDTO;
+import org.example.student_testing.test.dto.ResultDTO;
+import org.example.student_testing.test.entity.Question;
+import org.example.student_testing.test.service.DynamicTestService;
+import org.example.student_testing.test.service.ResultService;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDateTime;
+import java.util.List;
+
+
+@Controller
+@RequestMapping("/student/dynamic")
+@RequiredArgsConstructor
+public class DymanicTestController {
+
+    private final DynamicTestService service;
+
+    private final ResultService resultService;
+
+
+    @GetMapping("/do-test")
+    public String start(@RequestParam Integer testId,
+                        @RequestParam String studentUsername,
+                        @RequestParam(required = false) Integer topicId,
+                        @RequestParam String testType,
+                        Model model) {
+
+        if (resultService.hasSubmitted(testId, studentUsername)) {
+            model.addAttribute("error", "Bạn đã hoàn thành bài kiểm tra này.");
+            return "test/dynamic/finish";
+        }
+
+        int currentDifficulty = 2;
+        Question question = "Mixed".equalsIgnoreCase(testType)
+                ? service.getNextQuestionMixed(currentDifficulty, studentUsername, testId)
+                : service.getNextQuestion(currentDifficulty, studentUsername, testId, topicId);
+
+        if (question == null) {
+            model.addAttribute("error", "Không còn câu hỏi phù hợp.");
+            return "test/dynamic/finish";
+        }
+
+        int answeredCount = service.getAnsweredCount(testId, studentUsername);
+        int totalQuestions = service.getTotalQuestions(testId);
+
+        model.addAttribute("question", question);
+        model.addAttribute("testId", testId);
+        model.addAttribute("studentUsername", studentUsername);
+        model.addAttribute("currentDifficulty", currentDifficulty);
+        model.addAttribute("topicId", topicId);
+        model.addAttribute("testType", testType);
+        model.addAttribute("options", List.of("A", "B", "C", "D"));
+        model.addAttribute("answeredCount", answeredCount);
+        model.addAttribute("totalQuestions", totalQuestions);
+        return "test/dynamic/do-test";
+    }
+
+    @PostMapping("/submit-test")
+    public String submit(@ModelAttribute DynamicAnswerDTO dto, Model model) {
+        service.saveAnswer(dto);
+
+        boolean correct = service.checkAnswer(dto.getQuestionId(), dto.getSelectedOption());
+        int nextDifficulty = service.nextDifficulty(dto.getCurrentDifficulty(), correct);
+
+        boolean finished = service.isFinished(dto.getTestId(), dto.getStudentUsername());
+
+        Question next = "Mixed".equalsIgnoreCase(dto.getTestType())
+                ? service.getNextQuestionMixed(nextDifficulty, dto.getStudentUsername(), dto.getTestId())
+                : service.getNextQuestion(nextDifficulty, dto.getStudentUsername(), dto.getTestId(), dto.getTopicId());
+
+        if (finished || next == null) {
+            model.addAttribute("testId", dto.getTestId());
+            model.addAttribute("studentUsername", dto.getStudentUsername());
+            model.addAttribute("testType", dto.getTestType());
+            model.addAttribute("topicId", dto.getTopicId());
+            return "test/dynamic/finish";
+        }
+
+        int answeredCount = service.getAnsweredCount(dto.getTestId(), dto.getStudentUsername());
+        int totalQuestions = service.getTotalQuestions(dto.getTestId());
+
+        model.addAttribute("question", next);
+        model.addAttribute("testId", dto.getTestId());
+        model.addAttribute("studentUsername", dto.getStudentUsername());
+        model.addAttribute("currentDifficulty", nextDifficulty);
+        model.addAttribute("topicId", dto.getTopicId());
+        model.addAttribute("testType", dto.getTestType());
+        model.addAttribute("options", List.of("A", "B", "C", "D"));
+        model.addAttribute("answeredCount", answeredCount);
+        model.addAttribute("totalQuestions", totalQuestions);
+        return "test/dynamic/do-test";
+    }
+
+    @GetMapping("/result")
+    public String result(@RequestParam Integer testId,
+                         @RequestParam String studentUsername,
+                         @RequestParam(required = false) Integer topicId,
+                         @RequestParam String testType,
+                         Model model) {
+
+        List<AnswerResultDTO> answers = service.getAnswerResults(testId, studentUsername);
+        long correctCount = answers.stream()
+                .filter(a -> a.getSelectedOption().equalsIgnoreCase(a.getCorrectOption()))
+                .count();
+
+        double score = answers.isEmpty() ? 0 : (correctCount * 10.0) / answers.size();
+        double percentile = resultService.calculatePercentile(testId, score);
+        String rank = resultService.getRank(score);
+
+        if (!resultService.hasSubmitted(testId, studentUsername)) {
+            ResultDTO result = new ResultDTO();
+            result.setTestId(testId);
+            result.setStudentUsername(studentUsername);
+            result.setScore(score);
+            result.setPercentile(percentile);
+            result.setRank(rank);
+            result.setSubmittedAt(LocalDateTime.now());
+            resultService.save(result);
+        }
+
+        model.addAttribute("answers", answers);
+        model.addAttribute("correctCount", correctCount);
+        model.addAttribute("studentUsername", studentUsername);
+        model.addAttribute("topicId", topicId);
+        model.addAttribute("testType", testType);
+        model.addAttribute("totalCount", answers.size());
+        model.addAttribute("testId", testId);
+        return "test/dynamic/result";
+    }
+
+
+}

@@ -1,0 +1,49 @@
+package org.example.student_testing.student.controller;
+
+
+import org.example.student_testing.student.dto.ScoreDTO;
+import org.example.student_testing.student.service.ScoreService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+import java.util.List;
+
+/***
+ * Scorce
+ *
+ */
+@Controller
+@RequestMapping("/score")
+public class ScoreController {
+
+    @Autowired
+    private ScoreService scoreService;
+    // ✅ ADMIN và GIẢNG VIÊN được xem danh sách điểm
+
+    @GetMapping("/list")
+    public String scoreList(Model model){
+        //
+        List<ScoreDTO> dto = scoreService.getAllScores();
+        model.addAttribute("score",dto);
+        return "student/score-list";
+    }
+    // ✅ Chỉ ADMIN được xử lý thêm điểm
+
+    @GetMapping("/add")
+    public String scoreShowAdd(Model model){
+        model.addAttribute("score",new ScoreDTO());
+        return "student/score-add";
+    }
+    // ✅ Chỉ ADMIN được thêm điểm
+
+    @PostMapping("/add")
+    public String scoreAdd(@ModelAttribute ScoreDTO scoreDTO){
+        scoreService.createScore(scoreDTO);
+        return "redirect:/score/list";
+    }
+}

@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+
+<h2>ADD New Score</h2>
+<form th:action="@{/score/add}" method="post" th:object="${score}">
+    <lable>StudentId</lable>
+    <input type="text" th:field="*{studentId}"><br>
+
+    <lable>CourseId</lable>
+    <input type="number" th:field="*{courseId}"><br>
+
+    <lable>Subject</lable>
+    <input type="text" th:field="*{subject}"><br>
+
+    <lable>Score</lable>
+    <input type="number" th:field="*{score}"><br>
+
+    <button type="submit">ADD</button>
+
+
+</form>
+
+</body>
+</html>

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.example.student_testing.student.mapper.CourseMapper">
+
+    <select id="findAll" resultType="org.example.student_testing.student.entity.Course">
+        SELECT course_id AS courseId,
+               course_name AS courseName,
+               teacher_id AS teacherId,
+               created_at AS createdAt,
+               updated_at AS updatedAt
+        FROM courses
+    </select>
+
+    <select id="findByCourseId" resultType="org.example.student_testing.student.entity.Course">
+        SELECT course_id AS courseId,
+               course_name AS courseName,
+               start_date AS startDate,
+               end_date AS endDate
+        FROM courses
+        WHERE course_id = #{courseId}
+    </select>
+
+    <insert id="create" parameterType="org.example.student_testing.student.dto.CourseDTO">
+        INSERT INTO courses (course_name, start_date, end_date)
+        VALUES (#{courseName}, #{startDate}, #{endDate})
+    </insert>
+
+    <update id="update" parameterType="org.example.student_testing.student.dto.CourseDTO">
+        UPDATE courses
+        SET course_name = #{courseName},
+            start_date = #{startDate},
+            end_date = #{endDate}
+        WHERE course_id = #{courseId}
+    </update>
+
+    <delete id="delete" parameterType="Integer">
+        DELETE FROM courses
+        WHERE course_id = #{courseId}
+    </delete>
+
+    <select id="findCourseNameById" resultType="String">
+        SELECT course_name FROM courses WHERE course_id = #{courseId}
+    </select>
+
+</mapper>

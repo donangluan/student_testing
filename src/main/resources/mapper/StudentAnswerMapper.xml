@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.example.student_testing.test.mapper.StudentAnswerMapper">
+    <select id="findAllAnswers" resultType="org.example.student_testing.test.dto.StudentAnswerDTO">
+            select id, test_id as testId, student_username as studentUsername, question_id as questionId,
+                   selected_option as selectedOption, answered_at as answeredAt
+                from student_answers
+            where test_id = #{testId}
+                and student_username = #{studentUsername}
+
+
+    </select>
+
+    <insert id="insertAnswer" parameterType="org.example.student_testing.test.dto.StudentAnswerDTO">
+        insert into student_answers (test_id, student_username,question_id,selected_option,answered_at)
+        values (#{testId},#{studentUsername},#{questionId},#{selectedOption},#{answeredAt})
+
+    </insert>
+</mapper>

@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Danh sách bài kiểm tra</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="container mt-5">
+<h2 class="mb-4"> Danh sách bài kiểm tra</h2>
+
+<a href="/tests/generate" class="btn btn-primary mb-3"> Tạo bài kiểm tra mới</a>
+<a href="/tests/create-mixed" class="btn btn-outline-success mb-3 ms-2">Tạo bài kiểm tra nhiều chủ đề</a>
+
+
+<table class="table table-bordered table-hover">
+    <thead class="table-light">
+    <tr>
+        <th>ID</th>
+        <th>Tên bài kiểm tra</th>
+        <th>Loại</th>
+        <th>Người tạo</th>
+
+        <th>Thời gian tạo</th>
+        <th>Thao tác</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="test : ${tests}">
+        <td th:text="${test.testId}">1</td>
+        <td th:text="${test.testName}">Bài kiểm tra mẫu</td>
+        <td th:text="${test.testType}">Unique</td>
+        <td th:text="${test.createdBy}">gv001</td>
+        <td th:text="${#temporals.format(test.createdAt, 'dd/MM/yyyy HH:mm')}">08/10/2025 15:30</td>
+        <td>
+            <a th:href="@{'/tests/detail/' + ${test.testId}}" class="btn btn-outline-info btn-sm"> Xem chi tiết</a>
+            <!-- Nếu là bài kiểm tra theo chủ đề -->
+            <a th:if="${test.testType == 'Unique'}"
+               th:href="@{'/student/dynamic/do-test'(testId=${test.testId}, studentUsername='hs001', topicId=${test.topicId}, testType=${test.testType})}"
+               class="btn btn-outline-warning btn-sm">Làm kiểm tra động</a>
+
+            <!-- Nếu là bài kiểm tra nhiều chủ đề -->
+            <a th:if="${test.testType == 'Mixed'}"
+               th:href="@{'/student/dynamic/do-test'(testId=${test.testId}, studentUsername='hs001', testType=${test.testType})}"
+               class="btn btn-outline-warning btn-sm">Làm kiểm tra động</a>
+
+
+        </td>
+    </tr>
+    </tbody>
+</table>
+</body>
+</html>

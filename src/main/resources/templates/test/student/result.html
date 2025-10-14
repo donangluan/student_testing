@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Kết quả bài làm</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .correct { color: green; font-weight: bold; }
+        .wrong { color: red; font-weight: bold; }
+    </style>
+</head>
+<body>
+<div class="container mt-5">
+    <h2 class="mb-4 text-center">Kết quả bài làm của <span th:text="${studentUsername}"></span></h2>
+
+    <div class="mb-4">
+        <p><strong>Số câu đúng:</strong> <span th:text="${correct}"></span> / <span th:text="${total}"></span></p>
+        <p><strong>Điểm:</strong> <span th:text="${#numbers.formatDecimal(correct * 10.0 / total, 1, 1)}"></span></p>
+    </div>
+
+    <table class="table table-bordered table-hover">
+        <thead class="table-light">
+        <tr>
+            <th>Câu hỏi</th>
+            <th>Đáp án của bạn</th>
+            <th>Đáp án đúng</th>
+            <th>Kết quả</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="ans : ${answers}">
+            <td th:text="${ans.questionId}"></td>
+            <td th:text="${ans.selectedOption}"></td>
+            <td th:text="${correctMap[ans.questionId]}"></td>
+            <td th:text="${ans.selectedOption == correctMap[ans.questionId] ? 'Đúng' : 'Sai'}"
+                th:class="${ans.selectedOption == correctMap[ans.questionId] ? 'correct' : 'wrong'}"></td>
+        </tr>
+        </tbody>
+    </table>
+
+    <div class="text-center mt-4">
+        <a th:href="@{/tests}" class="btn btn-secondary">Quay về danh sách bài thi</a>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

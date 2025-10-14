@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.example.testing.student_testing.test.TestResultMapper">
+    <!-- Chèn kết quả bài làm vào bảng test_results -->
+    <insert id="insertResult" parameterType="org.example.student_testing.test.dto.QuestionDTO">
+        INSERT INTO test_results (test_id, student_username, score, percentile, rank_id, completed_at)
+        VALUES (#{testId}, #{studentUsername}, #{score}, #{percentile}, #{rankId}, CURRENT_TIMESTAMP)
+    </insert>
+
+    <!-- Truy vấn danh sách điểm để tính percentile -->
+    <select id="findScoresByTestId" resultType="double"  parameterType="org.example.student_testing.test.dto.QuestionDTO">
+        SELECT score FROM test_results WHERE test_id = #{testId}
+    </select>
+</mapper>

@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Chi tiết hồ sơ học viên</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+<div class="container mt-5">
+    <h3 class="mb-4">📄 Chi tiết hồ sơ học viên</h3>
+
+    <div th:if="${errorMessage}" class="alert alert-danger">
+        <p th:text="${errorMessage}"></p>
+        <a th:href="@{'/student/profile/list'}" class="btn btn-secondary mt-2"> Quay lại danh sách</a>
+    </div>
+
+    <div th:if="${profile != null}">
+        <table class="table table-bordered">
+            <tr><th>Mã học viên</th><td th:text="${profile.studentId}"></td></tr>
+            <tr><th>Trường</th><td th:text="${profile.schoolName}"></td></tr>
+            <tr><th>Lớp</th><td th:text="${profile.className}"></td></tr>
+            <tr><th>Điện thoại</th><td th:text="${profile.phone}"></td></tr>
+            <tr>
+                <th>Ảnh đại diện</th>
+                <td>
+                    <img th:src="${profile.avatarUrl != null ? profile.avatarUrl : '/images/default-avatar.png'}"
+                         onerror="this.onerror=null;this.src='/images/default-avatar.png';"
+                         class="img-thumbnail rounded-circle"
+                         width="120" height="120" alt="Avatar">
+                </td>
+            </tr>
+            <tr><th>Địa chỉ</th><td th:text="${profile.address}"></td></tr>
+            <tr><th>Ngày tạo</th><td th:text="${#temporals.format(profile.createdAt, 'dd/MM/yyyy HH:mm')}"></td></tr>
+            <tr><th>Ngày sửa</th><td th:text="${#temporals.format(profile.updatedAt, 'dd/MM/yyyy HH:mm')}"></td></tr>
+            <tr><th>UserName</th><td th:text="${profile.username}"></td></tr>
+        </table>
+        <a th:href="@{'/student/profile/list'}" class="btn btn-secondary">⬅ Quay lại danh sách</a>
+    </div>
+</div>
+</body>
+</html>
