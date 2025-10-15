@@ -60,13 +60,14 @@ public class QuestionController {
         result.getAllErrors().forEach(error -> System.out.println(" - " + error.getDefaultMessage()));
 
 
-        questionDTO.setCreatedBy("gv001");
+        questionDTO.setCreatedBy("teacher01");
         questionService.createQuestion(questionDTO);
         return "redirect:/questions";
     }
 
     @GetMapping("/edit/{questionId}")
     public String showEditForm(@PathVariable Integer questionId, Model model) {
+        System.out.println("✅ Options: " + answerOptionService.findAll());
         model.addAttribute("questionDTO", questionService.getQuestionById(questionId));
         model.addAttribute("topics", topicService.findAll());
         model.addAttribute("difficulties", difficultyService.findAll());
@@ -85,7 +86,7 @@ public class QuestionController {
             model.addAttribute("options", answerOptionService.findAll());
             return "test/question/add";
         }
-        questionDTO.setCreatedBy("gv001");
+        questionDTO.setCreatedBy("teacher01");
         questionService.update(questionDTO);
         return "redirect:/questions";
     }

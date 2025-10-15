@@ -75,4 +75,16 @@ public class QuestionService {
         }
         return false;
     }
+
+    public List<QuestionDTO> previewQuestions(Integer topicId, Integer difficultyId, Integer limit) {
+        if (topicId == null || difficultyId == null || limit == null || limit <= 0) {
+            throw new IllegalArgumentException("Thông tin đầu vào không hợp lệ.");
+        }
+
+        return questionMapper.randomQuestionsByTopicAndDifficulty(topicId, difficultyId, limit);
+    }
+
+    public List<QuestionDTO> getQuestionsByTestIdAndStudent(Integer testId, String username) {
+        return questionMapper.getQuestionsByTestIdAndStudent(testId, username);
+    }
 }

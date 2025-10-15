@@ -29,45 +29,56 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-            http
-                    .authorizeHttpRequests(auth -> auth
-                            .requestMatchers("/register", "/register/**").permitAll()
-                            .requestMatchers("/verify-otp").permitAll()
-                            .requestMatchers("/login", "/css/**", "/js/**").permitAll()
-                            .requestMatchers("/student/profile/**").hasAnyRole( "ADMIN","TEACHER","STUDENT")
-                            .requestMatchers("/student/**").hasAnyRole( "ADMIN","TEACHER")
+        http
+                .authorizeHttpRequests(auth -> auth
+                        // Public routes
+                        .requestMatchers("/login", "/register", "/verify-otp", "/css/**", "/js/**").permitAll()
 
-                                    .anyRequest().authenticated()
-                    )
-                    .formLogin(form -> form
-                            .loginPage("/login")
-                            .successHandler((request, response, authentication) -> {
-                                boolean isStudent = authentication.getAuthorities().stream()
-                                        .anyMatch(auth -> auth.getAuthority().equals("ROLE_STUDENT"));
-                                boolean isTeacher = authentication.getAuthorities().stream()
-                                        .anyMatch(auth -> auth.getAuthority().equals("ROLE_TEACHER"));
-                                boolean isAdmin = authentication.getAuthorities().stream()
-                                        .anyMatch(auth -> auth.getAuthority().equals("ROLE_ADMIN"));
+                        // Student routes
+                        .requestMatchers("/student/**").hasRole("STUDENT")
+                        // Teacher routes
+                        .requestMatchers("/teacher/**").hasRole("TEACHER")
 
-                                System.out.println("Authorities: " + authentication.getAuthorities());
+                        // Admin routes
+                        .requestMatchers("/admin/**", "/users/**").hasRole("ADMIN")
 
 
-                                if (isStudent) {
-                                    response.sendRedirect("/student/profile/list");
-                                } else if (isTeacher || isAdmin) {
-                                    response.sendRedirect("/student/list");
-                                } else {
-                                    response.sendRedirect("/access-denied");
-                                }
-                            })
-                            .permitAll()
-                    ).
-                    logout(logout -> logout
-                            .logoutUrl("/logout")
-                            .logoutSuccessUrl("/login?logout")
-                            .permitAll());
-            return http.build();
 
+                        // All other routes require authentication
+                        .anyRequest().authenticated()
+                )
+                .formLogin(form -> form
+                        .loginPage("/login")
+                        .successHandler((request, response, authentication) -> {
+                            boolean isStudent = authentication.getAuthorities().stream()
+                                    .anyMatch(auth -> auth.getAuthority().equals("ROLE_STUDENT"));
+                            boolean isTeacher = authentication.getAuthorities().stream()
+                                    .anyMatch(auth -> auth.getAuthority().equals("ROLE_TEACHER"));
+                            boolean isAdmin = authentication.getAuthorities().stream()
+                                    .anyMatch(auth -> auth.getAuthority().equals("ROLE_ADMIN"));
+
+                            if (isStudent) {
+                                response.sendRedirect("/student/tests");
+                            } else if (isTeacher) {
+                                response.sendRedirect("/teacher/dashboard");
+                            } else if (isAdmin) {
+                                response.sendRedirect("/admin/dashboard");
+                            } else {
+                                response.sendRedirect("/access-denied");
+                            }
+                        })
+                        .permitAll()
+                )
+                .logout(logout -> logout
+                        .logoutUrl("/logout")
+                        .logoutSuccessUrl("/login?logout")
+                        .permitAll()
+                )
+                .exceptionHandling(ex -> ex
+                        .accessDeniedPage("/access-denied")
+                );
+
+        return http.build();
     }
 
     @Bean

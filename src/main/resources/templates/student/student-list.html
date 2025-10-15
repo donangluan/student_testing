@@ -23,7 +23,12 @@
     <span sec:authorize="hasRole('STUDENT')" class="badge bg-success">STUDENT</span>
 </div>
 
+<!-- Nhúng navbar -->
+<div th:insert="fragments/navbar :: navbar"></div>
 
+
+
+<!--nội dung của student list-->
 <div class="container mt-4">
     <h2 class="text-center mb-4">Student List</h2>
 
@@ -32,8 +37,6 @@
         <div class="col-md-2" sec:authorize="hasAnyRole('ADMIN')">
             <a th:href="@{/student/add}" class="btn btn-success w-100">Add Student</a>
         </div>
-
-
 
         <!--  Search form -->
         <div class="col-md-5">
@@ -121,12 +124,7 @@
 
     </table>
 
-    <div class="text-end mb-3">
-        <span sec:authentication="name" class="me-2"></span>
-        <form th:action="@{/logout}" method="post" class="d-inline">
-            <button type="submit" class="btn btn-sm btn-danger">Đăng xuất</button>
-        </form>
-    </div>
+
     <nav>
         <ul class="pagination justify-content-center">
 
@@ -251,6 +249,10 @@
         });
     }, 3000);
 </script>
+
+
+<!-- Nhúng footer -->
+<div th:insert="fragments/footer :: footer"></div>
 </body>
 
 

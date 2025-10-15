@@ -49,5 +49,9 @@ public class ScoreService {
 
     }
 
+    public int getGradedCount() {
+        return scoreMapper.countGradedSubmissions();
+    }
+
 
 }

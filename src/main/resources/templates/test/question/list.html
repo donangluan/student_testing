@@ -9,6 +9,10 @@
 <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
 <div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
 <a th:href="@{/questions/add}" class="btn btn-primary mb-3"> Thêm câu hỏi mới</a>
+<div class="mt-4">
+    <a th:href="@{/teacher/dashboard}" class="btn btn-outline-dark"> Quay về trang giáo viên</a>
+</div>
+
 
 <table class="table table-bordered table-hover">
     <thead class="table-light">

@@ -22,7 +22,7 @@ public interface QuestionMapper {
 
 
 
-    List<QuestionDTO> findQuestionsByTestId(Integer testId);
+    List<QuestionDTO> findQuestionsByTestId(@Param("testId")Integer testId);
     String getCorrectOption(Integer questionId);
 
     List<Question> findRandomQuestionsByTopic(@Param("topicId") Integer topicId, @Param("count") Integer count);
@@ -32,6 +32,28 @@ public interface QuestionMapper {
     Question findNextQuestion(@Param("difficultyId") Integer difficultyId,
                               @Param("studentUsername") String studentUsername,
                               @Param("testId") Integer testId);
+
+    List<QuestionDTO> randomQuestionsByTopicAndDifficulty(
+            @Param("topicId") Integer topicId,
+            @Param("difficultyId") Integer difficultyId,
+            @Param("limit") Integer limit
+    );
+
+    List<QuestionDTO> getQuestionsByTestIdAndStudent(
+            @Param("testId") Integer testId,
+            @Param("studentUsername") String studentUsername
+    );
+
+
+
+    List<Integer> findQuestionIdsByTestId(Integer testId);
+
+    String findCorrectOptionByQuestionId(Integer questionId);
+
+    String findSelectedOption(Integer testId, String studentUsername, Integer questionId);
+
+
+
 
 
 }

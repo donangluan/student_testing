@@ -12,5 +12,7 @@ public class UniqueTestRequest {
     private Integer questionCount;
     private List<String> studentUsername;
     private Integer numberOfQuestions;
+    private String createdBy;
+    private Integer difficultyId;
     private String testType;
 }

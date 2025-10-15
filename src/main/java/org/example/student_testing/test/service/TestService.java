@@ -41,14 +41,30 @@ public class TestService {
 
 
 
-        List<QuestionDTO> selectedQuestions = questionMapper.randomQuestionsByTopic(
-                request.getTopicId(), request.getNumberOfQuestions()
+        List<QuestionDTO> selectedQuestions = questionMapper.randomQuestionsByTopicAndDifficulty(
+                request.getTopicId(), request.getDifficultyId(), request.getNumberOfQuestions()
+
         );
+
+
+        int requested = request.getNumberOfQuestions();
+        int actual = selectedQuestions.size();
+
+        if (actual < requested) {
+            System.out.println(" Chỉ tìm được " + actual + " câu hỏi phù hợp (yêu cầu: " + requested + ")");
+        }
+        System.out.println(">> Selected questions: " + selectedQuestions.size());
+
+        System.out.println(">> Topic ID: " + request.getTopicId());
+        System.out.println(">> Difficulty ID: " + request.getDifficultyId());
+        System.out.println(">> Number of questions: " + request.getNumberOfQuestions());
+        System.out.println(">> Selected questions: " + selectedQuestions.size());
 
 
 
 
         for (String studentUsername : request.getStudentUsername()) {
+            if (studentUsername == null || studentUsername.isBlank()) continue;
 
             TestAssignmentDTO ta = new TestAssignmentDTO();
             ta.setTestId(test.getTestId());
@@ -60,13 +76,19 @@ public class TestService {
 
             int order = 1;
             for (QuestionDTO q : selectedQuestions) {
-                TestQuestionDTO tq = new TestQuestionDTO();
-                tq.setTestId(test.getTestId());
-                tq.setQuestionId(q.getQuestionId());
-                tq.setStudentUsername(studentUsername);
-                tq.setOrderNo(order++);
-                tq.setDifficultyId(q.getDifficultyId());
-                testMapper.insertTestQuestion(tq);
+
+                System.out.println(">> testId = " + test.getTestId());
+                System.out.println(">> questionId = " + q.getQuestionId());
+                System.out.println(">> studentUsername = " + studentUsername);
+                System.out.println(">> difficultyId = " + q.getDifficultyId());
+                System.out.println(">> orderNo = " + order);
+                testQuestionMapper.insertTestQuestion(
+                        test.getTestId(),
+                        q.getQuestionId(),
+                        studentUsername,
+                        q.getDifficultyId(),
+                        order++
+                );
 
 
             }
@@ -110,6 +132,20 @@ public class TestService {
                 }
             }
         }
+    }
+
+    public int getTotalTests() {
+        return testMapper.countAllTests();
+    }
+
+
+    public List<TestDTO> findTestsForStudent(String studentUsername) {
+
+        return testMapper.findTestsAssignedToStudent(studentUsername);
+    }
+
+    public List<TestResultDTO> getResultsForStudent(String studentUsername) {
+        return testMapper.findResultsByStudent(studentUsername);
     }
 
 

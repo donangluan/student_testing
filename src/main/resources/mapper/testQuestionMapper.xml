@@ -6,10 +6,10 @@
 
 
     <mapper namespace="org.example.student_testing.test.mapper.TestQuestionMapper">
-        <insert id="insertTestQuestion">
-            INSERT INTO test_questions (test_id, question_id, student_username, difficulty_id, order_no)
-            VALUES (#{testId}, #{questionId}, #{studentUsername}, #{difficultyId}, #{orderNo})
-        </insert>
+    <insert id="insertTestQuestion">
+        INSERT INTO test_questions (test_id, question_id, student_username, difficulty_id, order_no)
+        VALUES (#{testId}, #{questionId}, #{studentUsername}, #{difficultyId}, #{orderNo})
+    </insert>
 
 
     <select id="countByQuestionId" resultType="int">

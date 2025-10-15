@@ -42,4 +42,9 @@
         SELECT * FROM courses
     </select>
 
+
+    <select id="countGradedSubmissions" resultType="int">
+        SELECT COUNT(*) FROM scores WHERE score IS NOT NULL
+    </select>
+
 </mapper>

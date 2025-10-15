@@ -11,6 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class UserService {
     @Autowired
@@ -77,6 +79,10 @@ public class UserService {
         // 3. Gắn username vào hồ sơ
         profile.setUsername(user.getUsername());
         studentProfileMapper.insertStudentProfile(profile);
+    }
+
+    public List<UserDTO> findAllStudents() {
+        return userMapper.findUsersByRole("STUDENT");
     }
 
 

@@ -17,6 +17,8 @@ public interface ScoreMapper {
     void createScore(Score score);
     void updateScore(Score score);
 
+    int countGradedSubmissions();
+
 
 
 

@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard</title>
+    <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}" />
+    <script th:src="@{/js/bootstrap.bundle.min.js}"></script>
+    <style>
+        body {
+            display: flex;
+        }
+        .sidebar {
+            width: 220px;
+            min-height: 100vh;
+        }
+        .main-content {
+            flex-grow: 1;
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Sidebar -->
+<div class="sidebar" th:insert="fragments/sidebar :: sidebar"></div>
+
+<div class="main-content">
+    <!-- Navbar -->
+    <div th:insert="fragments/navbar :: navbar"></div>
+
+    <!-- Nội dung chính -->
+    <div class="container-fluid mt-4">
+        <h2> Dashboard</h2>
+        <p>Chào mừng bạn đến với hệ thống quản lý học viên.</p>
+
+        <div class="row mt-4">
+            <div class="col-md-4">
+                <div class="card border-primary">
+                    <div class="card-body">
+                        <h5 class="card-title"> Tổng số học viên</h5>
+                        <p class="card-text fs-4 text-primary">120</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card border-success">
+                    <div class="card-body">
+                        <h5 class="card-title"> Số đề kiểm tra</h5>
+                        <p class="card-text fs-4 text-success">35</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card border-warning">
+                    <div class="card-body">
+                        <h5 class="card-title"> Bài làm đã chấm</h5>
+                        <p class="card-text fs-4 text-warning">87</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div th:insert="fragments/footer :: footer"></div>
+</div>
+
+</body>
+</html>

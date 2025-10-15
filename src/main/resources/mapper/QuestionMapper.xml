@@ -61,7 +61,7 @@
     </select>
 
     <select id="findQuestionsByTestId" resultType="org.example.student_testing.test.dto.QuestionDTO">
-        SELECT DISTINCT q.question_id AS questionId,
+        SELECT q.question_id AS questionId,
                q.content,
                q.option_a AS optionA,
                q.option_b AS optionB,
@@ -70,12 +70,12 @@
                q.correct_option AS correctOption,
                q.difficulty_id AS difficultyId,
                q.topic_id AS topicId,
-               q.created_by AS createdBy,
-               q.created_at AS createdAt
-        FROM questions q
-                 JOIN test_questions tq ON q.question_id = tq.question_id
+               t.topic_name AS topicName
+        FROM test_questions tq
+                 JOIN questions q ON tq.question_id = q.question_id
+                 JOIN topics t ON q.topic_id = t.topic_id
         WHERE tq.test_id = #{testId}
-        ORDER BY q.created_at DESC
+        ORDER BY tq.order_no
     </select>
 
     <select id="getCorrectOption" resultType="String">
@@ -122,6 +122,62 @@
         )
         ORDER BY RANDOM()
             LIMIT 1
+    </select>
+
+
+    <select id="randomQuestionsByTopicAndDifficulty" resultType="org.example.student_testing.test.dto.QuestionDTO">
+        SELECT q.question_id AS questionId,
+               q.content,
+               q.option_a AS optionA,
+               q.option_b AS optionB,
+               q.option_c AS optionC,
+               q.option_d AS optionD,
+               q.correct_option AS correctOption,
+               q.difficulty_id AS difficultyId,
+               q.topic_id AS topicId,
+               t.topic_name AS topicName
+        FROM questions q
+                 JOIN topics t ON q.topic_id = t.topic_id
+        WHERE q.topic_id = #{topicId}
+          AND q.difficulty_id = #{difficultyId}
+        ORDER BY RANDOM()
+            LIMIT #{limit}
+    </select>
+
+    <select id="getQuestionsByTestIdAndStudent" resultType="org.example.student_testing.test.dto.QuestionDTO">
+        SELECT q.question_id AS questionId,
+               q.content,
+               q.option_a AS optionA,
+               q.option_b AS optionB,
+               q.option_c AS optionC,
+               q.option_d AS optionD,
+               q.correct_option AS correctOption,
+               q.difficulty_id AS difficultyId,
+               q.topic_id AS topicId,
+               t.topic_name AS topicName
+        FROM test_questions tq
+                 JOIN questions q ON tq.question_id = q.question_id
+                 JOIN topics t ON q.topic_id = t.topic_id
+        WHERE tq.test_id = #{testId}
+          AND tq.student_username = #{studentUsername}
+        ORDER BY tq.order_no
+    </select>
+
+
+
+
+
+    <select id="findQuestionIdsByTestId" resultType="int">
+        SELECT question_id FROM test_questions WHERE test_id = #{testId}
+    </select>
+
+    <select id="findCorrectOptionByQuestionId" resultType="string">
+        SELECT correct_option FROM questions WHERE question_id = #{questionId}
+    </select>
+
+    <select id="findSelectedOption" resultType="string">
+        SELECT selected_option FROM student_answers
+        WHERE test_id = #{testId} AND student_username = #{studentUsername} AND question_id = #{questionId}
     </select>
 
 

@@ -12,9 +12,10 @@ public class TestResultDTO {
     private Integer id;
     private Integer testId;
     private String studentUsername;
-    private Integer score;
-    private BigDecimal percentile;
-    private Long rankId;
+        private Double score;
+    private Double percentile;
+
+    private String  rankCode;
     private LocalDateTime completedAt;
 
 }

@@ -29,4 +29,6 @@ public interface UserMapper {
 
     void insertUserRole(@Param("username") String username, @Param("role") String role);
 
+    List<UserDTO> findUsersByRole(@Param("role") String role);
+
 }

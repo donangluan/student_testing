@@ -46,4 +46,10 @@
     <insert id="insertUserRole">
         insert into user_roles(username, role) values(#{username}, #{role})
     </insert>
+
+    <select id="findUsersByRole" resultType="org.example.student_testing.student.dto.UserDTO">
+        SELECT username, full_name, email, role
+        FROM users
+        WHERE role = #{role}
+    </select>
 </mapper>

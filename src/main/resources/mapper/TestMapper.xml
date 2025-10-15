@@ -47,4 +47,19 @@
         ORDER BY created_at DESC
     </select>
 
+    <select id="countAllTests" resultType="int">
+        SELECT COUNT(*) FROM tests
+    </select>
+
+
+    <select id="findTestsAssignedToStudent" resultType="org.example.student_testing.test.dto.TestDTO">
+        SELECT t.* FROM tests t
+                            JOIN test_assignments  ta ON ta.test_id = t.test_id
+        WHERE ta.student_username = #{studentUsername}
+    </select>
+
+    <select id="findResultsByStudent" resultType="org.example.student_testing.test.dto.TestResultDTO">
+        SELECT * FROM test_results WHERE student_username = #{studentUsername}
+    </select>
+
 </mapper>

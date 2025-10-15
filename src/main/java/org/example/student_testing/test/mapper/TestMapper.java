@@ -4,6 +4,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.example.student_testing.test.dto.TestAssignmentDTO;
 import org.example.student_testing.test.dto.TestDTO;
 import org.example.student_testing.test.dto.TestQuestionDTO;
+import org.example.student_testing.test.dto.TestResultDTO;
 
 
 import java.util.List;
@@ -18,6 +19,13 @@ public interface TestMapper {
     void insertTestQuestion(TestQuestionDTO testQuestion);
 
     List<TestDTO> findAllTests();
+
+
+    int countAllTests();
+
+    List<TestDTO> findTestsAssignedToStudent(String studentUsername);
+
+    List<TestResultDTO> findResultsByStudent(String studentUsername);
 
 
 }

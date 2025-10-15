@@ -10,4 +10,6 @@ public class DifficultyLevelDTO {
     private String levelCode;
 
     private Integer pointValue;
+
+    private String description;
 }

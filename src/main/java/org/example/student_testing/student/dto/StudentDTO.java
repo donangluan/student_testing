@@ -36,6 +36,8 @@ public class StudentDTO {
 
     private String courseName;
 
+    private String username;
+
 
 
 }

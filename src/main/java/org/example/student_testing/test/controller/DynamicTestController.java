@@ -4,10 +4,10 @@ import lombok.RequiredArgsConstructor;
 
 import org.example.student_testing.test.dto.AnswerResultDTO;
 import org.example.student_testing.test.dto.DynamicAnswerDTO;
-import org.example.student_testing.test.dto.ResultDTO;
+import org.example.student_testing.test.dto.TestResultDTO;
 import org.example.student_testing.test.entity.Question;
 import org.example.student_testing.test.service.DynamicTestService;
-import org.example.student_testing.test.service.ResultService;
+import org.example.student_testing.test.service.TestResultService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -19,11 +19,11 @@ import java.util.List;
 @Controller
 @RequestMapping("/student/dynamic")
 @RequiredArgsConstructor
-public class DymanicTestController {
+public class DynamicTestController {
 
     private final DynamicTestService service;
 
-    private final ResultService resultService;
+    private final TestResultService testResultService;
 
 
     @GetMapping("/do-test")
@@ -33,7 +33,7 @@ public class DymanicTestController {
                         @RequestParam String testType,
                         Model model) {
 
-        if (resultService.hasSubmitted(testId, studentUsername)) {
+        if (testResultService.hasSubmitted(testId, studentUsername)) {
             model.addAttribute("error", "Bạn đã hoàn thành bài kiểm tra này.");
             return "test/dynamic/finish";
         }
@@ -112,18 +112,18 @@ public class DymanicTestController {
                 .count();
 
         double score = answers.isEmpty() ? 0 : (correctCount * 10.0) / answers.size();
-        double percentile = resultService.calculatePercentile(testId, score);
-        String rank = resultService.getRank(score);
+        double percentile = testResultService.calculatePercentile(testId, score);
+        String rank = testResultService.getRankCode(score);
 
-        if (!resultService.hasSubmitted(testId, studentUsername)) {
-            ResultDTO result = new ResultDTO();
+        if (!testResultService.hasSubmitted(testId, studentUsername)) {
+            TestResultDTO result = new TestResultDTO();
             result.setTestId(testId);
             result.setStudentUsername(studentUsername);
             result.setScore(score);
             result.setPercentile(percentile);
-            result.setRank(rank);
-            result.setSubmittedAt(LocalDateTime.now());
-            resultService.save(result);
+            result.setRankCode(rank);
+            result.setCompletedAt(LocalDateTime.now());
+            testResultService.save(result);
         }
 
         model.addAttribute("answers", answers);

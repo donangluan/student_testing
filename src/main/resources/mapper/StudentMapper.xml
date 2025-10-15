@@ -138,10 +138,18 @@
 
 
     <select id="getStudentDTOList" resultType="org.example.student_testing.student.dto.StudentDTO">
-        SELECT s.student_id AS studentId, s.full_name AS fullName, s.dob, s.gender, s.email,
-               c.course_name AS courseName, s.status
+        SELECT s.student_id AS studentId,
+               s.full_name AS fullName,
+               s.dob,
+               s.gender,
+               s.email,
+               s.course_id AS courseId,
+               s.status,
+               c.course_name AS courseName,
+               u.username AS username
         FROM students s
                  JOIN courses c ON s.course_id = c.course_id
+                 JOIN users u ON s.email = u.email
         ORDER BY s.student_id
     </select>
 </mapper>

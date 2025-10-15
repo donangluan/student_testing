@@ -9,41 +9,42 @@
 
 
     <!-- ✅ Chỉ ADMIN được thêm điểm -->
-    <div sec:authorize="hasRole('ADMIN')">
-        <a th:href="@{/score/add}">ADD Score</a>
+    <div th:replace="layout :: content">
+        <h2>📈 Danh sách điểm</h2>
+
+        <!-- ✅ Chỉ ADMIN được thêm điểm -->
+        <div sec:authorize="hasRole('ADMIN')">
+            <a th:href="@{/score/add}" class="btn btn-primary mb-3">➕ Thêm điểm</a>
+        </div>
+
+        <table class="table table-bordered">
+            <thead>
+            <tr>
+                <th>ScoreId</th>
+                <th>Học viên</th>
+                <th>Khóa học</th>
+                <th>Môn học</th>
+                <th>Điểm</th>
+                <th>Hành động</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="s : ${score}">
+                <td th:text="${s.scoreId}"></td>
+                <td th:text="${s.studentName}"></td>
+                <td th:text="${s.courseName}"></td>
+                <td th:text="${s.subject}"></td>
+                <td th:text="${s.score}"></td>
+                <td>
+                    <!-- ✅ ADMIN và GIẢNG VIÊN được sửa -->
+                    <a th:href="@{'/score/edit/' + ${s.scoreId}}" sec:authorize="hasAnyRole('ADMIN', 'TEACHER')" class="btn btn-warning btn-sm">Sửa</a>
+
+                    <!-- ✅ Chỉ ADMIN được xóa -->
+                    <a th:href="@{'/score/delete/' + ${s.scoreId}}" sec:authorize="hasRole('ADMIN')" class="btn btn-danger btn-sm">Xóa</a>
+                </td>
+            </tr>
+            </tbody>
+        </table>
     </div>
-
-        <table class="table" border="1">
-    <thead>
-    <tr>
-        <th>ScoreId</th>
-        <th>StudentId</th>
-        <th>CourseId</th>
-        <th>Subject</th>
-        <th>Score</th>
-        <th>Action</th>
-    </tr>
-    </thead>
-
-    <tbody>
-        <tr th:each="s : ${score}">
-            <td th:text="${s.scoreId}"></td>
-            <td th:text="${s.studentName}"></td>
-            <td th:text="${s.courseName}"></td>
-            <td th:text="${s.subject}"></td>
-            <td th:text="${s.score}"></td>
-            <td>
-            <td>
-                <!-- ✅ ADMIN và GIẢNG VIÊN được sửa -->
-                <a th:href="@{'/score/edit/' + ${s.scoreId}}" sec:authorize="hasAnyRole('ADMIN', 'TEACHER')">Update</a>
-
-                <!-- ✅ Chỉ ADMIN được xóa -->
-                <a th:href="@{'/score/delete/' + ${s.scoreId}}" sec:authorize="hasRole('ADMIN')">Delete</a>
-            </td>
-            </td>
-        </tr>
-    </tbody>
-
-</table>
 </body>
 </html>

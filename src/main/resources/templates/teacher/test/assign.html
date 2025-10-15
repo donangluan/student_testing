@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Gán câu hỏi</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="container mt-5">
+<h2 class="mb-4">Gán câu hỏi cho học sinh</h2>
+
+<form method="post" th:action="@{/teacher/tests/assign}">
+    <input type="hidden" name="testId" th:value="${testId}" />
+    <div class="mb-3">
+        <label for="studentUsername" class="form-label">Tên học sinh</label>
+        <input type="text" class="form-control" id="studentUsername" name="studentUsername" th:value="${studentUsername}" required />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Chọn câu hỏi</label>
+        <div th:each="q : ${questions}" class="form-check">
+            <input class="form-check-input" type="checkbox" name="questionIds" th:value="${q.topicId}" />
+            <label class="form-check-label" th:text="${q.content}"></label>
+        </div>
+    </div>
+
+    <button type="submit" class="btn btn-success">Gán câu hỏi</button>
+</form>
+</body>

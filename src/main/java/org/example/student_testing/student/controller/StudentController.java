@@ -35,6 +35,8 @@ public class StudentController {
 
     @Autowired
     private EmailService emailService;
+
+
     @PreAuthorize("hasAnyRole('ADMIN','TEACHER')")
     @GetMapping("/list")
     public String listStudent(@RequestParam(defaultValue = "1") int page,
@@ -43,7 +45,7 @@ public class StudentController {
         List<StudentDTO> dto = studentService.getStudentDTOListPaged(page, size);
         int total = studentService.countTotalStudents();
         int totalPages = (int) Math.ceil((double) total / size);
-
+        System.out.println("DTO size: " + dto.size());
         model.addAttribute("dto", dto);
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", totalPages);
