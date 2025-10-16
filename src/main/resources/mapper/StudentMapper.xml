@@ -23,8 +23,8 @@
 
 
     <insert id="insertStudent" parameterType="org.example.student_testing.student.entity.Student">
-        insert into students(student_id, full_name, dob, gender,email, course_id, status)
-        values(#{studentId},#{fullName},#{dob},#{gender},#{email},#{courseId},#{status})
+        insert into students(student_id, full_name, dob, gender,email, course_id, status,username)
+        values(#{studentId},#{fullName},#{dob},#{gender},#{email},#{courseId},#{status},#{username})
     </insert>
 
     <delete id="deleteStudent" parameterType="String">
@@ -149,7 +149,7 @@
                u.username AS username
         FROM students s
                  JOIN courses c ON s.course_id = c.course_id
-                 JOIN users u ON s.email = u.email
+                LEFT JOIN users u ON s.email = u.email
         ORDER BY s.student_id
     </select>
 </mapper>

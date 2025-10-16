@@ -32,10 +32,11 @@ public class SecurityConfig {
         http
                 .authorizeHttpRequests(auth -> auth
                         // Public routes
-                        .requestMatchers("/login", "/register", "/verify-otp", "/css/**", "/js/**").permitAll()
+                        .requestMatchers("/login", "/register/**", "/css/**", "/js/**").permitAll()
+
 
                         // Student routes
-                        .requestMatchers("/student/**").hasRole("STUDENT")
+                        .requestMatchers("/student/**").hasAnyRole("TEACHER", "ADMIN","STUDENT")
                         // Teacher routes
                         .requestMatchers("/teacher/**").hasRole("TEACHER")
 

@@ -40,4 +40,9 @@ public interface DynamicTestMapper {
 
 
     int getTotalQuestions(@Param("testId") int testId);
+
+
+    int countAssignedQuestions(@Param("testId") int testId);
+
+    List<Integer> getTopicIdsInTest(@Param("testId") int testId);
 }

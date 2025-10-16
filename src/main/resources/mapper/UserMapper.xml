@@ -18,8 +18,8 @@
     </select>
 
     <insert id="insertUser" parameterType="org.example.student_testing.student.entity.User">
-        INSERT INTO users (username, password, full_name, email)
-        VALUES (#{username}, #{password}, #{fullName}, #{email})
+        INSERT INTO users (username, password, full_name, email, role_code, created_at, updated_at)
+        VALUES (#{username}, #{password}, #{fullName}, #{email},#{roleCode}, CURRENT_TIMESTAMP,current_timestamp)
     </insert>
 
     <insert id="assignRoles" >
@@ -48,8 +48,8 @@
     </insert>
 
     <select id="findUsersByRole" resultType="org.example.student_testing.student.dto.UserDTO">
-        SELECT username, full_name, email, role
+        SELECT username, full_name as fullName, email, role_code as roleCode
         FROM users
-        WHERE role = #{role}
+        WHERE role_code = #{roleCode}
     </select>
 </mapper>

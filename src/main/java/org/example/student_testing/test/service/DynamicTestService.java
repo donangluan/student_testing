@@ -68,8 +68,9 @@ public class DynamicTestService {
     }
 
     public boolean isFinished(int testId, String studentUsername) {
-        int totalRequired = mapper.getTotalQuestions(testId);
+        int totalRequired = mapper.countAssignedQuestions(testId);
         int answered = mapper.countAnswers(testId, studentUsername);
+        System.out.println("Đã làm: " + answered + " / Tổng cần làm: " + totalRequired);
         return answered >= totalRequired;
     }
 
@@ -89,5 +90,48 @@ public class DynamicTestService {
         return mapper.countAnswers(testId, studentUsername);
     }
 
+    public int getRequiredQuestionCount(int testId, String testType) {
+        if ("Unique".equalsIgnoreCase(testType)) {
+            return mapper.countAssignedQuestions(testId);
+        } else {
+            return mapper.getTotalQuestions(testId);
+        }
+    }
+
+
+    public Question getNextQuestionMixedByDifficulty(int difficulty, String studentUsername, int testId) {
+        List<Integer> answeredIds = mapper.getAnsweredQuestionIds(testId, studentUsername);
+        List<Integer> topicIds = mapper.getTopicIdsInTest(testId); // ví dụ: [1,2,3]
+
+        // Ưu tiên độ khó hiện tại
+        for (Integer topicId : topicIds) {
+            List<Question> pool = mapper.getQuestionsByDifficultyAndTopic(difficulty, topicId);
+            for (Question q : pool) {
+                if (!answeredIds.contains(q.getQuestionId())) return q;
+            }
+        }
+
+        // Fallback xuống độ khó thấp hơn
+        for (int d = difficulty - 1; d >= 1; d--) {
+            for (Integer topicId : topicIds) {
+                List<Question> pool = mapper.getQuestionsByDifficultyAndTopic(d, topicId);
+                for (Question q : pool) {
+                    if (!answeredIds.contains(q.getQuestionId())) return q;
+                }
+            }
+        }
+
+        // Fallback lên độ khó cao hơn
+        for (int d = difficulty + 1; d <= 5; d++) {
+            for (Integer topicId : topicIds) {
+                List<Question> pool = mapper.getQuestionsByDifficultyAndTopic(d, topicId);
+                for (Question q : pool) {
+                    if (!answeredIds.contains(q.getQuestionId())) return q;
+                }
+            }
+        }
+
+        return null;
+    }
 
 }

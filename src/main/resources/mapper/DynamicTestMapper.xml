@@ -94,4 +94,18 @@
         SELECT total_questions FROM tests WHERE test_id = #{testId}
     </select>
 
+
+    <select id="countAssignedQuestions" resultType="int">
+        SELECT COUNT(*) FROM test_questions WHERE test_id = #{testId}
+    </select>
+
+
+    <select id="getTopicIdsInTest" resultType="int">
+        SELECT DISTINCT q.topic_id
+        FROM test_questions tq
+                 JOIN questions q ON tq.question_id = q.question_id
+        WHERE tq.test_id = #{testId}
+    </select>
+
+
 </mapper>

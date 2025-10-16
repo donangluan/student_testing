@@ -46,6 +46,7 @@ public class StudentService {
         studentDTO.setEmail(student.getEmail());
         studentDTO.setCourseId(student.getCourseId());
         studentDTO.setStatus(student.getStatus());
+        studentDTO.setUsername(student.getUsername());
         return studentDTO;
     }
 
@@ -58,10 +59,15 @@ public class StudentService {
         student.setEmail(studentDTO.getEmail());
         student.setCourseId(studentDTO.getCourseId());
         student.setStatus(studentDTO.getStatus());
+        student.setUsername(studentDTO.getUsername());
         return student;
     }
 
     public void createStudent(StudentDTO studentDTO) throws MessagingException {
+        if (studentDTO.getUsername() == null || studentDTO.getUsername().isBlank()) {
+            throw new IllegalArgumentException("Username không được để trống.");
+        }
+
         Student student= toEntity(studentDTO);
         studentMapper.insertStudent(student);
 

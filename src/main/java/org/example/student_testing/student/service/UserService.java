@@ -33,33 +33,34 @@ public class UserService {
     }
 
     public void register(UserDTO userDTO) {
-        // 1. Kiểm tra username
+
         if (userMapper.existsByUsername(userDTO.getUsername())) {
             throw new IllegalArgumentException("Username đã tồn tại");
         }
 
-        // 2. Tạo tài khoản
+
         User user = new User();
         user.setUsername(userDTO.getUsername());
         user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
         user.setFullName(userDTO.getFullName());
         user.setEmail(userDTO.getEmail());
+        user.setRoleCode(userDTO.getRoleCode());
         userMapper.insertUser(user);
 
         // 3. Gán quyền vào bảng trung gian
-        Integer roleId = roleMapper.findRoleIdByName(userDTO.getRoleName());
+        Integer roleId = roleMapper.findRoleIdByName(userDTO.getRoleCode());
         if (roleId == null) {
-            throw new IllegalArgumentException("Vai trò không hợp lệ: " + userDTO.getRoleName());
+            throw new IllegalArgumentException("Vai trò không hợp lệ: " + userDTO.getRoleCode());
         }
 
         // Nếu dùng bảng roleId → dùng dòng này
         userMapper.assignRoles(userDTO.getUsername(), roleId);
 
         // Nếu dùng bảng roleName → dùng dòng này
-        userMapper.insertUserRole(userDTO.getUsername(), "ROLE_" + userDTO.getRoleName());
+        userMapper.insertUserRole(userDTO.getUsername(), "ROLE_" + userDTO.getRoleCode());
 
         // 4. Nếu là học viên → tạo hồ sơ
-        if ("STUDENT".equalsIgnoreCase(userDTO.getRoleName())) {
+        if ("STUDENT".equalsIgnoreCase(userDTO.getRoleCode())) {
             StudentProfile profile = new StudentProfile();
             profile.setStudentId(userDTO.getUsername()); // hoặc sinh mã riêng
             profile.setUsername(userDTO.getUsername());

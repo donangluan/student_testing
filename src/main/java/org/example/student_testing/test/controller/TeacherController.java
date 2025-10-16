@@ -33,8 +33,9 @@ public class TeacherController {
 
 
     @GetMapping
-    public String showTestList(Model model) {
+    public String showTestList(@AuthenticationPrincipal UserDetails userDetails,Model model) {
         model.addAttribute("tests", testService.findAll());
+        model.addAttribute("studentUsername", userDetails.getUsername());
         return "teacher/test/list";
     }
 
@@ -72,12 +73,17 @@ public class TeacherController {
     public String showMixedTopicForm(Model model) {
         model.addAttribute("mixedTestDTO", new MixedTopicTestDTO());
         model.addAttribute("topics", topicService.findAll());
+        model.addAttribute("students", studentService.getStudentDTOList());
         return "teacher/test/create-mixed";
     }
 
     @PostMapping("/create-mixed")
-    public String createMixedTopicTest(@ModelAttribute MixedTopicTestDTO mixedTestDTO) {
-        testService.createMixedTopicTest(mixedTestDTO);
+    public String createMixedTopicTest(@ModelAttribute MixedTopicTestDTO mixedTestDTO,
+                                       @RequestParam List<String> studentUsernames,
+                                       @AuthenticationPrincipal UserDetails userDetails
+                                       ) {
+        mixedTestDTO.setCreatedBy(userDetails.getUsername());
+        testService.createMixedTopicTest(mixedTestDTO, studentUsernames);
         return "redirect:/teacher/tests";
     }
 
@@ -88,7 +94,7 @@ public class TeacherController {
                                ) {
 
         request.setCreatedBy(userDetails.getUsername());
-        request.setTestType("UNIQUE");
+        request.setTestType("Unique");
 
         if (request.getStudentUsername() == null || request.getStudentUsername().isEmpty()) {
             throw new IllegalArgumentException("Phải chọn ít nhất một học sinh để gán đề.");

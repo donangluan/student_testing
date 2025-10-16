@@ -35,7 +35,7 @@ public class StudentDTO {
     private String status;
 
     private String courseName;
-
+    @NotBlank(message = "Username không được để trống")
     private String username;
 
 

@@ -87,4 +87,20 @@ public class QuestionService {
     public List<QuestionDTO> getQuestionsByTestIdAndStudent(Integer testId, String username) {
         return questionMapper.getQuestionsByTestIdAndStudent(testId, username);
     }
+
+    public Question toEntity(QuestionDTO dto) {
+        Question q = new Question();
+        q.setQuestionId(dto.getQuestionId());
+        q.setContent(dto.getContent());
+        q.setOptionA(dto.getOptionA());
+        q.setOptionB(dto.getOptionB());
+        q.setOptionC(dto.getOptionC());
+        q.setOptionD(dto.getOptionD());
+        q.setCorrectOption(dto.getCorrectOption());
+        q.setDifficultyId(dto.getDifficultyId());
+        q.setTopicId(dto.getTopicId());
+        q.setCreatedBy(dto.getCreatedBy());
+        q.setCreatedAt(dto.getCreatedAt());
+        return q;
+    }
 }

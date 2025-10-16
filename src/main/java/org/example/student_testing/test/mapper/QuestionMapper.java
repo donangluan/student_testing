@@ -25,7 +25,7 @@ public interface QuestionMapper {
     List<QuestionDTO> findQuestionsByTestId(@Param("testId")Integer testId);
     String getCorrectOption(Integer questionId);
 
-    List<Question> findRandomQuestionsByTopic(@Param("topicId") Integer topicId, @Param("count") Integer count);
+    List<QuestionDTO> findRandomQuestionsByTopic(@Param("topicId") Integer topicId, @Param("count") Integer count);
 
 
 

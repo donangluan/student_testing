@@ -52,7 +52,13 @@
                         <option th:each="c : ${courses}" th:value="${c.courseId}" th:text="${c.courseName}"></option>
                     </select>
                 </div>
-
+                <div class="mb-3">
+                    <label class="form-label">Tên đăng nhập</label>
+                    <input type="text" class="form-control"  th:field="*{username}" placeholder="username" required />
+                    <div class="text-danger" th:if="${#fields.hasErrors('username')}">
+                        <span th:text="${#fields.errors('username')[0]}"></span>
+                    </div>
+                </div>
                 <div class="mb-3">
                     <label class="form-label">Trạng thái</label>
                     <select th:field="*{status}" class="form-select">

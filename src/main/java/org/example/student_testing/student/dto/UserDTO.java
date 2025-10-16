@@ -5,6 +5,8 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 
+import java.time.LocalDateTime;
+
 @Data
 public class UserDTO {
     @NotBlank(message = "Username không được để trống")
@@ -23,6 +25,11 @@ public class UserDTO {
     @Email(message = "Email không hợp lệ")
     private String email;
 
-    private String roleName;
+
+
+    private String roleCode;
+
+    private LocalDateTime createdAt;
+    private LocalDateTime  updatedAt;
 
 }

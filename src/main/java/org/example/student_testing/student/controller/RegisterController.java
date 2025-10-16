@@ -35,13 +35,14 @@ public class RegisterController {
 
     @PostMapping("/request-otp")
     public String requestOtp (@Valid @ModelAttribute("userDTO") UserDTO userDTO,
-                              BindingResult bindingResult,Model model){
+                              BindingResult bindingResult,
+                              RedirectAttributes redirectAttributes){
         if (bindingResult.hasErrors()) {
             return "student/register";
         }
         String otp = otpService.generateOtp(userDTO.getEmail());
         emailService.sendOtp(userDTO.getEmail(), otp);
-        model.addAttribute("userDTO", userDTO);
+        redirectAttributes.addFlashAttribute("userDTO", userDTO);
         return "student/verify-otp";
     }
 
@@ -72,5 +73,13 @@ public class RegisterController {
                 return "student/verify-otp";
             }
 
+    }
+
+    @GetMapping("/verify-otp")
+    public String showVerifyOtpPage(@ModelAttribute("userDTO") UserDTO userDTO, Model model) {
+        if (!model.containsAttribute("userDTO")) {
+            model.addAttribute("userDTO", new UserDTO());
+        }
+        return "student/verify-otp";
     }
 }

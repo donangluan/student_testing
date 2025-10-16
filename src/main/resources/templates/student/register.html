@@ -46,15 +46,18 @@
 
                         <div class="mb-3">
                             <label class="form-label">Vai trò</label>
-                            <select th:field="*{roleName}" class="form-select" required>
+                            <select th:field="*{roleCode}" class="form-select" required>
                                 <option value="">-- Chọn vai trò --</option>
                                 <option value="STUDENT">Học viên</option>
                                 <option value="TEACHER">Giảng viên</option>
                             </select>
-                            <div class="text-danger" th:if="${#fields.hasErrors('roleName')}">
-                                <span th:text="${#fields.errors('roleName')[0]}"></span>
+                            <div class="text-danger" th:if="${#fields.hasErrors('roleCode')}">
+                                <span th:text="${#fields.errors('roleCode')[0]}"></span>
                             </div>
                         </div>
+
+
+
                         <div class="d-grid">
                             <button type="submit" class="btn btn-success">Gửi mã OTP</button>
                         </div>

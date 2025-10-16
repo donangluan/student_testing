@@ -26,6 +26,13 @@ public class DynamicTestController {
     private final TestResultService testResultService;
 
 
+
+
+
+
+
+
+
     @GetMapping("/do-test")
     public String start(@RequestParam Integer testId,
                         @RequestParam String studentUsername,
@@ -40,7 +47,7 @@ public class DynamicTestController {
 
         int currentDifficulty = 2;
         Question question = "Mixed".equalsIgnoreCase(testType)
-                ? service.getNextQuestionMixed(currentDifficulty, studentUsername, testId)
+                ? service.getNextQuestionMixedByDifficulty(currentDifficulty, studentUsername, testId)
                 : service.getNextQuestion(currentDifficulty, studentUsername, testId, topicId);
 
         if (question == null) {
@@ -49,7 +56,7 @@ public class DynamicTestController {
         }
 
         int answeredCount = service.getAnsweredCount(testId, studentUsername);
-        int totalQuestions = service.getTotalQuestions(testId);
+        int totalQuestions = service.getRequiredQuestionCount(testId, testType);
 
         model.addAttribute("question", question);
         model.addAttribute("testId", testId);
@@ -73,7 +80,7 @@ public class DynamicTestController {
         boolean finished = service.isFinished(dto.getTestId(), dto.getStudentUsername());
 
         Question next = "Mixed".equalsIgnoreCase(dto.getTestType())
-                ? service.getNextQuestionMixed(nextDifficulty, dto.getStudentUsername(), dto.getTestId())
+                ? service.getNextQuestionMixedByDifficulty(nextDifficulty, dto.getStudentUsername(), dto.getTestId())
                 : service.getNextQuestion(nextDifficulty, dto.getStudentUsername(), dto.getTestId(), dto.getTopicId());
 
         if (finished || next == null) {
@@ -85,7 +92,8 @@ public class DynamicTestController {
         }
 
         int answeredCount = service.getAnsweredCount(dto.getTestId(), dto.getStudentUsername());
-        int totalQuestions = service.getTotalQuestions(dto.getTestId());
+        int totalQuestions = service.getRequiredQuestionCount(dto.getTestId(), dto.getTestType());
+
 
         model.addAttribute("question", next);
         model.addAttribute("testId", dto.getTestId());

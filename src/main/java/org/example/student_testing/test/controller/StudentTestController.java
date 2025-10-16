@@ -35,8 +35,16 @@ public class StudentTestController {
 
     @GetMapping("/tests")
     public String showAvailableTests(@AuthenticationPrincipal UserDetails userDetails, Model model) {
-        List<TestDTO> tests = testService.findTestsForStudent(userDetails.getUsername());
+        String username = userDetails.getUsername();
+        List<TestDTO> tests = testService.findTestsForStudent(username);
+        Map<Integer, Boolean> testResultMap = new HashMap<>();
+        for (TestDTO test : tests) {
+            boolean submitted = testResultService.hasSubmitted(test.getTestId(), username);
+            testResultMap.put(test.getTestId(), submitted);
+        }
         model.addAttribute("tests", tests);
+        model.addAttribute("studentUsername", username);
+        model.addAttribute("testResultMap", testResultMap);// ✅ thêm dòng này
         return "test/student/list";
     }
 

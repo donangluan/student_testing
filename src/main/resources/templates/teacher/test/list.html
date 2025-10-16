@@ -7,9 +7,15 @@
 </head>
 <body class="container mt-5">
 <h2 class="mb-4">Danh sách bài kiểm tra</h2>
-
+<div class="text-end mt-4">
+    <form th:action="@{/logout}" method="post" class="d-inline">
+        <button type="submit" class="btn btn-sm btn-danger">Đăng xuất</button>
+    </form>
+</div>
 <a href="/teacher/tests/generate" class="btn btn-primary mb-3">Tạo bài kiểm tra mới</a>
 <a href="/teacher/tests/create-mixed" class="btn btn-outline-success mb-3 ms-2">Tạo bài kiểm tra nhiều chủ đề</a>
+<a href="/teacher/dashboard " class="btn btn-outline-success mb-3 ms-2">Trở về trang home</a>
+
 
 <table class="table table-bordered table-hover">
     <thead class="table-light">
@@ -27,15 +33,21 @@
     <tr th:each="test : ${tests}">
         <td th:text="${test.testId}">1</td>
         <td th:text="${test.testName}">Bài kiểm tra mẫu</td>
-        <td th:text="${test.testType == 'MIXED' ? 'Nhiều chủ đề' : 'Một chủ đề'}">Loại</td>
+        <td th:text="${test.testType == 'Mixed' ? 'Nhiều chủ đề' : 'Một chủ đề'}">Loại</td>
         <td th:text="${test.createdBy}">gv001</td>
         <td th:text="${#temporals.format(test.createdAt, 'dd/MM/yyyy HH:mm')}">08/10/2025 15:30</td>
         <td>
             <a th:href="@{'/teacher/tests/detail/' + ${test.testId}}" class="btn btn-outline-info btn-sm">Xem chi tiết</a>
             <a th:href="@{'/teacher/tests/assign'(testId=${test.testId})}" class="btn btn-outline-secondary btn-sm">Gán câu hỏi</a>
+
+
+
+
         </td>
     </tr>
     </tbody>
 </table>
+
+
 </body>
 </html>
