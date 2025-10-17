@@ -117,4 +117,8 @@ public class StudentService {
     public int countFilterStudent(String keyword, String status, String courseName) {
         return studentMapper.countFilterStudent(keyword, status, courseName);
     }
+
+    public List<StudentDTO> getStudentsForTeacher(String teacherUsername) {
+        return studentMapper.getStudentsByTeacherUsername(teacherUsername);
+    }
 }

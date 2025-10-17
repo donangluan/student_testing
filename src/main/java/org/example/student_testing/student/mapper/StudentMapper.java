@@ -49,6 +49,8 @@ public interface StudentMapper {
                            @Param("courseName") String courseName);
 
 
+    List<StudentDTO> getStudentsByTeacherUsername(@Param("teacherUsername") String teacherUsername);
+
 
 
 }

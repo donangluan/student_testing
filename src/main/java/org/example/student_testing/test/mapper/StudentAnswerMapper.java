@@ -15,4 +15,6 @@ public interface StudentAnswerMapper {
 
                                           @Param("studentUsername") String studentUsername );
     StudentAnswerDTO findAnswerById(Integer id);
+
+    List<StudentAnswerDTO> getTestsByTeacher(@Param("teacherUsername") String teacherUsername);
 }

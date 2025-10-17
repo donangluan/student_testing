@@ -4,10 +4,13 @@ import lombok.RequiredArgsConstructor;
 
 import org.example.student_testing.test.dto.AnswerResultDTO;
 import org.example.student_testing.test.dto.DynamicAnswerDTO;
+import org.example.student_testing.test.dto.QuestionDTO;
 import org.example.student_testing.test.dto.TestResultDTO;
 import org.example.student_testing.test.entity.Question;
 import org.example.student_testing.test.service.DynamicTestService;
+import org.example.student_testing.test.service.QuestionService;
 import org.example.student_testing.test.service.TestResultService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -25,6 +28,8 @@ public class DynamicTestController {
 
     private final TestResultService testResultService;
 
+    @Autowired
+    private QuestionService questionService;
 
 
 
@@ -142,6 +147,33 @@ public class DynamicTestController {
         model.addAttribute("totalCount", answers.size());
         model.addAttribute("testId", testId);
         return "test/dynamic/result";
+    }
+
+
+    @GetMapping("/dynamic/do")
+    public String showDynamicTest(@RequestParam Integer testId,
+                                  @RequestParam String studentUsername,
+                                  @RequestParam Integer questionIndex,
+                                  Model model) {
+
+        List<QuestionDTO> questions = questionService.getQuestionsByTestIdAndStudent(testId, studentUsername);
+
+        if (questionIndex >= questions.size()) {
+            return "redirect:/student/result?testId=" + testId + "&studentUsername=" + studentUsername;
+        }
+
+        QuestionDTO currentQuestion = questions.get(questionIndex);
+
+        model.addAttribute("question", currentQuestion);
+        model.addAttribute("options", List.of("A", "B", "C", "D"));
+        model.addAttribute("answeredCount", questionIndex);
+        model.addAttribute("totalQuestions", questions.size());
+        model.addAttribute("testId", testId);
+        model.addAttribute("studentUsername", studentUsername);
+        model.addAttribute("testType", "dynamic");
+        model.addAttribute("topicId", currentQuestion.getTopicId());
+
+        return "test/dynamic/do-test";
     }
 
 

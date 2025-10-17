@@ -152,4 +152,14 @@
                 LEFT JOIN users u ON s.email = u.email
         ORDER BY s.student_id
     </select>
+
+
+
+    <select id="getStudentsByTeacherUsername" resultType="org.example.student_testing.student.dto.StudentDTO">
+        SELECT sc.student_username AS username, u.full_name AS fullName
+        FROM student_class sc
+                 JOIN teacher_class tc ON sc.class_id = tc.class_id
+                 JOIN users u ON sc.student_username = u.username
+        WHERE tc.username = #{teacherUsername}
+    </select>
 </mapper>

@@ -17,7 +17,7 @@ public interface QuestionMapper {
     void update(Question Question);
     void delete(@Param("questionId") Integer questionId);
 
-    List<QuestionDTO> randomQuestionsByTopic(@Param("topicId") Integer topicId, @Param("limit") Integer limit);
+
 
 
 
@@ -33,9 +33,9 @@ public interface QuestionMapper {
                               @Param("studentUsername") String studentUsername,
                               @Param("testId") Integer testId);
 
-    List<QuestionDTO> randomQuestionsByTopicAndDifficulty(
+    List<QuestionDTO> randomQuestionsByTopic(
             @Param("topicId") Integer topicId,
-            @Param("difficultyId") Integer difficultyId,
+
             @Param("limit") Integer limit
     );
 

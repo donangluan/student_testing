@@ -13,6 +13,6 @@ public class UniqueTestRequest {
     private List<String> studentUsername;
     private Integer numberOfQuestions;
     private String createdBy;
-    private Integer difficultyId;
+
     private String testType;
 }

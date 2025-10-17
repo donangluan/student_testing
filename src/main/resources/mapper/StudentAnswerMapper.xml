@@ -18,4 +18,22 @@
         values (#{testId},#{studentUsername},#{questionId},#{selectedOption},#{answeredAt})
 
     </insert>
+
+
+
+    <select id="getTestsByTeacher" resultType="org.example.student_testing.test.dto.StudentAnswerDTO">
+        SELECT DISTINCT
+            sa.id AS id,
+            sa.test_id AS testId,
+            sa.student_username AS studentUsername,
+            sa.question_id AS questionId,
+            sa.selected_option AS selectedOption,
+            sa.answered_at AS answeredAt
+        FROM student_answers sa
+                 JOIN student_class sc ON sa.student_username = sc.student_username
+                 JOIN teacher_class tc ON sc.class_id = tc.class_id
+        WHERE tc.username = #{teacherUsername};
+
+    </select>
+
 </mapper>

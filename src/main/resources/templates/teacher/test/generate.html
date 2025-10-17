@@ -23,13 +23,6 @@
     </div>
 
     <div class="mb-3">
-        <label for="difficultyId" class="form-label">Độ khó</label>
-        <select class="form-select" id="difficultyId" name="difficultyId" required>
-            <option value="" disabled selected>-- Chọn độ khó --</option>
-            <option th:each="d : ${difficultyLevels}" th:value="${d.difficultyId}" th:text="${d.description}">Trung bình</option>
-        </select>
-    </div>
-    <div class="mb-3">
         <label class="form-label">Chọn học sinh</label>
         <div th:each="s : ${students}" class="form-check">
             <input class="form-check-input" type="checkbox" name="studentUsername[]" th:value="${s.username}" />

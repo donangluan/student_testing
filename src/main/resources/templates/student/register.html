@@ -45,12 +45,8 @@
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label">Vai trò</label>
-                            <select th:field="*{roleCode}" class="form-select" required>
-                                <option value="">-- Chọn vai trò --</option>
-                                <option value="STUDENT">Học viên</option>
-                                <option value="TEACHER">Giảng viên</option>
-                            </select>
+
+                            <input type="hidden" th:field="*{roleCode}" value="STUDENT" />
                             <div class="text-danger" th:if="${#fields.hasErrors('roleCode')}">
                                 <span th:text="${#fields.errors('roleCode')[0]}"></span>
                             </div>

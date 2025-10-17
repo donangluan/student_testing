@@ -36,10 +36,12 @@ public class RegisterController {
     @PostMapping("/request-otp")
     public String requestOtp (@Valid @ModelAttribute("userDTO") UserDTO userDTO,
                               BindingResult bindingResult,
-                              RedirectAttributes redirectAttributes){
+                              RedirectAttributes redirectAttributes,
+                              Model model){
         if (bindingResult.hasErrors()) {
             return "student/register";
         }
+
         String otp = otpService.generateOtp(userDTO.getEmail());
         emailService.sendOtp(userDTO.getEmail(), otp);
         redirectAttributes.addFlashAttribute("userDTO", userDTO);
@@ -59,6 +61,18 @@ public class RegisterController {
             return "student/register";
         }
 
+
+
+        if (userDTO.getRoleCode() == null || userDTO.getRoleCode().isBlank()) {
+            userDTO.setRoleCode("STUDENT");
+        }
+        // Kiểm tra lại roleCode để tránh lỗi từ service
+        if (!"STUDENT".equalsIgnoreCase(userDTO.getRoleCode())) {
+            bindingResult.rejectValue("roleCode", "invalid", "Chỉ học viên được phép đăng ký.");
+            model.addAttribute("userDTO", userDTO);
+            return "student/register";
+        }
+
             if(otpService.verifyOtp(userDTO.getEmail(), otp)){
                 userService.register(userDTO);
                 emailService.sendAccountInfo(userDTO.getEmail(), userDTO.getUsername(),userDTO.getPassword());
@@ -70,7 +84,7 @@ public class RegisterController {
                 model.addAttribute("userDTO", userDTO);
                 redirectAttributes.addFlashAttribute
                         ("errorMessage", "Mã otp không đúng");
-                return "student/verify-otp";
+                return "redirect:/register/verify-otp";
             }
 
     }

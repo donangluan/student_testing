@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.example.student_testing.test.mapper.TestSubmissionMapper">
+    <select id="getAllSubmissionsForTeacher" resultType="org.example.student_testing.test.dto.TestSubmissionDTO">
+        SELECT
+            sa.test_id AS testId,
+            t.test_name AS testName,
+            sc.student_username AS studentUsername,
+            CASE WHEN sa.student_username IS NOT NULL THEN TRUE ELSE FALSE END AS hasSubmitted,
+            COUNT(sa.question_id) AS totalAnswered,
+            SUM(CASE WHEN sa.selected_option = q.correct_option THEN 1 ELSE 0 END) AS correctCount,
+            MAX(sa.answered_at) AS lastAnswered
+        FROM student_class sc
+                 JOIN teacher_class tc ON sc.class_id = tc.class_id
+                 LEFT JOIN student_answers sa ON sa.student_username = sc.student_username
+                 LEFT JOIN questions q ON sa.question_id = q.question_id
+                 LEFT JOIN tests t ON sa.test_id = t.test_id
+        WHERE tc.username = #{teacherUsername}
+        GROUP BY sa.test_id, t.test_name, sc.student_username, sa.student_username
+        ORDER BY sa.test_id, sc.student_username
+    </select>
+</mapper>

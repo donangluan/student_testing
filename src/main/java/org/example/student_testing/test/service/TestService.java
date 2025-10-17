@@ -59,8 +59,8 @@ public class TestService {
 
 
 
-        List<QuestionDTO> selectedQuestions = questionMapper.randomQuestionsByTopicAndDifficulty(
-                request.getTopicId(), request.getDifficultyId(), request.getNumberOfQuestions()
+        List<QuestionDTO> selectedQuestions = questionMapper.randomQuestionsByTopic(
+                request.getTopicId(), request.getNumberOfQuestions()
 
         );
 
@@ -74,7 +74,7 @@ public class TestService {
         System.out.println(">> Selected questions: " + selectedQuestions.size());
 
         System.out.println(">> Topic ID: " + request.getTopicId());
-        System.out.println(">> Difficulty ID: " + request.getDifficultyId());
+
         System.out.println(">> Number of questions: " + request.getNumberOfQuestions());
         System.out.println(">> Selected questions: " + selectedQuestions.size());
 

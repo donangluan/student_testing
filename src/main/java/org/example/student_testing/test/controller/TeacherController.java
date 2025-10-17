@@ -4,6 +4,7 @@ import org.example.student_testing.student.service.StudentService;
 import org.example.student_testing.student.service.UserService;
 import org.example.student_testing.test.dto.MixedTopicTestDTO;
 import org.example.student_testing.test.dto.QuestionDTO;
+import org.example.student_testing.test.dto.TestSubmissionDTO;
 import org.example.student_testing.test.dto.UniqueTestRequest;
 import org.example.student_testing.test.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +32,9 @@ public class TeacherController {
     @Autowired private StudentService studentService;
     @Autowired private DifficultyService difficultyService;
 
+    @Autowired
+    private TestSubmissionService testSubmissionService;
+
 
     @GetMapping
     public String showTestList(@AuthenticationPrincipal UserDetails userDetails,Model model) {
@@ -57,7 +61,9 @@ public class TeacherController {
         model.addAttribute("questions", questionService.getAllQuestions());
         model.addAttribute("topics", topicService.findAllAsMap());
         model.addAttribute("testId", testId);
-        model.addAttribute("studentUsername", userDetails.getUsername());
+
+        // ✅ Chỉ lấy học sinh thuộc lớp của giáo viên
+        model.addAttribute("students", studentService.getStudentsForTeacher(userDetails.getUsername()));
         return "teacher/test/assign";
     }
 
@@ -70,10 +76,10 @@ public class TeacherController {
     }
 
     @GetMapping("/create-mixed")
-    public String showMixedTopicForm(Model model) {
+    public String showMixedTopicForm(@AuthenticationPrincipal UserDetails userDetails, Model model) {
         model.addAttribute("mixedTestDTO", new MixedTopicTestDTO());
         model.addAttribute("topics", topicService.findAll());
-        model.addAttribute("students", studentService.getStudentDTOList());
+        model.addAttribute("students", studentService.getStudentsForTeacher(userDetails.getUsername()));
         return "teacher/test/create-mixed";
     }
 
@@ -102,7 +108,7 @@ public class TeacherController {
 
 
         List<QuestionDTO> selectedQuestions = questionService.previewQuestions(
-                request.getTopicId(), request.getDifficultyId(), request.getNumberOfQuestions()
+                request.getTopicId(), request.getNumberOfQuestions()
         );
 
         if (selectedQuestions.size() < request.getNumberOfQuestions()) {
@@ -110,7 +116,7 @@ public class TeacherController {
             model.addAttribute("request", request);
             model.addAttribute("topics", topicService.findAll());
             model.addAttribute("difficultyLevels", difficultyService.findAll());
-            model.addAttribute("students", studentService.getStudentDTOList());
+            model.addAttribute("students", studentService.getStudentsForTeacher(userDetails.getUsername()));
             return "teacher/test/generate";
         }
         testService.generateUniqueTest(request,userDetails.getUsername());
@@ -118,12 +124,25 @@ public class TeacherController {
     }
 
     @GetMapping("/generate")
-    public String showGenerateForm(Model model) {
+    public String showGenerateForm(  @AuthenticationPrincipal UserDetails userDetails,Model model) {
         model.addAttribute("request", new UniqueTestRequest());
         model.addAttribute("topics", topicService.findAll());
         model.addAttribute("difficultyLevels", difficultyService.findAll());
-        model.addAttribute("students", studentService.getStudentDTOList());
+        model.addAttribute("students", studentService.getStudentsForTeacher(userDetails.getUsername()));
 
         return "teacher/test/generate";
+    }
+
+
+
+    @GetMapping("/submissions")
+    public String showTestSubmissions(
+                                      @AuthenticationPrincipal UserDetails userDetails,
+                                      Model model) {
+        String teacherUsername = userDetails.getUsername();
+        List<TestSubmissionDTO> submissions = testSubmissionService.getAllSubmissionsForTeacher(teacherUsername);
+        model.addAttribute("submissions", submissions);
+
+        return "teacher/test/submissions";
     }
 }

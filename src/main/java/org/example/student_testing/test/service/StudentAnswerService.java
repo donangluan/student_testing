@@ -31,4 +31,8 @@ public class StudentAnswerService {
             studentAnswerMapper.insertAnswer(dto);
         }
     }
+
+    public List<StudentAnswerDTO> getTestsByTeacher(String teacherUsername) {
+        return studentAnswerMapper.getTestsByTeacher(teacherUsername);
+    }
 }

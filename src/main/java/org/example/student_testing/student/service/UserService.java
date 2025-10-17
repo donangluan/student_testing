@@ -33,54 +33,43 @@ public class UserService {
     }
 
     public void register(UserDTO userDTO) {
-
         if (userMapper.existsByUsername(userDTO.getUsername())) {
             throw new IllegalArgumentException("Username đã tồn tại");
         }
 
+        // ✅ Nếu roleCode bị null hoặc sai → gán lại cho chắc chắn
+        if (userDTO.getRoleCode() == null || !"STUDENT".equalsIgnoreCase(userDTO.getRoleCode())) {
+            System.out.println("Cảnh báo: Vai trò không hợp lệ hoặc bị mất khi đăng ký. Đang gán lại là STUDENT.");
+            userDTO.setRoleCode("STUDENT");
+        }
 
+        // ✅ Tạo tài khoản người dùng
         User user = new User();
         user.setUsername(userDTO.getUsername());
         user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
         user.setFullName(userDTO.getFullName());
         user.setEmail(userDTO.getEmail());
-        user.setRoleCode(userDTO.getRoleCode());
+        user.setRoleCode("STUDENT"); // Gán cứng vai trò
         userMapper.insertUser(user);
 
-        // 3. Gán quyền vào bảng trung gian
-        Integer roleId = roleMapper.findRoleIdByName(userDTO.getRoleCode());
+        // ✅ Gán quyền ROLE_STUDENT
+        Integer roleId = roleMapper.findRoleIdByName("STUDENT");
         if (roleId == null) {
-            throw new IllegalArgumentException("Vai trò không hợp lệ: " + userDTO.getRoleCode());
+            throw new IllegalArgumentException("Vai trò không hợp lệ: STUDENT");
         }
-
-        // Nếu dùng bảng roleId → dùng dòng này
         userMapper.assignRoles(userDTO.getUsername(), roleId);
+        userMapper.insertUserRole(userDTO.getUsername(), "ROLE_STUDENT");
 
-        // Nếu dùng bảng roleName → dùng dòng này
-        userMapper.insertUserRole(userDTO.getUsername(), "ROLE_" + userDTO.getRoleCode());
-
-        // 4. Nếu là học viên → tạo hồ sơ
-        if ("STUDENT".equalsIgnoreCase(userDTO.getRoleCode())) {
-            StudentProfile profile = new StudentProfile();
-            profile.setStudentId(userDTO.getUsername()); // hoặc sinh mã riêng
-            profile.setUsername(userDTO.getUsername());
-            studentProfileMapper.insertStudentProfile(profile);
-        }
-    }
-
-
-    public void registerStudent(User user, StudentProfile profile) {
-        // 1. Tạo tài khoản
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
-        userMapper.insertUser(user);
-
-        // 2. Gán quyền vào bảng trung gian
-        userMapper.insertUserRole(user.getUsername(), "ROLE_STUDENT");
-
-        // 3. Gắn username vào hồ sơ
-        profile.setUsername(user.getUsername());
+        // ✅ Tạo hồ sơ học viên
+        StudentProfile profile = new StudentProfile();
+        profile.setStudentId(userDTO.getUsername());
+        profile.setUsername(userDTO.getUsername());
         studentProfileMapper.insertStudentProfile(profile);
     }
+
+
+
+
 
     public List<UserDTO> findAllStudents() {
         return userMapper.findUsersByRole("STUDENT");

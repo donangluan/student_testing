@@ -50,15 +50,7 @@
         WHERE question_id = #{questionId}
     </delete>
 
-    <select id="randomQuestionsByTopic" resultType="org.example.student_testing.test.dto.QuestionDTO">
-        SELECT question_id AS questionId, content AS content, option_a AS optionA, option_b AS optionB,
-               option_c AS optionC, option_d AS optionD, correct_option AS correctOption,
-               topic_id AS topicId, difficulty_id AS difficultyId
-        FROM questions
-        WHERE topic_id = #{topicId}
-        ORDER BY RANDOM()
-            LIMIT #{limit}
-    </select>
+
 
     <select id="findQuestionsByTestId" resultType="org.example.student_testing.test.dto.QuestionDTO">
         SELECT q.question_id AS questionId,
@@ -125,7 +117,7 @@
     </select>
 
 
-    <select id="randomQuestionsByTopicAndDifficulty" resultType="org.example.student_testing.test.dto.QuestionDTO">
+    <select id="randomQuestionsByTopic" resultType="org.example.student_testing.test.dto.QuestionDTO">
         SELECT q.question_id AS questionId,
                q.content,
                q.option_a AS optionA,
@@ -133,13 +125,13 @@
                q.option_c AS optionC,
                q.option_d AS optionD,
                q.correct_option AS correctOption,
-               q.difficulty_id AS difficultyId,
+
                q.topic_id AS topicId,
                t.topic_name AS topicName
         FROM questions q
                  JOIN topics t ON q.topic_id = t.topic_id
         WHERE q.topic_id = #{topicId}
-          AND q.difficulty_id = #{difficultyId}
+
         ORDER BY RANDOM()
             LIMIT #{limit}
     </select>
