@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:sec="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+    <h2>Score List</h2>
+
+
+    <!-- ✅ Chỉ ADMIN được thêm điểm -->
+    <div th:replace="layout :: content">
+        <h2>📈 Danh sách điểm</h2>
+
+        <!-- ✅ Chỉ ADMIN được thêm điểm -->
+        <div sec:authorize="hasRole('ADMIN')">
+            <a th:href="@{/score/add}" class="btn btn-primary mb-3">➕ Thêm điểm</a>
+        </div>
+
+        <table class="table table-bordered">
+            <thead>
+            <tr>
+                <th>ScoreId</th>
+                <th>Học viên</th>
+                <th>Khóa học</th>
+                <th>Môn học</th>
+                <th>Điểm</th>
+                <th>Hành động</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="s : ${score}">
+                <td th:text="${s.scoreId}"></td>
+                <td th:text="${s.studentName}"></td>
+                <td th:text="${s.courseName}"></td>
+                <td th:text="${s.subject}"></td>
+                <td th:text="${s.score}"></td>
+                <td>
+                    <!-- ✅ ADMIN và GIẢNG VIÊN được sửa -->
+                    <a th:href="@{'/score/edit/' + ${s.scoreId}}" sec:authorize="hasAnyRole('ADMIN', 'TEACHER')" class="btn btn-warning btn-sm">Sửa</a>
+
+                    <!-- ✅ Chỉ ADMIN được xóa -->
+                    <a th:href="@{'/score/delete/' + ${s.scoreId}}" sec:authorize="hasRole('ADMIN')" class="btn btn-danger btn-sm">Xóa</a>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>

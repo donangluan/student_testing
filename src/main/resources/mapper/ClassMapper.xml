@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.example.student_testing.test.mapper.ClassMapper">
+
+    <select id="findAllClasses" resultType="org.example.student_testing.test.dto.ClassDTO">
+        SELECT class_id AS classId, class_name AS className
+        FROM class
+    </select>
+
+
+    <select id="getClassesByIds"  resultType="org.example.student_testing.test.dto.ClassDTO">
+        SELECT class_id AS classId, class_name AS className
+        FROM class
+        WHERE class_id IN
+        <foreach item="id" collection="list" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
+
+    <select id="getClassById"  resultType="org.example.student_testing.test.dto.ClassDTO">
+        SELECT class_id AS classId, class_name AS className FROM class WHERE class_id = #{classId}
+    </select>
+
+</mapper>

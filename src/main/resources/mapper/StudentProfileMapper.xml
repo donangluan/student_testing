@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.example.student_testing.student.mapper.StudentProfileMapper">
+    <select id="selectAllStudentProfile" resultType="org.example.student_testing.student.entity.StudentProfile">
+            select student_id as studentId, address,
+                   phone, avatar_url as avatarUrl,
+                   school_name as schoolName,
+                   class_name as className,
+                   created_at as createdAt,
+                    updated_at as updatedAt,
+                    username
+            from student_profile
+    </select>
+
+    <select id="selectStudentProfileById" resultType="org.example.student_testing.student.entity.StudentProfile">
+        select student_id as studentId, address,
+               phone, avatar_url as avatarUrl,
+               school_name as schoolName,
+               class_name as className,
+               created_at as createdAt,
+            updated_at as updatedAt,
+            username
+        from student_profile
+        where student_id = #{studentId}
+    </select>
+
+    <insert id="insertStudentProfile" parameterType="org.example.student_testing.student.entity.StudentProfile">
+        insert into student_profile(student_id, address, phone, avatar_url, school_name,class_name,created_at,updated_at,username)
+        values (#{studentId},#{address},#{phone},#{avatarUrl},#{schoolName},#{className},current_time,current_time,#{username})
+    </insert>
+
+    <update id="updateStudentProfile" parameterType="org.example.student_testing.student.entity.StudentProfile">
+        update student_profile
+        set
+            address = #{address},
+            phone = #{phone},
+            avatar_url = #{avatarUrl},
+            school_name = #{schoolName},
+            class_name = #{className},
+            updated_at = current_time
+        where student_id = #{studentId}
+    </update>
+
+    <delete id="deleteStudentProfileById" parameterType="String">
+        delete from student_profile
+        where student_id = #{studentId}
+    </delete>
+
+
+</mapper>

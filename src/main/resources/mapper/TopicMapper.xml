@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.example.student_testing.test.mapper.TopicMapper">
+    <select id="findAll" resultType="org.example.student_testing.test.dto.TopicDTO">
+        SELECT topic_id AS topicId, topic_name AS topicName FROM topics ORDER BY topic_name
+    </select>
+
+    <select id="findById" parameterType="int" resultType="org.example.student_testing.test.dto.TopicDTO">
+        SELECT topic_id AS topicId, topic_name AS topicName FROM topics WHERE topic_id = #{topicId}
+    </select>
+
+
+    <insert id="insert" parameterType="org.example.student_testing.test.dto.TopicDTO">
+        INSERT INTO topics (topic_name) VALUES (#{topicName})
+    </insert>
+
+    <update id="update" parameterType="org.example.student_testing.test.dto.TopicDTO">
+        UPDATE topics SET topic_name = #{topicName} WHERE topic_id = #{topicId}
+    </update>
+
+    <delete id="delete" parameterType="int">
+        DELETE FROM topics WHERE topic_id = #{topicId}
+    </delete>
+</mapper>

@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Danh sách học sinh theo lớp</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+<div class="container mt-4">
+    <h3>Danh sách học sinh theo lớp</h3>
+
+    <form method="get" th:action="@{/admin/student-class/list}" class="mb-3">
+        <label for="classId" class="form-label">Chọn lớp:</label>
+        <select name="classId" id="classId" class="form-select" onchange="this.form.submit()">
+            <option value="">-- Chọn lớp --</option>
+            <th:block th:each="c : ${classes}">
+                <option th:value="${c.classId}"
+                        th:text="${c.className}"
+                        th:selected="${c.classId == classId}">
+                </option>
+            </th:block>
+        </select>
+    </form>
+
+    <div th:if="${students}">
+        <table class="table table-bordered">
+            <thead>
+            <tr>
+                <th>Mã học sinh</th>
+                <th>Họ tên</th>
+                <th>Email</th>
+                <th>Trạng thái</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="s : ${students}">
+                <td th:text="${s.studentId}"></td>
+                <td th:text="${s.fullName}"></td>
+                <td th:text="${s.email}"></td>
+                <td th:text="${s.status}"></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+</body>
+</html>

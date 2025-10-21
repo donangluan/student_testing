@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+
+    <mapper namespace="org.example.student_testing.test.mapper.TestQuestionMapper">
+    <insert id="insertTestQuestion">
+        INSERT INTO test_questions (test_id, question_id, student_username, difficulty_id, order_no)
+        VALUES (#{testId}, #{questionId}, #{studentUsername}, #{difficultyId}, #{orderNo})
+    </insert>
+
+
+    <select id="countByQuestionId" resultType="int">
+        SELECT COUNT(*) FROM test_questions WHERE question_id = #{questionId}
+    </select>
+    </mapper>

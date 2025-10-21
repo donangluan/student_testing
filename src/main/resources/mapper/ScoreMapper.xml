@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.example.student_testing.student.mapper.ScoreMapper">
+
+    <select id="getScoresByStudentId" resultType="org.example.student_testing.student.entity.Score">
+        SELECT s.score_id,
+               s.subject,
+               s.score,
+               c.course_name AS courseName,
+               st.full_name AS studentName
+        FROM scores s
+                 JOIN students st ON s.student_id = st.student_id
+                 JOIN courses c ON s.course_id = c.course_id
+        WHERE s.student_id = #{studentId}
+    </select>
+
+    <select id="findById" resultType="org.example.student_testing.student.entity.Score">
+        SELECT s.score_id AS scoreId,
+               stu.full_name AS studentName,
+               c.course_name AS courseName,
+               s.subject,
+               s.score
+        FROM scores s
+                 JOIN students stu ON s.student_id = stu.student_id
+                 JOIN courses c ON c.course_id = s.course_id
+        WHERE score_id = #{scoreId}
+    </select>
+
+    <insert id="createScore" parameterType="org.example.student_testing.student.dto.ScoreDTO">
+        INSERT INTO scores (student_id, course_id, subject, score)
+        VALUES (#{studentId}, #{courseId}, #{subject}, #{score})
+    </insert>
+
+    <delete id="deleteByStudentId">
+        DELETE FROM scores WHERE student_id =  #{studentId}
+    </delete>
+
+    <select id="getall" resultType="org.example.student_testing.student.entity.Course">
+        SELECT * FROM courses
+    </select>
+
+
+    <select id="countGradedSubmissions" resultType="int">
+        SELECT COUNT(*) FROM scores WHERE score IS NOT NULL
+    </select>
+
+</mapper>

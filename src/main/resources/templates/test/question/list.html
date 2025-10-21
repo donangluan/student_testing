@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Ngân hàng câu hỏi</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="container mt-4">
+<h2 class="mb-4"> Danh sách câu hỏi</h2>
+<div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
+<div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
+<a th:href="@{/questions/add}" class="btn btn-primary mb-3"> Thêm câu hỏi mới</a>
+<div class="mt-4">
+    <a th:href="@{/teacher/dashboard}" class="btn btn-outline-dark"> Quay về trang giáo viên</a>
+</div>
+
+
+<table class="table table-bordered table-hover">
+    <thead class="table-light">
+    <tr>
+        <th>ID</th>
+        <th>Nội dung</th>
+        <th>Đáp án đúng</th>
+        <th>Chủ đề</th>
+        <th>Độ khó</th>
+        <th>Người tạo</th>
+        <th>Thao tác</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="q : ${questions}">
+        <td th:text="${q.questionId}"></td>
+        <td th:text="${q.content}"></td>
+        <td th:text="${q.correctOption}"></td>
+        <td th:text="${q.topicId}"></td>
+        <td th:text="${q.difficultyId}"></td>
+        <td th:text="${q.createdBy}"></td>
+        <td>
+            <a th:href="@{'/questions/edit/' + ${q.questionId}}" class="btn btn-sm btn-warning">️ Sửa</a>
+            <a th:href="@{'/questions/delete/' + ${q.questionId}}" class="btn btn-sm btn-danger"
+               onclick="return confirm('bạn có chắc chắn muốn xóa?')"
+            > Xóa</a>
+        </td>
+    </tr>
+    </tbody>
+</table>
+
+</body>
+</html>

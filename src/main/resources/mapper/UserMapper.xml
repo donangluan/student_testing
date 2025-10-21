@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.example.student_testing.student.mapper.UserMapper">
+    <select id="findByUsername" resultType="org.example.student_testing.student.entity.User">
+        select username, password, full_name as fullName, email
+        from users where username = #{username}
+    </select>
+
+    <select id="getRolesByUsername" resultType="String">
+        select r.role_name
+            from roles r
+
+        join user_roles ur on r.role_id = ur.role_id
+        where ur.username  = #{username}
+
+    </select>
+
+    <insert id="insertUser" parameterType="org.example.student_testing.student.entity.User">
+        INSERT INTO users (username, password, full_name, email, role_code, created_at, updated_at)
+        VALUES (#{username}, #{password}, #{fullName}, #{email},#{roleCode}, CURRENT_TIMESTAMP,current_timestamp)
+    </insert>
+
+    <insert id="assignRoles" >
+        INSERT INTO user_roles (username, role_id)
+        VALUES (#{username}, #{roleId})
+    </insert>
+
+    <select id="existsByEmail" resultType="boolean" parameterType="org.example.student_testing.student.entity.User">
+        SELECT COUNT(*) > 0 FROM users WHERE email = #{email}
+    </select>
+
+    <select id="hasRole" resultType="boolean">
+        SELECT COUNT(*) > 0
+        FROM user_roles
+        WHERE username = #{username} AND role_id = #{roleId}
+    </select>
+
+    <select id="existsByUsername" resultType="boolean">
+        SELECT COUNT(*) > 0 FROM users WHERE username = #{username}
+    </select>
+
+
+
+    <insert id="insertUserRole">
+        insert into user_roles(username, role_id) values(#{username}, #{roleId})
+    </insert>
+
+    <select id="findUsersByRole" resultType="org.example.student_testing.student.dto.UserDTO">
+        SELECT username, full_name as fullName, email, role_code as roleCode
+        FROM users
+        WHERE role_code = #{roleCode}
+    </select>
+
+    <select id="getAllTeachers" resultType="org.example.student_testing.student.dto.UserDTO">
+        SELECT username, full_name
+        FROM users
+        WHERE role_code = 'teacher'
+    </select>
+
+    <select id="getTeacherByUsername"  resultType="org.example.student_testing.student.dto.UserDTO">
+        SELECT username, full_name AS fullName FROM users WHERE username = #{username}
+    </select>
+
+    <select id="getTeachersByUsernames"  resultType="org.example.student_testing.student.dto.UserDTO">
+        SELECT username, full_name AS fullName FROM users
+        WHERE username IN
+        <foreach item="u" collection="list" open="(" separator="," close=")">
+            #{u}
+        </foreach>
+    </select>
+
+</mapper>

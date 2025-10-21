@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.example.student_testing.test.mapper.TeacherClassMapper">
+    <insert id="insert" parameterType="org.example.student_testing.test.dto.TeacherClassDTO">
+        INSERT INTO teacher_class (class_id, username)
+        VALUES (#{classId}, #{username})
+    </insert>
+
+    <select id="getClassIdsByTeacher" resultType="int">
+        SELECT class_id FROM teacher_class WHERE username = #{username}
+    </select>
+
+    <select id="getAllTeacherClass" resultType="org.example.student_testing.test.dto.TeacherClassDTO">
+        SELECT tc.class_id AS classId,
+               c.class_name AS className,
+               tc.username
+
+        FROM teacher_class tc
+                 JOIN class c ON tc.class_id = c.class_id
+    </select>
+
+    <select id="getTeacherUsernamesByClass" resultType="string">
+        SELECT username FROM teacher_class WHERE class_id = #{classId}
+    </select>
+</mapper>

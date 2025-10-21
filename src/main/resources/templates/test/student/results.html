@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Kết quả kiểm tra</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="container mt-5">
+<h2 class="mb-4">Kết quả kiểm tra</h2>
+
+<table class="table table-bordered table-hover">
+    <thead class="table-light">
+    <tr>
+        <th>Username</th>
+        <th>Test ID</th>
+        <th>Score</th>
+        <th>Rank</th>
+        <th>Percentile</th>
+        <th>Thời gian</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="r : ${results}">
+        <td th:text="${r.studentUsername}">student01</td>
+        <td th:text="${r.testId}">25</td>
+        <td th:text="${r.score}">9.0</td>
+        <td th:text="${r.rankCode}">B</td>
+        <td th:text="${r.percentile + '%'}">85%</td>
+        <td th:text="${#temporals.format(r.completedAt, 'dd/MM/yyyy HH:mm')}">15/10/2025</td>
+    </tr>
+    </tbody>
+</table>
+
+<h4 class="mt-5">Chi tiết từng câu</h4>
+<table class="table table-bordered">
+    <thead>
+    <tr>
+        <th>ID câu hỏi</th>
+        <th>Đáp án đã chọn</th>
+        <th>Đáp án đúng</th>
+        <th>Đánh giá</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="a : ${answers}">
+        <td th:text="${a.questionId}">1</td>
+        <td th:text="${a.selectedOption}">A</td>
+        <td th:text="${correctMap[a.questionId]}">B</td>
+        <td th:text="${a.selectedOption.equalsIgnoreCase(correctMap[a.questionId]) ? 'Đúng' : 'Sai'}"
+            th:class="${a.selectedOption.equalsIgnoreCase(correctMap[a.questionId]) ? 'text-success' : 'text-danger'}">
+            Đúng
+        </td>
+    </tr>
+    </tbody>
+</table>
+<div class="mt-4 d-flex justify-content-end">
+    <a th:href="@{/student/tests}" class="btn btn-secondary">Quay về danh sách bài kiểm tra</a>
+</div>
+
+</body>
+</html>

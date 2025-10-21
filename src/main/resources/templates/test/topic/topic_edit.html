@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Sửa Chủ đề</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="container mt-4">
+<h2 class="mb-4">Sửa Chủ đề</h2>
+<form th:action="@{/topics/edit}" th:object="${topic}" method="post" class="row g-3">
+    <input type="hidden" th:field="*{topicId}" />
+    <div class="col-md-6">
+        <label class="form-label">Tên chủ đề:</label>
+        <input th:field="*{topicName}" class="form-control" />
+    </div>
+    <div class="col-12">
+        <button type="submit" class="btn btn-success">Cập nhật</button>
+        <a th:href="@{/topics}" class="btn btn-secondary ms-2"> Quay lại</a>
+    </div>
+</form>
+</body>
+</html>

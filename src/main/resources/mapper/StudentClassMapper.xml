@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.example.student_testing.test.mapper.StudentClassMapper">
+    <select id="getAllClasses" parameterType="org.example.student_testing.test.dto.ClassDTO">
+        select class_id as classId, class_name as className, created_at as createdAt
+            from class
+    </select>
+
+    <select id="getStudentsNotInAnyClass" parameterType="org.example.student_testing.test.dto.StudentClassDTO">
+        SELECT s.student_id, s.full_name, s.dob, s.gender, s.email,
+               c.course_name, s.status,s.username
+        FROM students s
+                 JOIN courses c ON s.course_id = c.course_id
+        WHERE s.username NOT IN (
+            SELECT student_username FROM student_class
+        )
+
+    </select>
+
+    <insert id="insert" parameterType="org.example.student_testing.test.dto.StudentClassDTO">
+        INSERT INTO student_class (class_id, student_username)
+        VALUES (#{classId}, #{studentUsername})
+    </insert>
+
+    <select id="getStudentsInClass" resultType="org.example.student_testing.test.dto.StudentClassDTO">
+        SELECT s.student_id, s.full_name, s.dob, s.gender, s.email,
+               c.course_name, s.status, s.username
+        FROM students s
+                 JOIN courses c ON s.course_id = c.course_id
+                 JOIN student_class sc ON s.username = sc.student_username
+        WHERE sc.class_id = #{classId}
+    </select>
+
+</mapper>

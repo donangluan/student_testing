@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.example.student_testing.test.mapper.TestMapper">
+
+
+    <insert id="insertTest" useGeneratedKeys="true" keyProperty="testId" parameterType="org.example.student_testing.test.dto.TestDTO">
+        INSERT INTO tests(test_name, test_type, created_by, created_at, topic_id)
+        VALUES (#{testName}, #{testType}, #{createdBy}, current_timestamp, #{topicId})
+    </insert>
+
+
+    <insert id="insertTestAssignment" parameterType="org.example.student_testing.test.dto.TestDTO">
+        INSERT INTO test_assignments(test_id, student_username, assigned_at)
+        VALUES (#{testId}, #{studentUsername}, #{assignedAt})
+    </insert>
+
+
+    <insert id="insertTestQuestion" parameterType="org.example.student_testing.test.dto.TestDTO">
+        INSERT INTO test_questions(test_id, question_id, student_username, order_no, difficulty_id)
+        VALUES (#{testId}, #{questionId}, #{studentUsername}, #{orderNo}, #{difficultyId})
+    </insert>
+
+
+    <select id="findAllTests" resultType="org.example.student_testing.test.dto.TestDTO">
+        SELECT test_id AS testId,
+               test_name AS testName,
+               test_type AS testType,
+               created_by AS createdBy,
+               created_at AS createdAt,
+               topic_id AS topicId
+        FROM tests
+        ORDER BY created_at DESC
+    </select>
+
+
+    <select id="findTestsByType" resultType="org.example.student_testing.test.dto.TestDTO">
+        SELECT test_id AS testId,
+               test_name AS testName,
+               test_type AS testType,
+               created_by AS createdBy,
+               created_at AS createdAt,
+               topic_id AS topicId
+        FROM tests
+        WHERE test_type = #{type}
+        ORDER BY created_at DESC
+    </select>
+
+    <select id="countAllTests" resultType="int">
+        SELECT COUNT(*) FROM tests
+    </select>
+
+
+    <select id="findTestsAssignedToStudent" resultType="org.example.student_testing.test.dto.TestDTO">
+        SELECT t.* FROM tests t
+                            JOIN test_assignments  ta ON ta.test_id = t.test_id
+        WHERE ta.student_username = #{studentUsername}
+    </select>
+
+    <select id="findResultsByStudent" resultType="org.example.student_testing.test.dto.TestResultDTO">
+        SELECT * FROM test_results WHERE student_username = #{studentUsername}
+    </select>
+
+</mapper>

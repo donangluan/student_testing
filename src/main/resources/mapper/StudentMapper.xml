@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.example.student_testing.student.mapper.StudentMapper">
+
+
+
+    <select id="getStudentsPaged" resultType="org.example.student_testing.student.dto.StudentDTO">
+        SELECT s.student_id as studentId, s.full_name as fullName, s.dob, s.gender, s.email,
+               c.course_name as courseName, s.status
+        FROM students s
+                 JOIN courses c ON s.course_id = c.course_id
+        ORDER BY s.student_id
+            LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <select id="countTotalStudents" resultType="int">
+        SELECT COUNT(*) FROM students
+    </select>
+
+
+
+    <insert id="insertStudent" parameterType="org.example.student_testing.student.entity.Student">
+        insert into students(student_id, full_name, dob, gender,email, course_id, status,username)
+        values(#{studentId},#{fullName},#{dob},#{gender},#{email},#{courseId},#{status},#{username})
+    </insert>
+
+    <delete id="deleteStudent" parameterType="String">
+        delete from students where student_id = #{studentId}
+
+    </delete>
+
+    <update id="updateStudent" parameterType="org.example.student_testing.student.entity.Student">
+        UPDATE students
+        SET full_name = #{fullName},
+            dob = #{dob},
+            gender = #{gender},
+            email = #{email},
+            course_id = #{courseId},
+            status = #{status}
+        WHERE student_id = #{studentId}
+    </update>
+
+    <select id="getStudentDTOListById" resultType="org.example.student_testing.student.dto.StudentDTO">
+        select stu.student_id as studentId, stu.full_name as fullName , stu.dob ,stu.gender , stu.email ,c.course_id as courseId ,stu.status
+        from students stu
+                 join courses c on c.course_id = stu.course_id
+        where student_id = #{studentId}
+
+
+    </select>
+    <select id="searchStudentPaged" resultType="org.example.student_testing.student.dto.StudentDTO">
+        SELECT s.student_id AS studentId, s.full_name AS fullName, s.dob, s.gender, s.email,
+               c.course_name AS courseName, s.status
+        FROM students s
+                 JOIN courses c ON s.course_id = c.course_id
+        where 1= 1
+        <if test="keyword != null and keyword != '' ">
+       AND (LOWER(s.student_id) LIKE '%' || LOWER(#{keyword}) || '%'
+           OR LOWER(s.full_name) LIKE '%' || LOWER(#{keyword}) || '%'
+           OR LOWER(s.email) LIKE '%' || LOWER(#{keyword}) || '%')
+    </if>
+
+            <if test="status != null and status != ''">
+                AND  s.status = #{status}
+            </if>
+            <if test="courseName != null and courseName != ''">
+                AND c.course_name = #{courseName}
+            </if>
+
+        ORDER BY s.student_id
+            LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <select id="countSearchStudent" resultType="int">
+        SELECT COUNT(*)
+        FROM students s
+        JOIN courses c ON s.course_id = c.course_id
+        WHERE 1=1
+        <if test="keyword != null and keyword != '' ">
+            AND (
+            LOWER(s.student_id) LIKE '%' || LOWER(#{keyword}) || '%'
+            OR LOWER(s.full_name) LIKE '%' || LOWER(#{keyword}) || '%'
+            OR LOWER(s.email) LIKE '%' || LOWER(#{keyword}) || '%'
+            )
+        </if>
+        <if test="status != null and status != ''">
+            AND s.status = #{status}
+        </if>
+        <if test="courseName != null and courseName != ''">
+            AND c.course_name = #{courseName}
+        </if>
+    </select>
+
+    <select id="filterStudentPaged" resultType="org.example.student_testing.student.dto.StudentDTO">
+        SELECT s.student_id AS studentId, s.full_name AS fullName, s.dob, s.gender, s.email,
+        c.course_name AS courseName, s.status
+        FROM students s
+        JOIN courses c ON s.course_id = c.course_id
+        where 1= 1
+        <if test="keyword != null and keyword != '' ">
+            AND (LOWER(s.student_id) LIKE '%' || LOWER(#{keyword}) || '%'
+            OR LOWER(s.full_name) LIKE '%' || LOWER(#{keyword}) || '%'
+            OR LOWER(s.email) LIKE '%' || LOWER(#{keyword}) || '%')
+        </if>
+
+        <if test="status != null and status != ''">
+            AND  s.status = #{status}
+        </if>
+        <if test="courseName != null and courseName != ''">
+            AND c.course_name = #{courseName}
+        </if>
+        ORDER BY s.student_id
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <select id="countFilterStudent" resultType="int">
+        SELECT COUNT(*)
+        FROM students s
+        JOIN courses c ON s.course_id = c.course_id
+        WHERE 1=1
+        <if test="keyword != null and keyword != '' ">
+            AND (
+            LOWER(s.student_id) LIKE '%' || LOWER(#{keyword}) || '%'
+            OR LOWER(s.full_name) LIKE '%' || LOWER(#{keyword}) || '%'
+            OR LOWER(s.email) LIKE '%' || LOWER(#{keyword}) || '%'
+            )
+        </if>
+        <if test="status != null and status != ''">
+            AND s.status = #{status}
+        </if>
+        <if test="courseName != null and courseName != ''">
+            AND c.course_name = #{courseName}
+        </if>
+    </select>
+
+
+    <select id="getStudentDTOList" resultType="org.example.student_testing.student.dto.StudentDTO">
+        SELECT s.student_id AS studentId,
+               s.full_name AS fullName,
+               s.dob,
+               s.gender,
+               s.email,
+               s.course_id AS courseId,
+               s.status,
+               c.course_name AS courseName,
+               u.username AS username
+        FROM students s
+                 JOIN courses c ON s.course_id = c.course_id
+                LEFT JOIN users u ON s.email = u.email
+        ORDER BY s.student_id
+    </select>
+
+
+
+    <select id="getStudentsByTeacherUsername" resultType="org.example.student_testing.student.dto.StudentDTO">
+        SELECT sc.student_username AS username, u.full_name AS fullName
+        FROM student_class sc
+                 JOIN teacher_class tc ON sc.class_id = tc.class_id
+                 JOIN users u ON sc.student_username = u.username
+        WHERE tc.username = #{teacherUsername}
+    </select>
+
+
+    <select id="findStudentsByClassId" resultType="org.example.student_testing.student.dto.StudentDTO">
+        SELECT s.student_id AS studentId,
+               s.full_name AS fullName,
+               s.dob,
+               s.gender,
+               s.email,
+               s.course_id AS courseId,
+               s.status,
+               s.username,
+               c.class_id AS classId,
+               c.student_username AS studentUsername
+        FROM students s
+                 JOIN student_class c ON s.username = c.student_username
+        WHERE c.class_id = #{classId}
+    </select>
+</mapper>

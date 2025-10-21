@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.example.student_testing.test.mapper.TestResultMapper">
+
+    <insert id="insertResult">
+        INSERT INTO test_results (
+            test_id,
+            student_username,
+            score,
+            percentile,
+            rank_code,
+            completed_at
+        ) VALUES (
+                     #{testId},
+                     #{studentUsername},
+                     #{score},
+                     #{percentile},
+                     #{rankCode},
+                     CURRENT_TIMESTAMP
+                 )
+    </insert>
+
+    <select id="findScoresByTestId" resultType="java.lang.Double">
+        SELECT score FROM test_results WHERE test_id = #{testId}
+    </select>
+
+    <select id="findScoresByTestIdAndStudent" resultType="java.lang.Double">
+        SELECT score FROM test_results
+        WHERE test_id = #{testId} AND student_username = #{studentUsername}
+    </select>
+
+    <select id="findAll" resultType="org.example.student_testing.test.dto.TestResultDTO">
+        SELECT test_id, student_username, score, percentile, rank_code, completed_at
+        FROM test_results
+    </select>
+
+    <select id="filter" resultType="org.example.student_testing.test.dto.TestResultDTO">
+        SELECT test_id, student_username, score, percentile, rank_code, completed_at
+        FROM test_results
+        WHERE 1=1
+        <if test="testId != null">AND test_id = #{testId}</if>
+        <if test="studentUsername != null">AND student_username = #{studentUsername}</if>
+        <if test="minScore != null">AND score &gt;= #{minScore}</if>
+        <if test="maxScore != null">AND score &lt;= #{maxScore}</if>
+        <if test="rankCode != null">AND rank_code = #{rankCode}</if>
+    </select>
+
+</mapper>

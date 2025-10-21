@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.example.student_testing.test.mapper.DynamicTestMapper">
+
+    <select id="getNextQuestion" resultType="org.example.student_testing.test.entity.Question">
+
+        SELECT question_id AS questionId,
+               content,
+               option_a AS optionA,
+               option_b AS optionB,
+               option_c AS optionC,
+               option_d AS optionD,
+               correct_option AS correctOption,
+               difficulty_id AS difficultyId,
+               topic_id AS topicId
+        FROM questions
+        WHERE difficulty_id = #{difficulty}
+          AND topic_id = #{topicId}
+          AND question_id NOT IN (
+            SELECT question_id FROM student_answers
+            WHERE student_username = #{studentUsername}
+              AND test_id = #{testId}
+        )
+        ORDER BY RANDOM()
+            LIMIT 1
+    </select>
+
+    <select id="getCorrectOption" resultType="String">
+        SELECT correct_option FROM questions WHERE question_id = #{questionId}
+    </select>
+
+    <insert id="saveAnswer">
+        INSERT INTO student_answers(test_id, student_username, question_id, selected_option, answered_at)
+        VALUES(#{testId}, #{studentUsername}, #{questionId}, #{selectedOption}, NOW())
+
+    </insert>
+
+    <select id="countAnswers" resultType="int">
+        SELECT COUNT(*) FROM student_answers
+        WHERE test_id = #{testId} AND student_username = #{studentUsername}
+    </select>
+
+    <select id="getAnswerResults" resultType="org.example.student_testing.test.dto.AnswerResultDTO">
+        SELECT q.content AS questionContent,
+               sa.selected_option AS selectedOption,
+               q.correct_option AS correctOption
+        FROM student_answers sa
+                 JOIN questions q ON sa.question_id = q.question_id
+        WHERE sa.test_id = #{testId} AND sa.student_username = #{studentUsername}
+        ORDER BY sa.answered_at
+    </select>
+
+
+    <select id="getAnsweredQuestionIds" resultType="int">
+        SELECT question_id FROM student_answers
+        WHERE test_id = #{testId} AND student_username = #{studentUsername}
+    </select>
+
+
+    <select id="getQuestionsByDifficultyAndTopic" resultType="org.example.student_testing.test.entity.Question">
+        SELECT question_id AS questionId,
+               content,
+               option_a AS optionA,
+               option_b AS optionB,
+               option_c AS optionC,
+               option_d AS optionD,
+               correct_option AS correctOption,
+               difficulty_id AS difficultyId,
+               topic_id AS topicId
+        FROM questions
+        WHERE difficulty_id = #{difficulty}
+          AND topic_id = #{topicId}
+        ORDER BY question_id ASC
+    </select>
+
+    <select id="getQuestionsByDifficulty" resultType="org.example.student_testing.test.entity.Question">
+        SELECT question_id AS questionId,
+               content,
+               option_a AS optionA,
+               option_b AS optionB,
+               option_c AS optionC,
+               option_d AS optionD,
+               correct_option AS correctOption,
+               difficulty_id AS difficultyId,
+               topic_id AS topicId
+        FROM questions
+        WHERE difficulty_id = #{difficulty}
+        ORDER BY question_id ASC
+    </select>
+
+    <select id="getTotalQuestions" resultType="int">
+        SELECT total_questions FROM tests WHERE test_id = #{testId}
+    </select>
+
+
+    <select id="countAssignedQuestions" resultType="int">
+        SELECT COUNT(*) FROM test_questions WHERE test_id = #{testId}
+    </select>
+
+
+    <select id="getTopicIdsInTest" resultType="int">
+        SELECT DISTINCT q.topic_id
+        FROM test_questions tq
+                 JOIN questions q ON tq.question_id = q.question_id
+        WHERE tq.test_id = #{testId}
+    </select>
+
+
+</mapper>

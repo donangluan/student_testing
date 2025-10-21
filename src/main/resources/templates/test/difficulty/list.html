@@ -1,0 +1,36 @@
+
+<head>
+    <meta charset="UTF-8">
+    <title>Danh sách độ khó</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+
+
+<body  class="container mt-4">
+<h2 class="mb-4"> Danh sách độ khó</h2>
+
+<a th:href="@{/difficulties/add}" class="btn btn-primary mb-3">➕ Thêm độ khó</a>
+
+<table class="table table-bordered table-hover">
+    <thead class="table-light">
+    <tr>
+        <th>ID</th>
+        <th>Mã độ khó</th>
+        <th>Điểm</th>
+        <th>Thao tác</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="d : ${difficulties}">
+        <td th:text="${d.difficultyId}">1</td>
+        <td th:text="${d.levelCode}">Easy</td>
+        <td th:text="${d.pointValue}">1</td>
+        <td>
+            <a th:href="@{/difficulties/edit/{id}(id=${d.difficultyId})}" class="btn btn-sm btn-warning me-1"> Sửa</a>
+            <a th:href="@{/difficulties/delete/{id}(id=${d.difficultyId})}" class="btn btn-sm btn-danger"
+               onclick="return confirm('Bạn có chắc muốn xóa độ khó này không?')"> Xóa</a>
+        </td>
+    </tr>
+    </tbody>
+</table>
+</body>

@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Chi tiết đề kiểm tra</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="container mt-5">
+<h2 class="mb-4">Chi tiết đề kiểm tra</h2>
+
+<table class="table table-bordered">
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>Nội dung câu hỏi</th>
+        <th>Độ khó</th>
+        <th>Chủ đề</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="q : ${questions}">
+        <td th:text="${q.questionId}">1</td>
+        <td th:text="${q.content}">Câu hỏi mẫu</td>
+        <td th:text="${q.difficultyId == 1 ? 'Dễ' : (q.difficultyId == 2 ? 'Trung bình' : 'Khó')}">Trung bình</td>
+        <td th:text="${q.topicName != null ? q.topicName : 'Chủ đề #' + q.topicId}">Toán</td>
+    </tr>
+    </tbody>
+</table>
+</body>
+</html>

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.example.student_testing.test.mapper.DifficultyLevelMapper">
+    <select id="findAll" resultType="org.example.student_testing.test.dto.DifficultyLevelDTO">
+        SELECT difficulty_id AS difficultyId, level_code AS levelCode, point_value AS pointValue, description
+        FROM difficulty_levels ORDER BY point_value
+    </select>
+
+    <select id="findById" parameterType="int" resultType="org.example.student_testing.test.dto.DifficultyLevelDTO">
+        SELECT difficulty_id AS difficultyId, level_code AS levelCode, point_value AS pointValue, description
+        FROM difficulty_levels WHERE difficulty_id = #{difficultyId}
+    </select>
+
+    <insert id="insert" parameterType="org.example.student_testing.test.dto.DifficultyLevelDTO">
+        INSERT INTO difficulty_levels(level_code, point_value, description)
+        VALUES (#{levelCode}, #{pointValue})
+    </insert>
+
+    <update id="update" parameterType="org.example.student_testing.test.dto.DifficultyLevelDTO">
+        UPDATE difficulty_levels
+        SET level_code = #{levelCode}, point_value = #{pointValue}, description = #{description}
+        WHERE difficulty_id = #{difficultyId}
+    </update>
+
+    <delete id="delete" parameterType="int">
+        DELETE FROM difficulty_levels WHERE difficulty_id = #{difficultyId}
+    </delete>
+</mapper>

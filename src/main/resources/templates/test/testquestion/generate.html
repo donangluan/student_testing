@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Tạo bài test</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="container mt-4">
+<h2 class="mb-4"> Tạo bài test độc nhất</h2>
+
+<form th:action="@{/tests/generate}" th:object="${uniqueTestRequest}" method="post" class="row g-3">
+    <div class="col-md-6">
+        <label class="form-label">Tên bài test:</label>
+        <input th:field="*{testName}" class="form-control" placeholder="Ví dụ: Toán 10 - Đề 1" />
+    </div>
+
+    <div class="col-md-6">
+        <label class="form-label">Chủ đề:</label>
+        <select th:field="*{topicId}" class="form-select">
+            <option th:each="t : ${topics}" th:value="${t.topicId}" th:text="${t.topicName}"></option>
+        </select>
+    </div>
+
+    <div class="col-md-6">
+        <label class="form-label">Số câu mỗi học sinh:</label>
+        <input th:field="*{questionCount}" type="number" class="form-control" min="1" />
+    </div>
+
+    <div class="col-md-6">
+        <label class="form-label">Chọn học sinh:</label>
+        <select th:field="*{studentUsername}" multiple class="form-select">
+            <option th:each="s : ${students}" th:value="${s.username}" th:text="${s.fullName}"></option>
+        </select>
+        <small class="text-muted">Giữ Ctrl để chọn nhiều học sinh</small>
+    </div>
+
+    <input type="hidden" name="testType" value="Unique" />
+
+    <div class="col-12">
+        <button type="submit" class="btn btn-success"> Tạo bài test</button>
+        <a th:href="@{/tests}" class="btn btn-secondary ms-2"> Quay lại danh sách</a>
+    </div>
+</form>
+</body>
+</html>

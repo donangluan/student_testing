@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<div class="bg-light border-end vh-100" th:fragment="sidebar" style="width: 220px; position: fixed;">
+    <div class="list-group list-group-flush">
+        <a th:href="@{/admin/dashboard}" class="list-group-item list-group-item-action"> Dashboard</a>
+        <a th:href="@{/admin/users}" class="list-group-item list-group-item-action"> Quản lý tài khoản</a>
+        <a th:href="@{/tests}" class="list-group-item list-group-item-action"> Đề kiểm tra</a>
+        <a th:href="@{/student/list}" class="list-group-item list-group-item-action"> Học viên</a>
+        <a th:href="@{/my-tests}" class="list-group-item list-group-item-action"> Làm bài kiểm tra</a>
+        <a th:href="@{/my-results}" class="list-group-item list-group-item-action"> Kết quả của tôi</a>
+    </div>
+</div>
+</body>
+</html>
