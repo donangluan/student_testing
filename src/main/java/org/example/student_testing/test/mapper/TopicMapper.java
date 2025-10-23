@@ -16,4 +16,11 @@ public interface TopicMapper {
     void insert(TopicDTO topicDTO);
     void update(TopicDTO topicDTO);
     void delete(@Param("topicId") Integer topicId);
+
+    List<TopicDTO> findTopicsByCourseId(Integer courseId);
+
+    List<TopicDTO> findTopicsByCourseIds(@Param("courseIds") List<Integer> courseIds);
+
+
+
 }

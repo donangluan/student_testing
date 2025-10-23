@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Sửa thông tin giáo viên</title>
+    <!-- Bootstrap 5 CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+
+<div class="container mt-5">
+    <div class="card shadow">
+        <div class="card-header bg-warning text-dark">
+            <h4 class="mb-0">✏️ Sửa thông tin giáo viên</h4>
+        </div>
+        <div class="card-body">
+            <form th:action="@{/admin/teachers/update}" method="post">
+                <input type="hidden" name="teacherId" th:value="${teacher.teacherId}"/>
+
+                <div class="mb-3">
+                    <label class="form-label">Họ tên</label>
+                    <input type="text" name="fullName" class="form-control" th:value="${teacher.fullName}" required>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Email</label>
+                    <input type="email" name="email" class="form-control" th:value="${teacher.email}" required>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Số điện thoại</label>
+                    <input type="text" name="phone" class="form-control" th:value="${teacher.phone}">
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Phòng ban</label>
+                    <input type="text" name="department" class="form-control" th:value="${teacher.department}">
+                </div>
+
+                <div class="text-end">
+                    <button type="submit" class="btn btn-success">💾 Cập nhật</button>
+                    <a th:href="@{/admin/teachers}" class="btn btn-secondary">⬅️ Quay lại</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Bootstrap JS (optional) -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

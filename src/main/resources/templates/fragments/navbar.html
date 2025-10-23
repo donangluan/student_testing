@@ -23,6 +23,10 @@
                 <li class="nav-item" th:if="${#authorization.expression('hasAnyRole(''ADMIN'',''TEACHER'')')}">
                     <a class="nav-link" th:href="@{/student/list}"> Học viên</a>
                 </li>
+
+                <li class="nav-item" th:if="${#authorization.expression('hasRole(''ADMIN'')')}">
+                    <a class="nav-link" th:href="@{/admin/teachers}"> Giáo viên</a>
+                </li>
                 <li class="nav-item" th:if="${#authorization.expression('hasRole(''STUDENT'')')}">
                     <a class="nav-link" th:href="@{/my-tests}"> Làm bài kiểm tra</a>
                 </li>

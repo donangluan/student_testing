@@ -20,4 +20,7 @@ public class TestDTO {
     private LocalDateTime createdAt;
 
     private Integer topicId;
+
+    private String topicName;
+    private String courseName;
 }

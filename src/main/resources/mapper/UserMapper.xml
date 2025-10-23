@@ -71,4 +71,14 @@
         </foreach>
     </select>
 
+
+    <delete id="deleteByUsername">
+        DELETE FROM users WHERE username = #{username}
+    </delete>
+
+    <delete id="deleteRolesByUsername">
+        DELETE FROM user_roles WHERE username = #{username}
+    </delete>
+
+
 </mapper>

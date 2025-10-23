@@ -8,7 +8,25 @@
 <body class="container mt-5">
 <h2 class="mb-4">Tạo đề kiểm tra (Một chủ đề)</h2>
 
+<!-- Form chọn môn học để lọc chủ đề -->
+<form method="get" th:action="@{/teacher/tests/generate}">
+    <div class="mb-3">
+        <label for="courseId" class="form-label">Môn học</label>
+        <select class="form-select" id="courseId" name="courseId" onchange="this.form.submit()">
+            <option value="" disabled selected>-- Chọn môn học --</option>
+            <option th:each="c : ${courses}"
+                    th:value="${c.courseId}"
+                    th:text="${c.courseName}"
+                    th:selected="${c.courseId == selectedCourseId}">
+            </option>
+        </select>
+    </div>
+</form>
+
+<!-- Form tạo đề kiểm tra -->
 <form method="post" th:action="@{/teacher/tests/generate}">
+    <input type="hidden" name="courseId" th:value="${selectedCourseId}" />
+
     <div class="mb-3">
         <label for="testName" class="form-label">Tên bài kiểm tra</label>
         <input type="text" class="form-control" id="testName" name="testName" required />
@@ -18,7 +36,7 @@
         <label for="topicId" class="form-label">Chủ đề</label>
         <select class="form-select" id="topicId" name="topicId" required>
             <option value="" disabled selected>-- Chọn chủ đề --</option>
-            <option th:each="t : ${topics}" th:value="${t.topicId}" th:text="${t.topicName}">Toán</option>
+            <option th:each="t : ${topics}" th:value="${t.topicId}" th:text="${t.topicName}"></option>
         </select>
     </div>
 
@@ -26,7 +44,7 @@
         <label class="form-label">Chọn học sinh</label>
         <div th:each="s : ${students}" class="form-check">
             <input class="form-check-input" type="checkbox" name="studentUsername[]" th:value="${s.username}" />
-            <label class="form-check-label" th:text="${s.fullName}">Nguyễn Văn A</label>
+            <label class="form-check-label" th:text="${s.fullName}"></label>
         </div>
     </div>
 
@@ -36,7 +54,6 @@
     </div>
 
     <div th:if="${warning}" class="alert alert-warning" th:text="${warning}"></div>
-
 
     <button type="submit" class="btn btn-success">Tạo đề</button>
 </form>

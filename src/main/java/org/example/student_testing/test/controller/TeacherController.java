@@ -1,11 +1,10 @@
 package org.example.student_testing.test.controller;
 
+import org.example.student_testing.student.dto.CourseDTO;
+import org.example.student_testing.student.service.CourseService;
 import org.example.student_testing.student.service.StudentService;
 import org.example.student_testing.student.service.UserService;
-import org.example.student_testing.test.dto.MixedTopicTestDTO;
-import org.example.student_testing.test.dto.QuestionDTO;
-import org.example.student_testing.test.dto.TestSubmissionDTO;
-import org.example.student_testing.test.dto.UniqueTestRequest;
+import org.example.student_testing.test.dto.*;
 import org.example.student_testing.test.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -15,7 +14,11 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/teacher/tests")
@@ -31,6 +34,8 @@ public class TeacherController {
     @Autowired private TestQuestionService testQuestionService;
     @Autowired private StudentService studentService;
     @Autowired private DifficultyService difficultyService;
+    @Autowired
+    private  CourseService courseService;
 
     @Autowired
     private TestSubmissionService testSubmissionService;
@@ -76,18 +81,58 @@ public class TeacherController {
     }
 
     @GetMapping("/create-mixed")
-    public String showMixedTopicForm(@AuthenticationPrincipal UserDetails userDetails, Model model) {
-        model.addAttribute("mixedTestDTO", new MixedTopicTestDTO());
-        model.addAttribute("topics", topicService.findAll());
+    public String showMixedTopicForm(@RequestParam(required = false) List<Integer> selectedCourseIds,
+            @AuthenticationPrincipal UserDetails userDetails, Model model) {
+
+        if (selectedCourseIds == null || selectedCourseIds.isEmpty()) {
+            model.addAttribute("groupedTopics", null); // để kích hoạt form chọn môn
+        }
+
+
+        List<CourseDTO> allCourses = courseService.getAllCourse();
+        Map<CourseDTO, List<TopicDTO>> groupedTopics = new LinkedHashMap<>();
+
+        if (selectedCourseIds != null && !selectedCourseIds.isEmpty()) {
+            List<TopicDTO> selectedTopics = topicService.findTopicsByCourseIds(selectedCourseIds);
+            Map<Integer, List<TopicDTO>> topicsByCourse = selectedTopics.stream()
+                    .collect(Collectors.groupingBy(TopicDTO::getCourseId));
+
+            for (CourseDTO course : allCourses) {
+                if (selectedCourseIds.contains(course.getCourseId())) {
+                    List<TopicDTO> topicList = topicsByCourse.get(course.getCourseId());
+                    if (topicList != null && !topicList.isEmpty()) {
+                        groupedTopics.put(course, topicList);
+                    }
+                }
+            }
+        }
+
+
+        model.addAttribute("courses", allCourses);
+        model.addAttribute("selectedCourseIds", selectedCourseIds);
+        model.addAttribute("groupedTopics", groupedTopics);
         model.addAttribute("students", studentService.getStudentsForTeacher(userDetails.getUsername()));
+        model.addAttribute("mixedTestDTO", new MixedTopicTestDTO());
         return "teacher/test/create-mixed";
     }
+
+    @PostMapping("/select-courses")
+    public String handleCourseSelection(@RequestParam(required = false) List<Integer> selectedCourseIds,
+                                        @AuthenticationPrincipal UserDetails userDetails,
+                                        Model model) {
+        return showMixedTopicForm(selectedCourseIds, userDetails, model);
+    }
+
 
     @PostMapping("/create-mixed")
     public String createMixedTopicTest(@ModelAttribute MixedTopicTestDTO mixedTestDTO,
                                        @RequestParam List<String> studentUsernames,
                                        @AuthenticationPrincipal UserDetails userDetails
                                        ) {
+        System.out.println("📦 testName = " + mixedTestDTO.getTestName());
+        System.out.println("📦 topicDistribution = " + mixedTestDTO.getTopicDistribution());
+        System.out.println("📥 selectedCourseIds = " + mixedTestDTO.getSelectedCourseIds());
+
         mixedTestDTO.setCreatedBy(userDetails.getUsername());
         testService.createMixedTopicTest(mixedTestDTO, studentUsernames);
         return "redirect:/teacher/tests";
@@ -124,11 +169,18 @@ public class TeacherController {
     }
 
     @GetMapping("/generate")
-    public String showGenerateForm(  @AuthenticationPrincipal UserDetails userDetails,Model model) {
-        model.addAttribute("request", new UniqueTestRequest());
-        model.addAttribute("topics", topicService.findAll());
-        model.addAttribute("difficultyLevels", difficultyService.findAll());
+    public String showGenerateForm( @RequestParam(required = false) Integer courseId,
+                                    @AuthenticationPrincipal UserDetails userDetails,Model model) {
+
+        List<CourseDTO> courses = courseService.getAllCourse();
+        List<TopicDTO> topics = (courseId != null)
+                ? topicService.findByCourseId(courseId)
+                : new ArrayList<>();
+        model.addAttribute("courses", courses);
+        model.addAttribute("topics", topics);
+        model.addAttribute("selectedCourseId", courseId);
         model.addAttribute("students", studentService.getStudentsForTeacher(userDetails.getUsername()));
+        model.addAttribute("request", new UniqueTestRequest());
 
         return "teacher/test/generate";
     }

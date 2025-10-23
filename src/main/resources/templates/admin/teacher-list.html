@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Danh sách giáo viên</title>
+    <!-- Bootstrap 5 CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+
+<div class="container mt-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2> Danh sách giáo viên</h2>
+        <a class="btn btn-primary" th:href="@{/admin/teachers/add}"> Thêm giáo viên mới</a>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover align-middle">
+            <thead class="table-dark text-center">
+            <tr>
+                <th>Teacher ID</th>
+                <th>Phòng ban</th>
+                <th>SĐT</th>
+                <th>Tài khoản</th>
+                <th>Họ tên</th>
+                <th>Email</th>
+                <th>Ngày tạo</th>
+                <th>Cập nhật</th>
+                <th>Hành động</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="teacher : ${teachers}">
+                <td th:text="${teacher.teacherId}"></td>
+                <td th:text="${teacher.department}"></td>
+                <td th:text="${teacher.phone}"></td>
+                <td th:text="${teacher.username}"></td>
+                <td th:text="${teacher.fullName}"></td>
+                <td th:text="${teacher.email}"></td>
+                <td th:text="${teacher.createdAtFormatted}"></td>
+                <td th:text="${teacher.updatedAtFormatted}"></td>
+                <td class="text-center">
+                    <a class="btn btn-sm btn-warning me-1"
+                       th:href="@{'/admin/teachers/edit/' + ${teacher.teacherId}}"> Sửa</a>
+                    <a class="btn btn-sm btn-danger"
+                       th:href="@{'/admin/teachers/delete/' + ${teacher.teacherId}}"
+                       onclick="return confirm('Bạn có chắc muốn xóa giáo viên này?')"> Xóa</a>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Bootstrap JS (optional for modal/alert) -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

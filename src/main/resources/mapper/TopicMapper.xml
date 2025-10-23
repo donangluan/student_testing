@@ -5,11 +5,15 @@
 
 <mapper namespace="org.example.student_testing.test.mapper.TopicMapper">
     <select id="findAll" resultType="org.example.student_testing.test.dto.TopicDTO">
-        SELECT topic_id AS topicId, topic_name AS topicName FROM topics ORDER BY topic_name
+        SELECT topic_id AS topicId, topic_name AS topicName,
+            course_id as courseId FROM topics ORDER BY topic_name
     </select>
 
     <select id="findById" parameterType="int" resultType="org.example.student_testing.test.dto.TopicDTO">
-        SELECT topic_id AS topicId, topic_name AS topicName FROM topics WHERE topic_id = #{topicId}
+        SELECT topic_id AS topicId, topic_name AS topicName,
+            course_id as courseId
+        FROM topics WHERE topic_id = #{topicId}
+
     </select>
 
 
@@ -24,4 +28,22 @@
     <delete id="delete" parameterType="int">
         DELETE FROM topics WHERE topic_id = #{topicId}
     </delete>
+
+
+    <select id="findTopicsByCourseId" resultType="org.example.student_testing.test.dto.TopicDTO">
+        SELECT topic_id AS topicId, topic_name AS topicName, course_id AS courseId
+        FROM topics
+        WHERE course_id = #{courseId}
+    </select>
+
+    <select id="findTopicsByCourseIds" resultType="org.example.student_testing.test.dto.TopicDTO">
+        SELECT topic_id AS topicId,
+        topic_name AS topicName,
+        course_id AS courseId
+        FROM topics
+        WHERE course_id IN
+        <foreach item="id" collection="courseIds" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
 </mapper>

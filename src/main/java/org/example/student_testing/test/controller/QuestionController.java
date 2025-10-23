@@ -3,6 +3,7 @@ package org.example.student_testing.test.controller;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
+import org.example.student_testing.student.service.CourseService;
 import org.example.student_testing.test.dto.QuestionDTO;
 import org.example.student_testing.test.service.AnswerOptionService;
 import org.example.student_testing.test.service.DifficultyService;
@@ -26,6 +27,8 @@ public class QuestionController {
     private final DifficultyService difficultyService;
     private final AnswerOptionService answerOptionService;
 
+
+
     @GetMapping
     public String listQuestions(Model model) {
         List<QuestionDTO> questions = questionService.getAllQuestions();
@@ -37,6 +40,7 @@ public class QuestionController {
     public String showAddForm(Model model) {
         model.addAttribute("questionDTO", new QuestionDTO());
         model.addAttribute("topics", topicService.findAll());
+
         model.addAttribute("difficulties", difficultyService.findAll());
         model.addAttribute("options", answerOptionService.findAll());
         return "test/question/add";

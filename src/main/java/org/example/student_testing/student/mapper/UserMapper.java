@@ -27,7 +27,7 @@ public interface UserMapper {
     boolean existsByUsername(@Param("username") String username);
 
 
-    void insertUserRole(@Param("username") String username, @Param("role") String role);
+    void insertUserRole(@Param("username") String username, @Param("roleId") String role);
 
     List<UserDTO> findUsersByRole(@Param("role") String role);
 
@@ -37,5 +37,11 @@ public interface UserMapper {
     UserDTO getTeacherByUsername(@Param("username") String username);
 
     List<UserDTO> getTeachersByUsernames(@Param("list") List<String> usernames);
+
+
+
+    void deleteByUsername(@Param("username") String username);
+
+    void deleteRolesByUsername(@Param("username") String username);
 
 }

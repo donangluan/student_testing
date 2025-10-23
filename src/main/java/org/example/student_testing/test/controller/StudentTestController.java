@@ -44,7 +44,7 @@ public class StudentTestController {
         }
         model.addAttribute("tests", tests);
         model.addAttribute("studentUsername", username);
-        model.addAttribute("testResultMap", testResultMap);// ✅ thêm dòng này
+        model.addAttribute("testResultMap", testResultMap);
         return "test/student/list";
     }
 

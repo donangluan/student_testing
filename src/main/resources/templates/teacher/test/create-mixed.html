@@ -7,8 +7,25 @@
 </head>
 <body class="container mt-5">
 <h2 class="mb-4">Tạo đề kiểm tra nhiều chủ đề</h2>
+<!-- Bước 1: Chọn môn học -->
+<form method="post" th:action="@{/teacher/tests/select-courses}" enctype="application/x-www-form-urlencoded"
+      th:if="${groupedTopics == null or #maps.isEmpty(groupedTopics)}">
+    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+    <div class="mb-3">
+        <label class="form-label">Chọn môn học cần kiểm tra</label>
+        <div th:each="course : ${courses}" class="form-check">
+            <input class="form-check-input" type="checkbox" name="selectedCourseIds"
+                   th:value="${course.courseId}" />
+            <label class="form-check-label" th:text="${course.courseName}"></label>
+        </div>
+    </div>
+    <button type="submit" class="btn btn-primary">Tiếp tục</button>
+</form>
 
-<form method="post" th:action="@{/teacher/tests/create-mixed}">
+<!-- Bước 2: Phân phối chủ đề và tạo đề -->
+<form method="post" th:action="@{/teacher/tests/create-mixed}"
+      th:if="${groupedTopics != null and !#maps.isEmpty(groupedTopics)}">
+    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
     <div class="mb-3">
         <label class="form-label">Tên đề kiểm tra</label>
         <input type="text" class="form-control" name="testName" required />
@@ -16,29 +33,32 @@
 
     <div class="mb-3">
         <label class="form-label">Phân phối câu hỏi theo chủ đề:</label>
-
-        <div th:each="topic : ${topics}" class="mb-2">
-            <label th:text="${topic.topicName}" class="form-label"></label>
-            <input type="number"
-                   class="form-control"
-                   th:name="${'topicDistribution[' + topic.topicId + ']'}"
-                   min="0"
-                   placeholder="Số câu hỏi cho chủ đề này" />
-        </div>
-
-        <div class="mb-3">
-            <label class="form-label">Chọn học sinh</label>
-            <div th:each="student : ${students}" class="form-check">
-                <input class="form-check-input" type="checkbox" name="studentUsernames"
-                       th:value="${student.username}" />
-                <label class="form-check-label" th:text="${student.fullName}"></label>
+        <div th:each="entry : ${groupedTopics}">
+            <h5 class="mt-3 mb-2 text-primary" th:text="${entry.key.courseName}"></h5>
+            <div th:each="topic : ${entry.value}" class="mb-2">
+                <label th:for="${'topic-' + topic.topicId}" th:text="${topic.topicName}" class="form-label"></label>
+                <input type="number"
+                       class="form-control"
+                       th:id="${'topic-' + topic.topicId}"
+                       th:name="${'topicDistribution[' + topic.topicId + ']'}"
+                       min="0"
+                       value="0"
+                       placeholder="Số câu hỏi cho chủ đề này" />
             </div>
         </div>
-
     </div>
 
+    <div class="mb-3">
+        <label class="form-label">Chọn học sinh</label>
+        <div th:each="student : ${students}" class="form-check">
+            <input class="form-check-input" type="checkbox" name="studentUsernames"
+                   th:value="${student.username}" />
+            <label class="form-check-label" th:text="${student.fullName}"></label>
+        </div>
+    </div>
 
-    <button type="submit" class="btn btn-primary">Tạo đề</button>
+    <button type="submit" class="btn btn-success">Tạo đề</button>
 </form>
+
 </body>
 </html>

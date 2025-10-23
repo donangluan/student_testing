@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.example.student_testing.test.mapper.TeacherProfileMapper">
+    <select id="getAllTeachers">
+        select teacher_id as teacherId, department, phone,
+               created_at as createdAt,
+               updated_at as updatedAt,
+               username, full_name as fullName, email
+            from teacher_profile
+            order by created_at desc
+    </select>
+
+    <insert id="insertTeacher">
+        INSERT INTO teacher_profile (teacher_id, full_name, phone, department, username, email, created_at)
+        VALUES (#{teacherId}, #{fullName}, #{phone}, #{department}, #{username}, #{email}, CURRENT_TIMESTAMP)
+    </insert>
+
+    <select id="findById" resultType="org.example.student_testing.test.dto.TeacherProfileDTO">
+        select teacher_id as teacherId, department, phone,
+               created_at as createdAt,
+               updated_at as updatedAt,
+               username, full_name as fullName, email
+        from teacher_profile
+        WHERE teacher_id = #{teacherId}
+    </select>
+
+    <update id="updateTeacher">
+        UPDATE teacher_profile
+        SET full_name = #{fullName},
+            phone = #{phone},
+            department = #{department},
+            email = #{email},
+            updated_at = #{updatedAt}
+        WHERE teacher_id = #{teacherId}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM teacher_profile WHERE teacher_id = #{teacherId}
+    </delete>
+
+    <select id="getLastTeacherId" resultType="String">
+        SELECT teacher_id
+        FROM teacher_profile
+        WHERE teacher_id LIKE 'GV%'
+        ORDER BY teacher_id DESC
+            LIMIT 1
+    </select>
+
+
+
+</mapper>

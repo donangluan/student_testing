@@ -122,13 +122,15 @@
             </td>
         </tr>
         </tbody>
-
+        <tr th:if="${dto == null or dto.isEmpty()}">
+            <td colspan="8" class="text-center text-muted">Không tìm thấy học sinh nào phù hợp.</td>
+        </tr>
 
 
     </table>
 
 
-    <nav>
+    <nav th:if="${dto !=null and !dto.isEmpty()}">
         <ul class="pagination justify-content-center">
 
             <!-- Previous -->
