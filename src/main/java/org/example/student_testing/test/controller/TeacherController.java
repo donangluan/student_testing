@@ -76,6 +76,7 @@ public class TeacherController {
     public String assignQuestions(@RequestParam Integer testId,
                                   @RequestParam List<Integer> questionIds,
                                   @RequestParam String studentUsername) {
+        testService.assignTestToStudent(testId, studentUsername);
         testQuestionService.assignQuestions(testId, questionIds, studentUsername);
         return "redirect:/teacher/tests/detail/" + testId;
     }

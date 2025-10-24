@@ -209,6 +209,13 @@ public class TestService {
         return testMapper.findResultsByStudent(studentUsername);
     }
 
+    public void assignTestToStudent(Integer testId, String studentUsername) {
+        TestAssignmentDTO ta = new TestAssignmentDTO();
+        ta.setTestId(testId);
+        ta.setStudentUsername(studentUsername);
+        ta.setAssignedAt(LocalDateTime.now());
+        testMapper.insertTestAssignment(ta);
+    }
 
 
 }
