@@ -41,7 +41,7 @@
         <td th:text="${log.username}">username</td>
         <td th:text="${log.fullName}">full name</td>
         <td th:text="${log.role}">role</td>
-        <td th:text="${log.formattedLoginTime}"></td>
+        <td th:text="${log.loginTime != null ? #temporals.format(log.loginTime, 'dd/MM/yyyy HH:mm') : '---'}">login time</td>
 
 
         <td th:text="${log.ipAddress}">ip</td>
