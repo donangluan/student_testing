@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.example.student_testing.test.mapper.LoginHistoryMapper">
+    <insert id="insertLoginHistory" parameterType="org.example.student_testing.test.dto.LoginHistoryDTO">
+        INSERT INTO login_history(username, full_name, role, login_time, ip_address, user_agent)
+        VALUES (#{username}, #{fullName}, #{role}, #{loginTime}, #{ipAddress}, #{userAgent})
+
+    </insert>
+
+    <select id="findAll" resultType="org.example.student_testing.test.dto.LoginHistoryDTO">
+        SELECT id, username, login_time AS loginTime, ip_address AS ipAddress,
+               full_name as fullName, role, user_agent as userAgent
+        FROM login_history
+        ORDER BY login_time DESC
+    </select>
+
+    <select id="findByUsername" resultType="org.example.student_testing.test.dto.LoginHistoryDTO">
+        SELECT id, username, login_time AS loginTime, ip_address AS ipAddress,
+               full_name as fullName, role, user_agent as userAgent
+        FROM login_history
+        WHERE username = #{username}
+        ORDER BY login_time DESC
+    </select>
+</mapper>
