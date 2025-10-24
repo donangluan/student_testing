@@ -15,6 +15,7 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 
 @Component
 public class LoginSuccessListener {
@@ -49,7 +50,7 @@ public class LoginSuccessListener {
         dto.setUsername(username);
         dto.setFullName(fullName);
         dto.setRole(role);
-        dto.setLoginTime(LocalDateTime.now());
+        dto.setLoginTime(LocalDateTime.now(ZoneId.of("Asia/Ho_Chi_Minh")));
         dto.setIpAddress(ip);
         dto.setUserAgent(userAgent);
 
