@@ -173,4 +173,21 @@
     </select>
 
 
+
+
+
+
+    <select id="findQuestionsWithAnswer" resultType="org.example.student_testing.test.dto.QuestionViewDTO">
+        SELECT q.id AS questionId, q.content, q.correct_option AS correctOption,
+               a.selected_option AS selectedOption
+        FROM questions q
+                 LEFT JOIN answers a ON q.id = a.question_id AND a.test_id = #{testId} AND a.student_username = #{studentUsername}
+        WHERE q.test_id = #{testId}
+    </select>
+
+
+    <select id="getDifficultyByQuestionId" resultType="String">
+        SELECT difficulty FROM questions WHERE question_id = #{questionId}
+    </select>
+
 </mapper>

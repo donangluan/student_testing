@@ -20,7 +20,10 @@ public class TestDTO {
     private LocalDateTime createdAt;
 
     private Integer topicId;
+    private Integer durationMinutes;
 
     private String topicName;
     private String courseName;
+    private Integer resultId; // ID của kết quả đã nộp
+
 }

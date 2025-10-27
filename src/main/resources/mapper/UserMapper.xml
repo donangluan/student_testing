@@ -80,5 +80,18 @@
         DELETE FROM user_roles WHERE username = #{username}
     </delete>
 
+    <select id="findAllUsers" resultType="org.example.student_testing.student.dto.UserDTO">
+        SELECT username, full_name AS fullName, email, role_code AS roleCode
+        FROM users
+        ORDER BY created_at DESC
+    </select>
 
+    <update id="updateUser" parameterType="org.example.student_testing.student.entity.User">
+        UPDATE users SET
+                         full_name = #{fullName},
+                         email = #{email},
+                         role_code = #{roleCode},
+                         updated_at = CURRENT_TIMESTAMP
+        WHERE username = #{username}
+    </update>
 </mapper>

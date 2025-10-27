@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Kết quả bài kiểm tra</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+<div class="container py-5">
+    <h3 class="mb-4 text-primary">📊 Kết quả bài kiểm tra</h3>
+
+    <div th:each="s : ${submissions}" class="card mb-4 shadow-sm">
+        <div class="card-header bg-white border-bottom">
+            <h5 class="mb-1">
+                👤 <strong th:text="${s.studentUsername}">Tên học viên</strong>
+                | 🏆 Điểm: <span class="text-success fw-bold" th:text="${s.score}">0.0</span>
+                | 🎖 Rank: <span class="badge bg-info text-dark" th:text="${s.rankCode}">A</span>
+            </h5>
+            <small class="text-muted">🕒 Ngày làm: <span th:text="${#temporals.format(s.completedAt, 'dd/MM/yyyy HH:mm')}">--</span></small>
+        </div>
+
+        <div class="card-body">
+            <table class="table table-bordered table-hover table-sm">
+                <thead class="table-secondary">
+                <tr>
+                    <th style="width: 50%">📝 Câu hỏi</th>
+                    <th style="width: 25%">✅ Đáp án đúng</th>
+                    <th style="width: 25%">✏️ Đáp án đã chọn</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="q : ${s.questions}">
+                    <td th:text="${q.content}">Nội dung câu hỏi</td>
+                    <td th:text="${q.correctOption}" class="text-success fw-bold">A</td>
+                    <td th:text="${q.selectedOption}"
+                        th:classappend="${q.correctOption == q.selectedOption} ? 'text-success fw-bold' : 'text-danger fw-bold'">B</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+</body>
+</html>

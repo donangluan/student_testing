@@ -53,6 +53,7 @@ public class TestService {
         test.setCreatedBy(createdBy);
         test.setCreatedAt(LocalDateTime.now());
         test.setTopicId(request.getTopicId());
+        test.setDurationMinutes(request.getDurationMinutes());
 
         testMapper.insertTest(test);
 
@@ -217,5 +218,7 @@ public class TestService {
         testMapper.insertTestAssignment(ta);
     }
 
-
+    public TestDTO getTestById(Integer testId) {
+        return testMapper.findTestById(testId);
+    }
 }

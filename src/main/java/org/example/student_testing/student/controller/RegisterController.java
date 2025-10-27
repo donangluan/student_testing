@@ -42,6 +42,26 @@ public class RegisterController {
             return "student/register";
         }
 
+
+        // ✅ Kiểm tra trùng username
+        if (userService.existsByUsername(userDTO.getUsername())) {
+            bindingResult.rejectValue("username", "duplicate", "Tên đăng nhập đã tồn tại");
+            model.addAttribute("userDTO", userDTO);
+            return "student/register";
+        }
+
+        // ✅ Kiểm tra trùng email
+        if (userService.existsByEmail(userDTO.getEmail())) {
+            bindingResult.rejectValue("email", "duplicate", "Email đã được sử dụng");
+            model.addAttribute("userDTO", userDTO);
+            return "student/register";
+        }
+
+        // ✅ Gán role mặc định
+        if (userDTO.getRoleCode() == null || userDTO.getRoleCode().isBlank()) {
+            userDTO.setRoleCode("STUDENT");
+        }
+
         String otp = otpService.generateOtp(userDTO.getEmail());
         emailService.sendOtp(userDTO.getEmail(), otp);
         redirectAttributes.addFlashAttribute("userDTO", userDTO);
@@ -57,35 +77,22 @@ public class RegisterController {
                              RedirectAttributes redirectAttributes,
                              Model model
     ){
-        if (bindingResult.hasErrors()) {
-            return "student/register";
-        }
 
 
 
-        if (userDTO.getRoleCode() == null || userDTO.getRoleCode().isBlank()) {
-            userDTO.setRoleCode("STUDENT");
-        }
-        // Kiểm tra lại roleCode để tránh lỗi từ service
-        if (!"STUDENT".equalsIgnoreCase(userDTO.getRoleCode())) {
-            bindingResult.rejectValue("roleCode", "invalid", "Chỉ học viên được phép đăng ký.");
+        if (!otpService.verifyOtp(userDTO.getEmail(), otp)) {
             model.addAttribute("userDTO", userDTO);
-            return "student/register";
+            model.addAttribute("errorMessage", "Mã OTP không đúng");
+            return "student/verify-otp";
         }
 
-            if(otpService.verifyOtp(userDTO.getEmail(), otp)){
-                userService.register(userDTO);
-                emailService.sendAccountInfo(userDTO.getEmail(), userDTO.getUsername(),userDTO.getPassword());
-                otpService.clearOtp(userDTO.getEmail());
-                redirectAttributes.addFlashAttribute
-                        ("succesMessage", "Đăng kí thành công! Vui lòng kiểm tra email ");
-                return "redirect:/login";
-            }else{
-                model.addAttribute("userDTO", userDTO);
-                redirectAttributes.addFlashAttribute
-                        ("errorMessage", "Mã otp không đúng");
-                return "redirect:/register/verify-otp";
-            }
+        userService.register(userDTO);
+
+
+        emailService.sendAccountInfo(userDTO.getEmail(), userDTO.getUsername(), userDTO.getPassword());
+        otpService.clearOtp(userDTO.getEmail());
+        redirectAttributes.addFlashAttribute("successMessage", "Đăng ký thành công! Vui lòng kiểm tra email.");
+        return "redirect:/login";
 
     }
 

@@ -103,4 +103,8 @@ public class QuestionService {
         q.setCreatedAt(dto.getCreatedAt());
         return q;
     }
+
+    public String getDifficulty(Integer questionId) {
+        return questionMapper.getDifficultyByQuestionId(questionId);
+    }
 }

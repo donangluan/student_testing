@@ -3,6 +3,7 @@ package org.example.student_testing.test.mapper;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.example.student_testing.test.dto.QuestionDTO;
+import org.example.student_testing.test.dto.QuestionViewDTO;
 import org.example.student_testing.test.entity.Question;
 
 
@@ -54,6 +55,11 @@ public interface QuestionMapper {
 
 
 
+    List<QuestionViewDTO> findQuestionsWithAnswer(@Param("testId") Integer testId,
+                                                  @Param("studentUsername") String studentUsername);
+
+
+    String getDifficultyByQuestionId(Integer questionId);
 
 
 }

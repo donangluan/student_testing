@@ -38,6 +38,9 @@ public class TeacherController {
     private  CourseService courseService;
 
     @Autowired
+    private TeacherService teacherService;
+
+    @Autowired
     private TestSubmissionService testSubmissionService;
 
 
@@ -85,34 +88,10 @@ public class TeacherController {
     public String showMixedTopicForm(@RequestParam(required = false) List<Integer> selectedCourseIds,
             @AuthenticationPrincipal UserDetails userDetails, Model model) {
 
-        if (selectedCourseIds == null || selectedCourseIds.isEmpty()) {
-            model.addAttribute("groupedTopics", null); // để kích hoạt form chọn môn
-        }
-
-
-        List<CourseDTO> allCourses = courseService.getAllCourse();
-        Map<CourseDTO, List<TopicDTO>> groupedTopics = new LinkedHashMap<>();
-
-        if (selectedCourseIds != null && !selectedCourseIds.isEmpty()) {
-            List<TopicDTO> selectedTopics = topicService.findTopicsByCourseIds(selectedCourseIds);
-            Map<Integer, List<TopicDTO>> topicsByCourse = selectedTopics.stream()
-                    .collect(Collectors.groupingBy(TopicDTO::getCourseId));
-
-            for (CourseDTO course : allCourses) {
-                if (selectedCourseIds.contains(course.getCourseId())) {
-                    List<TopicDTO> topicList = topicsByCourse.get(course.getCourseId());
-                    if (topicList != null && !topicList.isEmpty()) {
-                        groupedTopics.put(course, topicList);
-                    }
-                }
-            }
-        }
-
-
-        model.addAttribute("courses", allCourses);
+        model.addAttribute("courses", teacherService.getAllCourses());
         model.addAttribute("selectedCourseIds", selectedCourseIds);
-        model.addAttribute("groupedTopics", groupedTopics);
-        model.addAttribute("students", studentService.getStudentsForTeacher(userDetails.getUsername()));
+        model.addAttribute("groupedTopics", selectedCourseIds == null ? null : teacherService.getGroupedTopics(selectedCourseIds));
+        model.addAttribute("students", teacherService.getStudents(userDetails.getUsername()));
         model.addAttribute("mixedTestDTO", new MixedTopicTestDTO());
         return "teacher/test/create-mixed";
     }

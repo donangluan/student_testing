@@ -27,23 +27,35 @@ public class UserService {
     @Autowired
     private StudentProfileMapper studentProfileMapper;
 
+
+
+    private UserDTO toDTO(User user) {
+        if (user == null) return null;
+        UserDTO dto = new UserDTO();
+        dto.setUsername(user.getUsername());
+        dto.setFullName(user.getFullName());
+        dto.setEmail(user.getEmail());
+        dto.setRoleCode(user.getRoleCode());
+        return dto;
+    }
+
     public UserDTO findByUsername(String username) {
         User user = userMapper.findByUsername(username);
-        return userMapper.toDTO(user);
+        return toDTO(user);
     }
 
     public void register(UserDTO userDTO) {
-        if (userMapper.existsByUsername(userDTO.getUsername())) {
-            throw new IllegalArgumentException("Username đã tồn tại");
-        }
 
-        // ✅ Nếu roleCode bị null hoặc sai → gán lại cho chắc chắn
+
+
+
+        //  Nếu roleCode bị null hoặc sai → gán lại cho chắc chắn
         if (userDTO.getRoleCode() == null || !"STUDENT".equalsIgnoreCase(userDTO.getRoleCode())) {
             System.out.println("Cảnh báo: Vai trò không hợp lệ hoặc bị mất khi đăng ký. Đang gán lại là STUDENT.");
             userDTO.setRoleCode("STUDENT");
         }
 
-        // ✅ Tạo tài khoản người dùng
+        //  Tạo tài khoản người dùng
         User user = new User();
         user.setUsername(userDTO.getUsername());
         user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
@@ -52,7 +64,7 @@ public class UserService {
         user.setRoleCode("STUDENT"); // Gán cứng vai trò
         userMapper.insertUser(user);
 
-        // ✅ Gán quyền ROLE_STUDENT
+        //  Gán quyền ROLE_STUDENT
         Integer roleId = roleMapper.findRoleIdByName("STUDENT");
         if (roleId == null) {
             throw new IllegalArgumentException("Vai trò không hợp lệ: STUDENT");
@@ -60,7 +72,7 @@ public class UserService {
         userMapper.assignRoles(userDTO.getUsername(), roleId);
         userMapper.insertUserRole(userDTO.getUsername(), "ROLE_STUDENT");
 
-        // ✅ Tạo hồ sơ học viên
+        //  Tạo hồ sơ học viên
         StudentProfile profile = new StudentProfile();
         profile.setStudentId(userDTO.getUsername());
         profile.setUsername(userDTO.getUsername());
@@ -87,5 +99,44 @@ public class UserService {
         return userMapper.getTeachersByUsernames(usernames);
     }
 
+
+
+
+
+    public List<UserDTO> getAllUsers() {
+        return userMapper.findAllUsers(); // hoặc lấy tất cả nếu có thêm hàm
+    }
+
+
+    public void createUser(User user) {
+        if (!userMapper.existsByUsername(user.getUsername())) {
+            user.setPassword(passwordEncoder.encode(user.getPassword()));
+            userMapper.insertUser(user);
+
+            String roleName = "ROLE_" + user.getRoleCode().toUpperCase(); // ví dụ: ROLE_ADMIN
+            userMapper.insertUserRole(user.getUsername(), roleName);
+        }
+    }
+
+    public void updateUser(User user) {
+        userMapper.updateUser(user);
+    }
+
+    public void deleteUser(String username) {
+        userMapper.deleteRolesByUsername(username);
+        userMapper.deleteByUsername(username);
+    }
+
+    public List<UserDTO> findUsersByRole(String roleCode) {
+        return userMapper.findUsersByRole(roleCode);
+    }
+
+    public boolean existsByUsername(String username) {
+        return userMapper.existsByUsername(username);
+    }
+
+    public boolean existsByEmail(String email) {
+        return userMapper.existsByEmail(email);
+    }
 
 }

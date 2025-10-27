@@ -94,4 +94,12 @@ public class TestResultService {
 
 
 
+    public Integer getResultId(Integer testId, String username) {
+        return testResultMapper.findResultId(testId, username);
+    }
+
+    public TestResultDTO getResultById(Integer resultId) {
+        return testResultMapper.findById(resultId);
+    }
+
 }

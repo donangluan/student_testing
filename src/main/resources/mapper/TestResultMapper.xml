@@ -48,4 +48,39 @@
         <if test="rankCode != null">AND rank_code = #{rankCode}</if>
     </select>
 
+
+    <!-- Kiểm tra đã nộp bài chưa -->
+    <select id="hasSubmitted" resultType="boolean">
+        SELECT COUNT(*) > 0
+        FROM test_results
+        WHERE test_id = #{testId} AND student_username = #{username}
+    </select>
+
+    <!-- Lấy resultId của bài đã nộp -->
+    <select id="findResultId" resultType="int">
+        SELECT id
+        FROM test_results
+        WHERE test_id = #{testId} AND student_username = #{username}
+            LIMIT 1
+    </select>
+
+
+    <select id="findById" resultType="org.example.student_testing.test.dto.TestResultDTO">
+        SELECT r.id, r.test_id, r.student_username, r.score, r.percentile, r.rank_code, r.completed_at,
+               t.test_name AS testName, t.test_type AS testType
+        FROM test_results r
+                 JOIN tests t ON r.test_id = t.test_id
+        WHERE r.id = #{resultId}
+    </select>
+
+
+
+    <select id="findSubmissionsByTestId" resultType="org.example.student_testing.test.dto.SubmissionViewDTO">
+        SELECT id AS resultId, student_username, score, rank_code, completed_at
+        FROM test_results
+        WHERE test_id = #{testId}
+    </select>
+
+
+
 </mapper>

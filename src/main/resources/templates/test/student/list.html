@@ -58,8 +58,11 @@
                 </a>
             </div>
 
-            <div th:if="${testResultMap[test.testId]}" class="text-success fw-bold">
-                Đã hoàn thành
+            <div th:if="${testResultMap[test.testId]}">
+                <span class="text-success fw-bold me-2">Đã hoàn thành</span>
+                <a th:href="@{'/results/detail/' + ${test.resultId}}" class="btn btn-sm btn-info">
+                     Xem chi tiết
+                </a>
             </div>
 
         </td>

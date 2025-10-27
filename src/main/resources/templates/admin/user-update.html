@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Sửa người dùng</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="container mt-4">
+
+<h2>✏️ Sửa người dùng</h2>
+
+<form th:action="@{/admin/users/update}" th:object="${user}" method="post" class="row g-3">
+    <input type="hidden" th:field="*{username}" />
+
+    <div class="col-md-6">
+        <label class="form-label">Họ tên</label>
+        <input th:field="*{fullName}" class="form-control" required />
+    </div>
+    <div class="col-md-6">
+        <label class="form-label">Email</label>
+        <input th:field="*{email}" class="form-control" type="email" required />
+    </div>
+    <div class="col-md-6">
+        <label class="form-label">Vai trò</label>
+        <select th:field="*{roleCode}" class="form-select">
+            <option value="admin">Admin</option>
+            <option value="teacher">Giáo viên</option>
+            <option value="student">Học sinh</option>
+        </select>
+    </div>
+    <div class="col-12">
+        <button type="submit" class="btn btn-success">💾 Cập nhật</button>
+        <a th:href="@{/admin/users}" class="btn btn-secondary">⬅️ Quay lại</a>
+    </div>
+</form>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

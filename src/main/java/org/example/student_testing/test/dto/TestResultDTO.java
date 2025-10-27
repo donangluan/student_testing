@@ -14,7 +14,8 @@ public class TestResultDTO {
     private String studentUsername;
         private Double score;
     private Double percentile;
-
+    private String testName;
+    private String testType;
     private String  rankCode;
     private LocalDateTime completedAt;
 

@@ -8,34 +8,57 @@
 <body class="container mt-5">
 <h2 class="mb-4">Làm bài kiểm tra</h2>
 
-<form method="post" th:action="@{/student/submit}">
+<!-- ✅ THÊM MỚI: hiển thị thời gian còn lại -->
+<div class="alert alert-warning text-center">
+    ⏳ Thời gian còn lại: <span id="countdown" class="fw-bold text-danger">--:--</span>
+</div>
+
+<form method="post" th:action="@{/student/submit}" id="submitForm">
     <input type="hidden" name="testId" th:value="${testId}" />
 
+    <div th:each="q : ${questions}" class="mb-4">
+        <h5 th:text="${q.content}">Câu hỏi</h5>
 
-        <div th:each="q : ${questions}" class="mb-4">
-            <h5 th:text="${q.content}">Câu hỏi</h5>
-
-            <div class="form-check">
-                <input class="form-check-input" type="radio" th:name="${'q_' + q.questionId}" value="A" required />
-                <label class="form-check-label" th:text="${q.optionA}">A</label>
-            </div>
-            <div class="form-check">
-                <input class="form-check-input" type="radio" th:name="${'q_' + q.questionId}" value="B" />
-                <label class="form-check-label" th:text="${q.optionB}">B</label>
-            </div>
-            <div class="form-check">
-                <input class="form-check-input" type="radio" th:name="${'q_' + q.questionId}" value="C" />
-                <label class="form-check-label" th:text="${q.optionC}">C</label>
-            </div>
-            <div class="form-check">
-                <input class="form-check-input" type="radio" th:name="${'q_' + q.questionId}" value="D" />
-                <label class="form-check-label" th:text="${q.optionD}">D</label>
-            </div>
+        <div class="form-check">
+            <input class="form-check-input" type="radio" th:name="${'q_' + q.questionId}" value="A" required />
+            <label class="form-check-label" th:text="${q.optionA}">A</label>
         </div>
-
-
+        <div class="form-check">
+            <input class="form-check-input" type="radio" th:name="${'q_' + q.questionId}" value="B" />
+            <label class="form-check-label" th:text="${q.optionB}">B</label>
+        </div>
+        <div class="form-check">
+            <input class="form-check-input" type="radio" th:name="${'q_' + q.questionId}" value="C" />
+            <label class="form-check-label" th:text="${q.optionC}">C</label>
+        </div>
+        <div class="form-check">
+            <input class="form-check-input" type="radio" th:name="${'q_' + q.questionId}" value="D" />
+            <label class="form-check-label" th:text="${q.optionD}">D</label>
+        </div>
+    </div>
 
     <button type="submit" class="btn btn-success">Nộp bài</button>
 </form>
+
+<!-- ✅ THÊM MỚI: script đếm ngược và auto-submit -->
+<script>
+    const duration = /*[[${duration}]]*/ 30; // thời lượng đề thi (phút)
+    let remaining = duration * 60;
+
+    const countdownEl = document.getElementById("countdown");
+
+    const timer = setInterval(() => {
+        if (remaining <= 0) {
+            clearInterval(timer);
+            countdownEl.innerText = "00:00";
+            document.getElementById("submitForm").submit(); // ✅ auto-submit khi hết giờ
+        } else {
+            const minutes = Math.floor(remaining / 60);
+            const seconds = remaining % 60;
+            countdownEl.innerText = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+            remaining--;
+        }
+    }, 1000);
+</script>
 </body>
 </html>

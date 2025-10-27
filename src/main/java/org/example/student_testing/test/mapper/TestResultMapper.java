@@ -2,6 +2,7 @@ package org.example.student_testing.test.mapper;
 
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
+import org.example.student_testing.test.dto.SubmissionViewDTO;
 import org.example.student_testing.test.dto.TestResultDTO;
 
 import java.util.List;
@@ -14,6 +15,11 @@ public interface TestResultMapper {
     List<TestResultDTO> findAll();
     List<TestResultDTO> filter(Integer testId, String studentUsername, Double minScore, Double maxScore, String rankCode);
 
+    boolean hasSubmitted(@Param("testId") Integer testId, @Param("username") String username);
+    Integer findResultId(@Param("testId") Integer testId, @Param("username") String username);
 
+    TestResultDTO findById(@Param("resultId") Integer resultId);
+
+    List<SubmissionViewDTO> findSubmissionsByTestId(@Param("testId") Integer testId);
 
 }

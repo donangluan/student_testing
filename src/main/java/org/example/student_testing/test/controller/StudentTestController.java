@@ -1,5 +1,6 @@
 package org.example.student_testing.test.controller;
 
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.example.student_testing.test.dto.QuestionDTO;
 
@@ -17,6 +18,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
@@ -41,6 +43,11 @@ public class StudentTestController {
         for (TestDTO test : tests) {
             boolean submitted = testResultService.hasSubmitted(test.getTestId(), username);
             testResultMap.put(test.getTestId(), submitted);
+
+            if (submitted) {
+                Integer resultId = testResultService.getResultId(test.getTestId(), username);
+                test.setResultId(resultId); // Gán resultId vào DTO
+            }
         }
         model.addAttribute("tests", tests);
         model.addAttribute("studentUsername", username);
@@ -51,8 +58,13 @@ public class StudentTestController {
     @GetMapping("/do/{testId}")
     public String showTestToDo(@PathVariable Integer testId,
                                @AuthenticationPrincipal UserDetails userDetails,
+                               HttpSession session,
                                Model model) {
         List<QuestionDTO> questions = questionService.getQuestionsByTestIdAndStudent(testId, userDetails.getUsername());
+        TestDTO test = testService.getTestById(testId);
+        session.setAttribute("startTime", LocalDateTime.now());
+        session.setAttribute("duration", test.getDurationMinutes());
+        model.addAttribute("duration", test.getDurationMinutes());
         model.addAttribute("questions", questions);
         model.addAttribute("testId", testId);
         return "test/student/do";
@@ -61,6 +73,7 @@ public class StudentTestController {
     @PostMapping("/submit")
     public String submitAnswers(@RequestParam Integer testId,
                                 @RequestParam Map<String, String> answers,
+                                HttpSession session,
                                 @AuthenticationPrincipal UserDetails userDetails) {
         Map<Integer, String> parsedAnswers = new HashMap<>();
         for (Map.Entry<String, String> entry : answers.entrySet()) {
@@ -73,6 +86,10 @@ public class StudentTestController {
                 }
             }
         }
+        LocalDateTime startTime = (LocalDateTime) session.getAttribute("startTime");
+        int duration = (int) session.getAttribute("duration");
+        LocalDateTime now = LocalDateTime.now();
+        boolean isTimeout = Duration.between(startTime, now).toMinutes() > duration;
         System.out.println("Số câu đã nộp: " + parsedAnswers.size());
         answerService.saveAnswers(testId, userDetails.getUsername(), parsedAnswers);
         return "redirect:/student/result?testId=" + testId + "&studentUsername=" + userDetails.getUsername();
@@ -122,30 +139,36 @@ public class StudentTestController {
                              @RequestParam String studentUsername,
                              Model model) {
 
+
         List<StudentAnswerDTO> answers = answerService.getStudentAnswers(testId, studentUsername);
         Map<Integer, String> correctMap = new HashMap<>();
-        int correct = 0;
+        int score = 0;
 
         for (StudentAnswerDTO ans : answers) {
             String correctOption = questionService.getCorrectOption(ans.getQuestionId());
             correctMap.put(ans.getQuestionId(), correctOption);
             if (correctOption != null && correctOption.equalsIgnoreCase(ans.getSelectedOption())) {
-                correct++;
+                String difficulty = questionService.getDifficulty(ans.getQuestionId()); // ✅ Lấy độ khó
+                switch (difficulty) {
+                    case "EASY" -> score += 1;
+                    case "MEDIUM" -> score += 2;
+                    case "HARD" -> score += 3;
+                }
             }
         }
 
         int total = answers.size();
-        double score = total > 0 ? ((double) correct / total) * 10 : 0.0;
-        score = Math.round(score * 10.0) / 10.0;
+        double finalScore = total > 0 ? ((double) score / (total * 3)) * 10 : 0.0; // ✅ Tính theo độ khó
+        finalScore = Math.round(finalScore * 10.0) / 10.0;
 
-        double percentile = testResultService.calculatePercentile(testId, score);
-        String rankCode = testResultService.getRankCode(score);
+        double percentile = testResultService.calculatePercentile(testId, finalScore);
+        String rankCode = testResultService.getRankCode(finalScore);
 
         if (!testResultService.hasSubmitted(testId, studentUsername)) {
             TestResultDTO result = new TestResultDTO();
             result.setTestId(testId);
             result.setStudentUsername(studentUsername);
-            result.setScore(score);
+            result.setScore(finalScore);
             result.setPercentile(percentile);
             result.setRankCode(rankCode);
             result.setCompletedAt(LocalDateTime.now());
@@ -155,7 +178,7 @@ public class StudentTestController {
         TestResultDTO result = new TestResultDTO();
         result.setTestId(testId);
         result.setStudentUsername(studentUsername);
-        result.setScore(score);
+        result.setScore(finalScore);
         result.setPercentile(percentile);
         result.setRankCode(rankCode);
         result.setCompletedAt(LocalDateTime.now());
@@ -163,7 +186,7 @@ public class StudentTestController {
         model.addAttribute("results", List.of(result));
         model.addAttribute("answers", answers);
         model.addAttribute("correctMap", correctMap);
-        model.addAttribute("correct", correct);
+        model.addAttribute("correct", score);
         model.addAttribute("total", total);
 
         return "test/student/results";

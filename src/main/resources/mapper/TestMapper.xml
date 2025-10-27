@@ -34,6 +34,15 @@
         ORDER BY created_at DESC
     </select>
 
+    <select id="findTestById" resultType="org.example.student_testing.test.dto.TestDTO">
+        SELECT  test_id AS testId,
+                test_name AS testName,
+                test_type AS testType,
+                created_by AS createdBy,
+                created_at AS createdAt,
+                topic_id AS topicId FROM tests WHERE test_id = #{testId}
+    </select>
+
 
     <select id="findTestsByType" resultType="org.example.student_testing.test.dto.TestDTO">
         SELECT test_id AS testId,

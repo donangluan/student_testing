@@ -28,4 +28,6 @@ public interface TestMapper {
     List<TestResultDTO> findResultsByStudent(String studentUsername);
 
 
+    TestDTO findTestById(Integer testId);
+
 }

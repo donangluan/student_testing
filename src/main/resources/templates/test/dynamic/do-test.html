@@ -10,6 +10,10 @@
     <p>Câu số: <span th:text="${answeredCount + 1}"></span> / <span th:text="${totalQuestions}"></span></p>
 
     <h2 class="mb-4 text-center">Làm bài kiểm tra động</h2>
+    <div class="alert alert-warning text-center">
+        ⏳ Thời gian còn lại: <span id="countdown" class="fw-bold text-danger">--:--</span>
+    </div>
+
 
     <form th:action="@{/student/dynamic/submit-test}" method="post">
         <input type="hidden" name="testId" th:value="${testId}" />
@@ -43,5 +47,25 @@
         </div>
     </form>
 </div>
+
+<script>
+    const duration = /*[[${duration}]]*/ 30;
+    let remaining = duration * 60;
+
+    const countdownEl = document.getElementById("countdown");
+
+    const timer = setInterval(() => {
+        if (remaining <= 0) {
+            clearInterval(timer);
+            countdownEl.innerText = "00:00";
+            document.getElementById("submitForm").submit(); // ✅ auto-submit
+        } else {
+            const minutes = Math.floor(remaining / 60);
+            const seconds = remaining % 60;
+            countdownEl.innerText = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+            remaining--;
+        }
+    }, 1000);
+</script>
 </body>
 </html>
