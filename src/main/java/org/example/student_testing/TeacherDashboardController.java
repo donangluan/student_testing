@@ -3,6 +3,7 @@ package org.example.student_testing;
 import org.example.student_testing.student.service.ScoreService;
 import org.example.student_testing.student.service.StudentService;
 import org.example.student_testing.test.service.TestService;
+import org.example.student_testing.test.service.TestSubmissionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
@@ -24,12 +25,13 @@ public class TeacherDashboardController {
     private StudentService studentService;
 
     @Autowired
-    private ScoreService scoreService;
+    private TestSubmissionService testSubmissionService;
 
     @GetMapping("/dashboard")
     public String dashboard(Model model) {
         model.addAttribute("totalTests", testService.getTotalTests());
-        model.addAttribute("gradedSubmissions", scoreService.getGradedCount());
+        int gradedSubmissions = testSubmissionService.countGraded();
+        model.addAttribute("gradedSubmissions", gradedSubmissions);
         model.addAttribute("totalStudents", studentService.countTotalStudents());
         return "teacher/dashboard";
     }

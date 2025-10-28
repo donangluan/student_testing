@@ -59,7 +59,7 @@ public interface QuestionMapper {
                                                   @Param("studentUsername") String studentUsername);
 
 
-    String getDifficultyByQuestionId(Integer questionId);
+    Integer getDifficultyByQuestionId(Integer questionId);
 
 
 }

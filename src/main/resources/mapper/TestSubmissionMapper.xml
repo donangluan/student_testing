@@ -21,4 +21,16 @@
         GROUP BY sa.test_id, t.test_name, sc.student_username, sa.student_username
         ORDER BY sa.test_id, sc.student_username
     </select>
+
+
+    <select id="countGradedSubmissions" resultType="int">
+        SELECT COUNT(*) FROM test_submissions
+        WHERE graded = TRUE
+    </select>
+
+    <insert id="insert" parameterType="org.example.student_testing.test.dto.TestSubmissionDTO">
+        INSERT INTO test_submissions(test_id, student_username, submitted_at, total_answered, correct_count, score, graded)
+        VALUES (#{testId}, #{studentUsername}, #{submittedAt}, #{totalAnswered}, #{correctCount}, #{score}, #{graded})
+    </insert>
+
 </mapper>

@@ -54,6 +54,6 @@ public interface StudentMapper {
 
     List<StudentDTO> findStudentsByClassId(@Param("classId") Integer classId);
 
-
+    int countAllStudents();
 
 }

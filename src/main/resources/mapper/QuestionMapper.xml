@@ -186,8 +186,8 @@
     </select>
 
 
-    <select id="getDifficultyByQuestionId" resultType="String">
-        SELECT difficulty FROM questions WHERE question_id = #{questionId}
+    <select id="getDifficultyByQuestionId" resultType="Integer">
+        SELECT difficulty_id FROM questions WHERE question_id = #{questionId}
     </select>
 
 </mapper>

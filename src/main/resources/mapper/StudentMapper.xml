@@ -179,4 +179,10 @@
                  JOIN student_class c ON s.username = c.student_username
         WHERE c.class_id = #{classId}
     </select>
+
+
+
+    <select id="countAllStudents" resultType="int">
+        SELECT COUNT(*) FROM students
+    </select>
 </mapper>

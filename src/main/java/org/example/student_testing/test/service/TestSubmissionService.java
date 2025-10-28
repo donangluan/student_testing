@@ -16,4 +16,13 @@ public class TestSubmissionService {
     public List<TestSubmissionDTO> getAllSubmissionsForTeacher( String teacherUsername) {
         return testSubmissionMapper.getAllSubmissionsForTeacher( teacherUsername);
     }
+
+    public int countGraded() {
+        return testSubmissionMapper.countGradedSubmissions();
+    }
+
+    public void save(TestSubmissionDTO submission) {
+        testSubmissionMapper.insert(submission);
+    }
+
 }

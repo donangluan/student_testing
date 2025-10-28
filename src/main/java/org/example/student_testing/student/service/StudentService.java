@@ -125,4 +125,9 @@ public class StudentService {
     public List<StudentDTO> getStudentsByClassId(Integer classId) {
         return studentMapper.findStudentsByClassId(classId);
     }
+
+    public int countAll() {
+        return studentMapper.countAllStudents();
+    }
+
 }

@@ -11,4 +11,8 @@ public interface TestSubmissionMapper {
 
     List<TestSubmissionDTO> getAllSubmissionsForTeacher(
                                                @Param("teacherUsername") String teacherUsername);
+
+    int countGradedSubmissions();
+
+    void insert(TestSubmissionDTO submission);
 }

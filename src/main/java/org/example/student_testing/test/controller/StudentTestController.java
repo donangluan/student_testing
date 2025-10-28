@@ -2,15 +2,9 @@ package org.example.student_testing.test.controller;
 
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
-import org.example.student_testing.test.dto.QuestionDTO;
+import org.example.student_testing.test.dto.*;
 
-import org.example.student_testing.test.dto.StudentAnswerDTO;
-import org.example.student_testing.test.dto.TestDTO;
-import org.example.student_testing.test.dto.TestResultDTO;
-import org.example.student_testing.test.service.QuestionService;
-import org.example.student_testing.test.service.StudentAnswerService;
-import org.example.student_testing.test.service.TestResultService;
-import org.example.student_testing.test.service.TestService;
+import org.example.student_testing.test.service.*;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -23,6 +17,7 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Controller
 @RequestMapping("/student")
@@ -34,6 +29,8 @@ public class StudentTestController {
     private final QuestionService questionService;
     private final TestResultService testResultService;
     private final TestService testService;
+    private final TestSubmissionService testSubmissionService;
+
 
     @GetMapping("/tests")
     public String showAvailableTests(@AuthenticationPrincipal UserDetails userDetails, Model model) {
@@ -87,7 +84,10 @@ public class StudentTestController {
             }
         }
         LocalDateTime startTime = (LocalDateTime) session.getAttribute("startTime");
-        int duration = (int) session.getAttribute("duration");
+        int duration = Optional.ofNullable((Integer) session.getAttribute("duration")).orElse(0);
+
+
+
         LocalDateTime now = LocalDateTime.now();
         boolean isTimeout = Duration.between(startTime, now).toMinutes() > duration;
         System.out.println("Số câu đã nộp: " + parsedAnswers.size());
@@ -143,23 +143,29 @@ public class StudentTestController {
         List<StudentAnswerDTO> answers = answerService.getStudentAnswers(testId, studentUsername);
         Map<Integer, String> correctMap = new HashMap<>();
         int score = 0;
+        int maxScore = 0;
+        int total = answers.size();
 
         for (StudentAnswerDTO ans : answers) {
+            String difficulty = questionService.getDifficulty(ans.getQuestionId());
+            int weight = switch (difficulty) {
+                case "EASY" -> 1;
+                case "MEDIUM" -> 2;
+                case "HARD" -> 3;
+                default -> 0;
+            };
+            maxScore += weight;
+
             String correctOption = questionService.getCorrectOption(ans.getQuestionId());
             correctMap.put(ans.getQuestionId(), correctOption);
             if (correctOption != null && correctOption.equalsIgnoreCase(ans.getSelectedOption())) {
-                String difficulty = questionService.getDifficulty(ans.getQuestionId()); // ✅ Lấy độ khó
-                switch (difficulty) {
-                    case "EASY" -> score += 1;
-                    case "MEDIUM" -> score += 2;
-                    case "HARD" -> score += 3;
-                }
+                score += weight;
             }
         }
 
-        int total = answers.size();
-        double finalScore = total > 0 ? ((double) score / (total * 3)) * 10 : 0.0; // ✅ Tính theo độ khó
+        double finalScore = maxScore > 0 ? ((double) score / maxScore) * 10 : 0.0;
         finalScore = Math.round(finalScore * 10.0) / 10.0;
+
 
         double percentile = testResultService.calculatePercentile(testId, finalScore);
         String rankCode = testResultService.getRankCode(finalScore);
@@ -173,6 +179,16 @@ public class StudentTestController {
             result.setRankCode(rankCode);
             result.setCompletedAt(LocalDateTime.now());
             testResultService.save(result);
+
+            TestSubmissionDTO submission = new TestSubmissionDTO();
+            submission.setTestId(testId);
+            submission.setStudentUsername(studentUsername);
+            submission.setSubmittedAt(LocalDateTime.now());
+            submission.setTotalAnswered(answers.size());
+            submission.setCorrectCount(score);
+            submission.setScore(finalScore);
+            submission.setGraded(true);
+            testSubmissionService.save(submission);
         }
 
         TestResultDTO result = new TestResultDTO();

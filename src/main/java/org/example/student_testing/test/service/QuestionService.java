@@ -105,6 +105,12 @@ public class QuestionService {
     }
 
     public String getDifficulty(Integer questionId) {
-        return questionMapper.getDifficultyByQuestionId(questionId);
+        Integer difficultyId = questionMapper.getDifficultyByQuestionId(questionId);
+        return switch (difficultyId) {
+            case 1 -> "EASY";
+            case 2 -> "MEDIUM";
+            case 3 -> "HARD";
+            default -> "UNKNOWN";
+        };
     }
 }

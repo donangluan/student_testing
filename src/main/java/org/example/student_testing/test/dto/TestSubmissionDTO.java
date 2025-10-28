@@ -7,11 +7,12 @@ import java.util.Map;
 
 @Data
 public class TestSubmissionDTO {
-    private String testName;
+    private Integer submissionId;
     private Integer testId;
     private String studentUsername;
-    private boolean hasSubmitted;
-    private int totalAnswered;
-    private int correctCount;
-    private LocalDateTime lastAnswered;
+    private LocalDateTime submittedAt;
+    private Integer totalAnswered;
+    private Integer correctCount;
+    private Double score;
+    private Boolean graded;
 }
