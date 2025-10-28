@@ -17,6 +17,9 @@
                 <li class="nav-item" th:if="${#authorization.expression('hasRole(''ADMIN'')')}">
                     <a class="nav-link" th:href="@{/admin/users}"> Quản lý tài khoản</a>
                 </li>
+                <li class="nav-item" th:if="${#authorization.expression('hasAnyRole(''TEACHER'',''ADMIN'',''STUDENT'')')}">
+                    <a class="nav-link" th:href="@{/course/list}">Khóa học</a>
+                </li>
                 <li class="nav-item" th:if="${#authorization.expression('hasRole(''ADMIN'')')}">
                     <a class="nav-link" th:href="@{/admin/login-history}">Lịch sử đăng nhập</a>
                 </li>

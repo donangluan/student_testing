@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
@@ -9,31 +9,40 @@
 </head>
 <body>
 <h2>Course List</h2>
-<a th:href="@{/course/add}" class="btn btn-success">ADD Course</a>
+<span sec:authorize="hasAnyRole('TEACHER','ADMIN')">
+    <a class="btn btn-primary" th:href="@{/course/add}">Thêm khóa học</a>
+</span>
 <table class="table" border="1">
     <thead>
         <tr>
             <th>CourseId</th>
             <th>CourseName</th>
-            <th>StartDate</th>
-            <th>EndDate</th>
+            <th>TeacherId</th>
+            <th>CreatedAt</th>
+            <th>UpdatedAt</th>
             <th>Action</th>
         </tr>
     </thead>
 
     <tbody>
-        <tr th:each="c : ${course}">
-            <td th:text="${c.courseId}"></td>
-            <td th:text="${c.courseName}"></td>
-            <td th:text="${#dates.format(c.startDate, 'yyyy/MM/dd')}"></td>
-            <td th:text="${#dates.format(c.endDate, 'yyyy/MM/dd')}"></td>
-            <td >
-                <a th:href="@{/course/edit/{courseId}(courseId = ${c.courseId})}" class="btn btn-warning" >Update</a>
-                <a th:href="@{/course/delete/{courseId}(courseId = ${c.courseId})}" class="btn btn-danger"
-                   onclick="return confirm('are you sure you want to delete?')"
-                >Delete</a>
-            </td>
-        </tr>
+    <tr th:each="c : ${course}">
+        <td th:text="${c.courseId}"></td>
+        <td th:text="${c.courseName}"></td>
+        <td th:text="${c.teacherId}"></td>
+        <td th:text="${#temporals.format(c.createdAt, 'yyyy/MM/dd HH:mm')}"></td>
+        <td th:text="${#temporals.format(c.updatedAt, 'yyyy/MM/dd HH:mm')}"></td>
+
+        <td>
+        <span sec:authorize="hasAnyRole('TEACHER','ADMIN')">
+            <a th:href="@{/course/edit/{courseId}(courseId = ${c.courseId})}" class="btn btn-warning btn-sm">Update</a>
+        </span>
+            <span sec:authorize="hasRole('ADMIN')">
+            <a th:href="@{/course/delete/{courseId}(courseId = ${c.courseId})}" class="btn btn-danger btn-sm"
+               onclick="return confirm('Bạn có chắc chắn muốn xóa?')">Delete</a>
+        </span>
+        </td>
+    </tr>
+
     </tbody>
 
 </table>

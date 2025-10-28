@@ -31,8 +31,9 @@ public class CourseService {
         CourseDTO courseDTO = new CourseDTO();
         courseDTO.setCourseId(course.getCourseId());
         courseDTO.setCourseName(course.getCourseName());
-        courseDTO.setStartDate(course.getStartDate());
-        courseDTO.setEndDate(course.getEndDate());
+        courseDTO.setTeacherId(course.getTeacherId());
+        courseDTO.setCreatedAt(course.getCreatedAt());
+        courseDTO.setUpdatedAt(course.getUpdatedAt());
         return courseDTO;
     }
 
@@ -40,8 +41,9 @@ public class CourseService {
         Course course = new Course();
         course.setCourseId(courseDTO.getCourseId());
         course.setCourseName(courseDTO.getCourseName());
-        course.setStartDate(courseDTO.getStartDate());
-        course.setEndDate(courseDTO.getEndDate());
+        course.setTeacherId(courseDTO.getTeacherId());
+        course.setCreatedAt(courseDTO.getCreatedAt());
+        course.setUpdatedAt(courseDTO.getUpdatedAt());
         return course;
     }
 
