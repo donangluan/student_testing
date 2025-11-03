@@ -8,13 +8,14 @@
 <body class="container mt-5">
 <h2 class="mb-4">Chi tiết đề kiểm tra</h2>
 
-<table class="table table-bordered">
-    <thead>
+<table class="table table-bordered table-striped table-hover">
+    <thead class="table-light">
     <tr>
         <th>ID</th>
         <th>Nội dung câu hỏi</th>
         <th>Độ khó</th>
         <th>Chủ đề</th>
+        <th class="text-center">Nguồn</th> <!-- ✅ Cột mới -->
     </tr>
     </thead>
     <tbody>
@@ -23,6 +24,10 @@
         <td th:text="${q.content}">Câu hỏi mẫu</td>
         <td th:text="${q.difficultyId == 1 ? 'Dễ' : (q.difficultyId == 2 ? 'Trung bình' : 'Khó')}">Trung bình</td>
         <td th:text="${q.topicName != null ? q.topicName : 'Chủ đề #' + q.topicId}">Toán</td>
+        <td class="text-center">
+            <span th:class="${q.source == 'ai' ? 'badge bg-primary' : 'badge bg-secondary'}"
+                  th:text="${q.source == 'ai' ? 'AI' : 'Thủ công'}">Thủ công</span>
+        </td>
     </tr>
     </tbody>
 </table>

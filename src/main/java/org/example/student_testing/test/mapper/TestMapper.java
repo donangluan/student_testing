@@ -1,12 +1,11 @@
 package org.example.student_testing.test.mapper;
 
 import org.apache.ibatis.annotations.Mapper;
-import org.example.student_testing.test.dto.TestAssignmentDTO;
-import org.example.student_testing.test.dto.TestDTO;
-import org.example.student_testing.test.dto.TestQuestionDTO;
-import org.example.student_testing.test.dto.TestResultDTO;
+import org.apache.ibatis.annotations.Param;
+import org.example.student_testing.test.dto.*;
 
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Mapper
@@ -29,5 +28,18 @@ public interface TestMapper {
 
 
     TestDTO findTestById(Integer testId);
+
+
+
+    void insertHistory(@Param("testId") Integer testId,
+                       @Param("teacherId") Integer teacherId,
+                       @Param("createdAt") LocalDateTime createdAt);
+
+
+    List<String> getAssignedStudents(@Param("testId") Integer testId);
+
+    List<QuestionDTO> findQuestionsByTestId(@Param("testId") Integer testId);
+
+
 
 }

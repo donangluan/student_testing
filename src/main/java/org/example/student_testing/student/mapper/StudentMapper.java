@@ -56,4 +56,7 @@ public interface StudentMapper {
 
     int countAllStudents();
 
+    List<StudentDTO> findByUsernames(@Param("usernames") List<String> usernames);
+
+
 }

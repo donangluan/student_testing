@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.example.student_testing.chatbot.mapper.AiGeneratedQuestionMapper">
+
+    <resultMap id="aiGeneratedQuestionMap" type="org.example.student_testing.chatbot.entity.AiGeneratedQuestion">
+        <result property="id" column="id"/>
+        <result property="teacherId" column="teacher_id"/>
+        <result property="questionContent" column="question_content"/>
+        <result property="options" column="options"/>
+        <result property="correctAnswer" column="correct_answer"/>
+        <result property="difficulty" column="difficulty"/>
+        <result property="topic" column="topic"/>
+        <result property="topicId" column="topic_id"/>
+        <result property="status" column="status"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="source" column="source"/> <!-- ✅ map rõ ràng -->
+    </resultMap>
+
+    <!-- Truy vấn theo giáo viên -->
+    <select id="getByTeacherId" resultMap="aiGeneratedQuestionMap">
+        SELECT *
+        FROM ai_generated_questions
+        WHERE teacher_id = #{teacherId}
+        ORDER BY created_at DESC
+    </select>
+
+    <!-- Cập nhật trạng thái -->
+    <update id="updateStatus" parameterType="org.example.student_testing.chatbot.entity.AiGeneratedQuestion">
+        UPDATE ai_generated_questions
+        SET status = #{status}
+        WHERE id = #{id}
+    </update>
+
+    <!-- Insert hàng loạt câu hỏi AI -->
+    <insert id="insertAiQuestions" parameterType="org.example.student_testing.chatbot.dto.AiGeneratedQuestionDTO">
+        <foreach collection="list" item="q" separator=";">
+            INSERT INTO ai_generated_questions (
+            question_content, options, correct_answer,
+            difficulty, topic, topic_id, source, status, created_at, teacher_id
+            ) VALUES (
+            #{q.questionContent}, #{q.options}::jsonb, #{q.correctAnswer},
+            #{q.difficulty}, #{q.topic}, #{q.topicId}, #{q.source}, #{q.status}, #{q.createdAt}, #{q.teacherId}
+            )
+        </foreach>
+    </insert>
+
+    <!-- Insert 1 câu hỏi AI -->
+    <insert id="insertQuestion"
+            parameterType="org.example.student_testing.chatbot.entity.AiGeneratedQuestion"
+            useGeneratedKeys="true"
+            keyProperty="id">
+        INSERT INTO ai_generated_questions (
+            teacher_id, question_content, options, correct_answer,
+            difficulty, topic, topic_id, source, status, created_at
+        )
+        VALUES (
+                   #{teacherId}, #{questionContent}, CAST(#{options} AS jsonb), #{correctAnswer},
+                   #{difficulty}, #{topic}, #{topicId}, #{source}, #{status}, #{createdAt}
+               )
+    </insert>
+
+    <!-- Truy vấn theo danh sách ID -->
+    <select id="findByIds" resultMap="aiGeneratedQuestionMap">
+        SELECT * FROM ai_generated_questions
+        WHERE id IN
+        <foreach item="id" collection="ids" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
+
+
+    <!-- Cập nhật câu hỏi AI -->
+    <update id="updateQuestion" parameterType="org.example.student_testing.chatbot.entity.AiGeneratedQuestion">
+        UPDATE ai_generated_questions
+        SET options = CAST(#{options} AS jsonb),
+            correct_answer = #{correctAnswer},
+            topic = #{topic},
+            topic_id = #{topicId},
+            difficulty = #{difficulty}
+        WHERE id = #{id}
+    </update>
+
+    <!-- Truy vấn theo ID -->
+    <select id="findById" resultMap="aiGeneratedQuestionMap">
+        SELECT * FROM ai_generated_questions WHERE id = #{id}
+    </select>
+
+
+    <!-- Truy vấn theo courseId qua topic_id -->
+    <select id="findByCourseId" resultMap="aiGeneratedQuestionMap">
+        SELECT agq.*
+        FROM ai_generated_questions agq
+                 JOIN topics t ON agq.topic_id = t.topic_id
+        WHERE t.course_id = #{courseId}
+    </select>
+
+    <!-- Truy vấn tất cả ID -->
+    <select id="findAllIds" resultType="int">
+        SELECT id FROM ai_generated_questions
+    </select>
+
+    <!-- Truy vấn theo courseName và topicName -->
+    <select id="findByCourseAndTopic" resultMap="aiGeneratedQuestionMap">
+        SELECT q.*
+        FROM ai_generated_questions q
+                 JOIN topics t ON q.topic_id = t.topic_id
+                 JOIN courses c ON t.course_id = c.course_id
+        WHERE c.course_name = #{courseName}
+          AND t.topic_name = #{topicName}
+    </select>
+
+
+    <select id="findByCourse" resultMap="aiGeneratedQuestionMap">
+        SELECT q.*
+        FROM ai_generated_questions q
+                 JOIN topics t ON q.topic_id = t.topic_id
+                 JOIN courses c ON t.course_id = c.course_id
+        WHERE LOWER(c.course_name) = LOWER(#{courseName})
+    </select>
+
+</mapper>

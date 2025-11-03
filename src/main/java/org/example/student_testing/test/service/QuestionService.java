@@ -1,6 +1,9 @@
 package org.example.student_testing.test.service;
 
 
+import org.example.student_testing.chatbot.dto.AiGeneratedQuestionDTO;
+import org.example.student_testing.chatbot.entity.AiGeneratedQuestion;
+import org.example.student_testing.chatbot.mapper.AiGeneratedQuestionMapper;
 import org.example.student_testing.test.dto.QuestionDTO;
 import org.example.student_testing.test.entity.Question;
 import org.example.student_testing.test.mapper.QuestionMapper;
@@ -21,6 +24,10 @@ public class QuestionService {
     @Autowired
     private TestQuestionMapper testQuestionMapper;
 
+    @Autowired
+    private AiGeneratedQuestionMapper aiGeneratedQuestionMapper;
+
+
     public List<QuestionDTO> getAllQuestions(){
         return questionMapper.findAll();
     }
@@ -31,9 +38,7 @@ public class QuestionService {
 
     @Transactional
     public void createQuestion(QuestionDTO questionDTO){
-        Question question = new Question();
-        BeanUtils.copyProperties(questionDTO,question);
-        questionMapper.insert(question);
+        questionMapper.insert(questionDTO);
     }
 
     public void update(QuestionDTO questionDTO){
@@ -104,8 +109,77 @@ public class QuestionService {
         return q;
     }
 
+    public Integer getDifficultyByQuestionId(Integer questionId) {
+        QuestionDTO manual = questionMapper.findById(questionId);
+        if (manual != null) return manual.getDifficultyId();
+
+        AiGeneratedQuestion ai = aiGeneratedQuestionMapper.findById(questionId);
+        if (ai != null) return convertDifficulty(ai.getDifficulty());
+
+        return null;
+    }
+
+    private Integer convertDifficulty(String difficulty) {
+        return switch (difficulty.toLowerCase()) {
+            case "easy" -> 1;
+            case "medium" -> 2;
+            case "hard" -> 3;
+            default -> null;
+        };
+    }
+
+    public List<QuestionDTO> findByCourseAndTopic(String courseName, String topicName) {
+        // 🔍 Lấy câu hỏi thủ công
+        List<QuestionDTO> manualQuestions = questionMapper.findByCourseAndTopic(courseName, topicName);
+
+        // 🔍 Lấy câu hỏi AI
+        List<AiGeneratedQuestion> aiQuestions = aiGeneratedQuestionMapper.findByCourseAndTopic(courseName, topicName);
+
+        // 🔁 Chuyển đổi AI sang QuestionDTO
+        for (AiGeneratedQuestion ai : aiQuestions) {
+            QuestionDTO dto = new QuestionDTO();
+            dto.setQuestionId(ai.getId());
+            dto.setContent(ai.getQuestionContent());
+            dto.setCorrectOption(ai.getCorrectAnswer());
+            dto.setDifficultyId(convertDifficulty(ai.getDifficulty()));
+            dto.setTopicName(ai.getTopic());
+            dto.setCreatedAt(ai.getCreatedAt());
+            dto.setCreatedBy("AI");
+
+            // Nếu có optionsMap
+            if (ai.getOptionsMap() != null) {
+                dto.setOptionA(ai.getOptionsMap().get("A"));
+                dto.setOptionB(ai.getOptionsMap().get("B"));
+                dto.setOptionC(ai.getOptionsMap().get("C"));
+                dto.setOptionD(ai.getOptionsMap().get("D"));
+            }
+
+            manualQuestions.add(dto);
+        }
+
+        return manualQuestions;
+    }
+
+
+
+
     public String getDifficulty(Integer questionId) {
-        Integer difficultyId = questionMapper.getDifficultyByQuestionId(questionId);
+        // 🔍 Kiểm tra trong bảng thủ công
+        QuestionDTO manual = questionMapper.findById(questionId);
+        if (manual != null) {
+            return convertDifficultyToText(manual.getDifficultyId());
+        }
+
+        // 🔍 Nếu không có → kiểm tra trong bảng AI
+        AiGeneratedQuestion ai = aiGeneratedQuestionMapper.findById(questionId);
+        if (ai != null) {
+            return ai.getDifficulty(); // đã là chuỗi: "Easy", "Medium", "Hard"
+        }
+
+        return "UNKNOWN";
+    }
+
+    private String convertDifficultyToText(Integer difficultyId) {
         return switch (difficultyId) {
             case 1 -> "EASY";
             case 2 -> "MEDIUM";

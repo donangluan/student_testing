@@ -18,7 +18,7 @@ public class TestQuestionService {
     private final QuestionMapper questionMapper;
 
 
-    public void assignQuestions(Integer testId, List<Integer> questionIds, String studentUsername) {
+    public void assignQuestions(Integer testId, List<Integer> questionIds, String studentUsername, String source ) {
         int order = 1;
 
         for (Integer questionId : questionIds) {
@@ -31,8 +31,19 @@ public class TestQuestionService {
                     questionId,
                     studentUsername,
                     difficultyId,
-                    order++
+                    order++,
+                    source
             );
         }
+    }
+
+
+    public void assignSingleQuestion(Integer testId,
+                                     Integer questionId,
+                                     String studentUsername,
+                                     Integer difficultyId,
+                                     Integer orderNo,
+                                     String source) {
+        testQuestionMapper.insertTestQuestion(testId, questionId, studentUsername, difficultyId, orderNo, source);
     }
 }

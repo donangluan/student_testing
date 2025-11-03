@@ -52,4 +52,12 @@ public class TopicService {
     }
 
 
+    public Integer getIdByName(String name) {
+        return topicMapper.findIdByName(name);
+    }
+
+    public Integer getCourseIdByTopicId(Integer topicId) {
+        return topicMapper.findCourseIdByTopicId(topicId);
+    }
+
 }

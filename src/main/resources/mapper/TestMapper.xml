@@ -6,9 +6,10 @@
 
 
     <insert id="insertTest" useGeneratedKeys="true" keyProperty="testId" parameterType="org.example.student_testing.test.dto.TestDTO">
-        INSERT INTO tests(test_name, test_type, created_by, created_at, topic_id)
-        VALUES (#{testName}, #{testType}, #{createdBy}, current_timestamp, #{topicId})
+        INSERT INTO tests(test_name, test_type, created_by, created_at, topic_id, duration_minutes)
+        VALUES (#{testName}, #{testType}, #{createdBy}, current_timestamp, #{topicId}, #{durationMinutes})
     </insert>
+
 
 
     <insert id="insertTestAssignment" parameterType="org.example.student_testing.test.dto.TestDTO">
@@ -35,13 +36,22 @@
     </select>
 
     <select id="findTestById" resultType="org.example.student_testing.test.dto.TestDTO">
-        SELECT  test_id AS testId,
-                test_name AS testName,
-                test_type AS testType,
-                created_by AS createdBy,
-                created_at AS createdAt,
-                topic_id AS topicId FROM tests WHERE test_id = #{testId}
+        SELECT t.test_id AS testId,
+               t.test_name AS testName,
+               t.test_type AS testType,
+               t.created_by AS createdBy,
+               t.created_at AS createdAt,
+               t.topic_id AS topicId,
+               t.duration_minutes AS durationMinutes,
+               tp.topic_name AS topicName,
+               c.course_name AS courseName
+        FROM tests t
+                 LEFT JOIN topics tp ON t.topic_id = tp.topic_id
+                 LEFT JOIN courses c ON tp.course_id = c.course_id
+        WHERE t.test_id = #{testId}
     </select>
+
+
 
 
     <select id="findTestsByType" resultType="org.example.student_testing.test.dto.TestDTO">
@@ -71,4 +81,60 @@
         SELECT * FROM test_results WHERE student_username = #{studentUsername}
     </select>
 
+
+    <insert id="insertHistory">
+        INSERT INTO ai_question_history (test_id, teacher_id, created_at)
+        VALUES (#{testId}, #{teacherId}, #{createdAt})
+    </insert>
+    <select id="getAssignedStudents" resultType="String">
+        SELECT DISTINCT student_username as studentUsername
+        FROM test_assignments
+        WHERE test_id = #{testId}
+    </select>
+
+    <select id="findQuestionsByTestId" resultType="org.example.student_testing.test.dto.QuestionDTO">
+        SELECT
+            tq.question_id AS questionId,
+
+            CASE
+                WHEN tq.source = 'ai' THEN ai.question_content
+                ELSE q.content
+                END AS content,
+
+            CASE
+                WHEN tq.source = 'ai' THEN ai.options ->> 'A'
+                ELSE q.option_a
+                END AS optionA,
+
+            CASE
+                WHEN tq.source = 'ai' THEN ai.options ->> 'B'
+                ELSE q.option_b
+                END AS optionB,
+
+            CASE
+                WHEN tq.source = 'ai' THEN ai.options ->> 'C'
+                ELSE q.option_c
+                END AS optionC,
+
+            CASE
+                WHEN tq.source = 'ai' THEN ai.options ->> 'D'
+                ELSE q.option_d
+                END AS optionD,
+
+            CASE
+                WHEN tq.source = 'ai' THEN ai.correct_answer
+                ELSE q.correct_option
+                END AS correctOption,
+
+            tq.difficulty_id AS difficultyId,
+            COALESCE(q.topic_id, NULL) AS topicId,
+            tq.order_no AS orderNo,
+            tq.source AS source
+
+        FROM test_questions tq
+                 LEFT JOIN questions q ON tq.source = 'manual' AND tq.question_id = q.question_id
+                 LEFT JOIN ai_generated_questions ai ON tq.source = 'ai' AND tq.question_id = ai.id
+        WHERE tq.test_id = #{testId}
+        ORDER BY tq.order_no
+    </select>
 </mapper>

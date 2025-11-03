@@ -185,4 +185,14 @@
     <select id="countAllStudents" resultType="int">
         SELECT COUNT(*) FROM students
     </select>
+
+
+    <select id="findByUsernames" resultType="org.example.student_testing.student.dto.StudentDTO">
+        SELECT *
+        FROM students
+        WHERE username IN
+        <foreach item="u" collection="usernames" open="(" separator="," close=")">
+            #{u}
+        </foreach>
+    </select>
 </mapper>

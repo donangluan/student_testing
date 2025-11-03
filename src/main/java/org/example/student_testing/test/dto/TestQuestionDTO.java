@@ -16,4 +16,8 @@ public class TestQuestionDTO {
     private Integer orderNo;
 
     private Integer difficultyId;
+
+    private String source;
+
+    private String assignedBy;
 }

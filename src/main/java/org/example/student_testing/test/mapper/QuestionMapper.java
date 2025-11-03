@@ -14,7 +14,7 @@ public interface QuestionMapper {
 
     List<QuestionDTO> findAll();
     QuestionDTO findById(@Param("questionId") Integer questionId);
-    void insert(Question Question);
+    void insert(QuestionDTO QuestionDTO);
     void update(Question Question);
     void delete(@Param("questionId") Integer questionId);
 
@@ -60,6 +60,11 @@ public interface QuestionMapper {
 
 
     Integer getDifficultyByQuestionId(Integer questionId);
+
+    List<QuestionDTO> findByCourseAndTopic(@Param("courseName") String courseName,
+                                           @Param("topicName") String topicName);
+
+    Integer findIdByContent(@Param("content") String content);
 
 
 }

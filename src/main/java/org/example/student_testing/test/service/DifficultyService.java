@@ -33,4 +33,8 @@ public class DifficultyService {
     public void delete(Integer difficultyId) {
         difficultyLevelMapper.delete(difficultyId);
     }
+
+    public Integer getIdByName(String name) {
+        return difficultyLevelMapper.findIdByName(name);
+    }
 }

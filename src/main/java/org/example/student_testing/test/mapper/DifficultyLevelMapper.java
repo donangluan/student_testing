@@ -15,4 +15,6 @@ public interface DifficultyLevelMapper {
     void insert(DifficultyLevelDTO dto);
     void update(DifficultyLevelDTO dto);
     void delete(@Param("difficultyId") Integer difficultyId);
+
+    Integer findIdByName(@Param("name") String name);
 }

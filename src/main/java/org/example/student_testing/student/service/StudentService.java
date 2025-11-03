@@ -130,4 +130,8 @@ public class StudentService {
         return studentMapper.countAllStudents();
     }
 
+    public List<StudentDTO> findByUsernames(List<String> usernames) {
+        return studentMapper.findByUsernames(usernames);
+    }
+
 }

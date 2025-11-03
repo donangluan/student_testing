@@ -43,6 +43,7 @@ public interface UserMapper {
     void deleteRolesByUsername(@Param("username") String username);
     List<UserDTO> findAllUsers();
 
+    Integer findTeacherIdByUsername(@Param("username") String username);
 
 
 }

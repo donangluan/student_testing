@@ -7,7 +7,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication
 @MapperScan(basePackages = {
         "org.example.student_testing.student.mapper",
-        "org.example.student_testing.test.mapper"
+        "org.example.student_testing.test.mapper",
+        "org.example.student_testing.chatbot.mapper"
 })
 public class StudentTestingApplication {
 

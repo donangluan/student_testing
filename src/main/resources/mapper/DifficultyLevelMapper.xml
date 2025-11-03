@@ -28,4 +28,8 @@
     <delete id="delete" parameterType="int">
         DELETE FROM difficulty_levels WHERE difficulty_id = #{difficultyId}
     </delete>
+
+    <select id="findIdByName" resultType="int">
+        SELECT difficulty_id FROM difficulties WHERE difficulty_name = #{name}
+    </select>
 </mapper>

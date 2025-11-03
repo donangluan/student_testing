@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Chỉnh sửa & lưu câu hỏi AI</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- CSRF token for JS -->
+    <meta name="_csrf" th:content="${_csrf.token}" />
+    <meta name="_csrf_header" th:content="${_csrf.headerName}" />
+</head>
+<body class="container py-4">
+<h2 class="mb-4"> Chỉnh sửa & lưu câu hỏi AI</h2>
+
+<div th:if="${#lists.isEmpty(questions)}">
+    <div class="alert alert-danger"> Không có câu hỏi nào để hiển thị. Vui lòng thử lại.</div>
+</div>
+
+<div th:if="${not #lists.isEmpty(questions)}">
+
+    <!-- FORM CHÍNH -->
+    <form th:action="@{/teacher/tests/save-ai-questions}" method="post">
+        <input type="hidden" name="topic" th:value="${topic}" />
+        <input type="hidden" name="difficulty" th:value="${difficulty}" />
+        <input type="hidden" name="count" th:value="${questions.size()}" />
+
+        <div th:each="q, stat : ${questions}" class="card mb-4 shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title">Câu [[${stat.index + 1}]]</h5>
+
+                <!-- Checkbox chọn câu hỏi -->
+                <div class="form-check mb-3">
+                    <input type="checkbox"
+                           class="form-check-input"
+                           th:name="'selectedIndexes[' + ${stat.index} + ']'"
+                           th:value="${stat.index}" checked>
+                    <label class="form-check-label">Lưu câu hỏi này</label>
+                </div>
+
+                <!-- Nội dung câu hỏi -->
+                <div class="mb-3">
+                    <label class="form-label">Nội dung câu hỏi:</label>
+                    <textarea class="form-control" rows="3"
+                              th:name="'contents[' + ${stat.index} + ']'"
+                              th:text="${q.questionContent}"></textarea>
+                </div>
+
+                <!-- Đáp án -->
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Đáp án A:</label>
+                        <input type="text" class="form-control"
+                               th:name="'answers[' + ${stat.index} + '][A]'"
+                               th:value="${q.optionsMap['A']}" />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Đáp án B:</label>
+                        <input type="text" class="form-control"
+                               th:name="'answers[' + ${stat.index} + '][B]'"
+                               th:value="${q.optionsMap['B']}" />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Đáp án C:</label>
+                        <input type="text" class="form-control"
+                               th:name="'answers[' + ${stat.index} + '][C]'"
+                               th:value="${q.optionsMap['C']}" />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Đáp án D:</label>
+                        <input type="text" class="form-control"
+                               th:name="'answers[' + ${stat.index} + '][D]'"
+                               th:value="${q.optionsMap['D']}" />
+                    </div>
+                </div>
+
+                <!-- Đáp án đúng -->
+                <div class="mt-3">
+                    <label class="form-label">Đáp án đúng:</label>
+                    <select class="form-select"
+                            th:name="'corrects[' + ${stat.index} + ']'">
+                        <option value="A" th:selected="${q.correctAnswer == 'A'}">A</option>
+                        <option value="B" th:selected="${q.correctAnswer == 'B'}">B</option>
+                        <option value="C" th:selected="${q.correctAnswer == 'C'}">C</option>
+                        <option value="D" th:selected="${q.correctAnswer == 'D'}">D</option>
+                    </select>
+                </div>
+
+                <!-- Nút lưu riêng và bỏ qua -->
+                <div class="mt-3 d-flex gap-2">
+                    <button type="button"
+                            class="btn btn-outline-primary"
+                            th:onclick="'submitSingleQuestion(' + ${stat.index} + ')'">
+                        Lưu riêng câu này
+                    </button>
+
+                    <button type="button"
+                            class="btn btn-outline-danger"
+                            th:onclick="'discardQuestion(' + ${stat.index} + ')'">
+                        Bỏ qua câu hỏi này
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Nút lưu tất cả -->
+        <div class="text-center mb-4">
+            <button type="submit" class="btn btn-success px-4">Lưu tất cả câu hỏi đã chọn</button>
+        </div>
+    </form>
+
+    <!-- Nút tạo lại -->
+    <div class="text-center">
+        <form method="post" th:action="@{/teacher/tests/generate-ai}">
+            <input type="hidden" name="topic" th:value="${topic}" />
+            <input type="hidden" name="difficulty" th:value="${difficulty}" />
+            <input type="hidden" name="count" th:value="${count}" />
+            <button type="submit" class="btn btn-secondary px-4">Tạo lại tất cả nếu chưa hài lòng</button>
+        </form>
+    </div>
+</div>
+
+<!-- SCRIPT xử lý lưu riêng -->
+<script>
+    function submitSingleQuestion(index) {
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '/teacher/tests/save-single-ai-question';
+
+        const topic = document.querySelector('input[name="topic"]').value;
+        const difficulty = document.querySelector('input[name="difficulty"]').value;
+        const content = document.querySelector(`textarea[name="contents[${index}]"]`).value;
+        const correct = document.querySelector(`select[name="corrects[${index}]"]`).value;
+        const optionA = document.querySelector(`input[name="answers[${index}][A]"]`).value;
+        const optionB = document.querySelector(`input[name="answers[${index}][B]"]`).value;
+        const optionC = document.querySelector(`input[name="answers[${index}][C]"]`).value;
+        const optionD = document.querySelector(`input[name="answers[${index}][D]"]`).value;
+
+        const fields = {
+            topic, difficulty, content, correctAnswer: correct,
+            optionA, optionB, optionC, optionD
+        };
+
+        for (const [name, value] of Object.entries(fields)) {
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = name;
+            input.value = value;
+            form.appendChild(input);
+        }
+
+        // CSRF token
+        const csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
+        const csrfInput = document.createElement('input');
+        csrfInput.type = 'hidden';
+        csrfInput.name = '_csrf';
+        csrfInput.value = csrfToken;
+        form.appendChild(csrfInput);
+
+        document.body.appendChild(form);
+        form.submit();
+    }
+
+    function discardQuestion(index) {
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '/teacher/tests/discard-ai-question';
+
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = 'index';
+        input.value = index;
+        form.appendChild(input);
+
+        // CSRF token
+        const csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
+        const csrfInput = document.createElement('input');
+        csrfInput.type = 'hidden';
+        csrfInput.name = '_csrf';
+        csrfInput.value = csrfToken;
+        form.appendChild(csrfInput);
+
+        document.body.appendChild(form);
+        form.submit();
+    }
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

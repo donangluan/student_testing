@@ -21,6 +21,9 @@ public interface TopicMapper {
 
     List<TopicDTO> findTopicsByCourseIds(@Param("courseIds") List<Integer> courseIds);
 
+    Integer findIdByName(@Param("name") String name);
 
+
+    Integer findCourseIdByTopicId(@Param("topicId") Integer topicId);
 
 }

@@ -1,6 +1,8 @@
 package org.example.student_testing.test.service;
 
 
+import org.example.student_testing.chatbot.entity.AiGeneratedQuestion;
+import org.example.student_testing.chatbot.service.AiGenerateQuestionService;
 import org.example.student_testing.test.dto.*;
 import org.example.student_testing.test.entity.Question;
 import org.example.student_testing.test.mapper.QuestionMapper;
@@ -8,10 +10,13 @@ import org.example.student_testing.test.mapper.TestMapper;
 import org.example.student_testing.test.mapper.TestQuestionMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @Service
 public class TestService {
@@ -21,8 +26,16 @@ public class TestService {
     @Autowired
     private  QuestionService questionService;
 
+
+    @Autowired
+    private  TopicService topicService;
     @Autowired
     private TestQuestionMapper testQuestionMapper;
+
+    @Autowired
+    private AiGenerateQuestionService  aiGenerateQuestionService;
+
+
 
     public TestService(TestMapper testMapper, QuestionMapper questionMapper) {
         this.testMapper = testMapper;
@@ -45,8 +58,9 @@ public class TestService {
         return q;
     }
 
+    @Transactional
     public void generateUniqueTest(UniqueTestRequest request, String createdBy) {
-
+        // Tạo đề kiểm tra
         TestDTO test = new TestDTO();
         test.setTestName(request.getTestName());
         test.setTestType(request.getTestType());
@@ -57,31 +71,31 @@ public class TestService {
 
         testMapper.insertTest(test);
 
+        // 🔥 Lấy courseId từ topic hiện tại
+        Integer courseId = topicService.getCourseIdByTopicId(request.getTopicId());
 
+        // 🔥 Lấy câu hỏi AI từ các chủ đề khác nhưng cùng môn học
+        List<AiGeneratedQuestion> aiQuestions = aiGenerateQuestionService.findByCourseId(courseId);
 
+        // 🔥 Chuyển câu hỏi AI sang bảng questions
+        aiGenerateQuestionService.convertAiQuestionsToOfficial(aiQuestions);
 
+        // ✅ Lấy danh sách câu hỏi từ chủ đề hiện tại
         List<QuestionDTO> selectedQuestions = questionMapper.randomQuestionsByTopic(
                 request.getTopicId(), request.getNumberOfQuestions()
-
         );
-
 
         int requested = request.getNumberOfQuestions();
         int actual = selectedQuestions.size();
 
         if (actual < requested) {
-            System.out.println(" Chỉ tìm được " + actual + " câu hỏi phù hợp (yêu cầu: " + requested + ")");
+            System.out.println("⚠️ Chỉ tìm được " + actual + " câu hỏi phù hợp (yêu cầu: " + requested + ")");
         }
-        System.out.println(">> Selected questions: " + selectedQuestions.size());
 
-        System.out.println(">> Topic ID: " + request.getTopicId());
+        System.out.println(">> Đề #" + test.getTestId() + " | Chủ đề: " + request.getTopicId());
+        System.out.println(">> Số câu hỏi: " + actual);
 
-        System.out.println(">> Number of questions: " + request.getNumberOfQuestions());
-        System.out.println(">> Selected questions: " + selectedQuestions.size());
-
-
-
-
+        // ✅ Gán đề cho từng học sinh
         for (String studentUsername : request.getStudentUsername()) {
             if (studentUsername == null || studentUsername.isBlank()) continue;
 
@@ -91,30 +105,32 @@ public class TestService {
             ta.setAssignedAt(LocalDateTime.now());
             testMapper.insertTestAssignment(ta);
 
-
-
             int order = 1;
             for (QuestionDTO q : selectedQuestions) {
+                Integer qId = q.getQuestionId();
+                if (qId == null) continue;
 
-                System.out.println(">> testId = " + test.getTestId());
-                System.out.println(">> questionId = " + q.getQuestionId());
-                System.out.println(">> studentUsername = " + studentUsername);
-                System.out.println(">> difficultyId = " + q.getDifficultyId());
-                System.out.println(">> orderNo = " + order);
+                String source = q.getSource(); // ✅ lấy từ bảng questions
+
+                if (source == null || source.isBlank()) {
+                    System.out.println("⚠️ Bỏ qua câu hỏi " + qId + " vì thiếu source");
+                    continue;
+                }
+
+                System.out.printf("✅ Gán câu #%d cho %s | nguồn: %s%n", qId, studentUsername, source);
+
                 testQuestionMapper.insertTestQuestion(
                         test.getTestId(),
-                        q.getQuestionId(),
+                        qId,
                         studentUsername,
                         q.getDifficultyId(),
-                        order++
+                        order++,
+                        source
                 );
-
-
             }
         }
-
-
     }
+
 
     public List<TestDTO> findAll() {
         return testMapper.findAllTests();
@@ -134,6 +150,7 @@ public class TestService {
         testMapper.insertTest(testDTO);
 
         Integer testId = testDTO.getTestId();
+        List<Integer> aiQuestionIds = aiGenerateQuestionService.findAllIds();
 
         // Gom toàn bộ câu hỏi từ các chủ đề
         List<QuestionDTO> allQuestions = new java.util.ArrayList<>();
@@ -155,13 +172,15 @@ public class TestService {
             // Gán câu hỏi vào đề (chung cho giáo viên)
             int order = 1;
             for (QuestionDTO q : questionDTOs) {
+                String source = aiQuestionIds.contains(q.getQuestionId()) ? "ai" : "manual";
                 Question qEntity = toEntity(q);
                 testQuestionMapper.insertTestQuestion(
                         testId,
                         qEntity.getQuestionId(),
                         dto.getCreatedBy(),
                         qEntity.getDifficultyId(),
-                        order++
+                        order++,
+                        source
                 );
             }
         }
@@ -178,12 +197,14 @@ public class TestService {
 
             int order = 1;
             for (QuestionDTO q : allQuestions) {
+                String source = aiQuestionIds.contains(q.getQuestionId()) ? "ai" : "manual";
                 testQuestionMapper.insertTestQuestion(
                         testId,
                         q.getQuestionId(),
                         studentUsername,
                         q.getDifficultyId(),
-                        order++
+                        order++,
+                        source
                 );
             }
         }
@@ -219,6 +240,76 @@ public class TestService {
     }
 
     public TestDTO getTestById(Integer testId) {
+        System.out.println("🔍 testId = " + testId);
+        System.out.println("🔍 testId type = " + (testId == null ? "null" : testId.getClass().getName()));
+        System.out.println("🧩 Mapper class = " + testMapper.getClass());
+
         return testMapper.findTestById(testId);
     }
+
+
+
+    public void createAiTest(String testName, String topic, List<Integer> questionIds,
+                             List<String> studentUsernames, String teacherUsername) {
+
+        // Tạo đề kiểm tra
+        TestDTO test = new TestDTO();
+        test.setTestName(testName);
+        test.setTopicName(topic);
+        test.setTestType("AI");
+        test.setCreatedBy(teacherUsername);
+        test.setCreatedAt(LocalDateTime.now());
+        testMapper.insertTest(test);
+
+        // Gán câu hỏi vào đề
+        int order = 1;
+        for (Integer qId : questionIds) {
+            TestQuestionDTO tq = new TestQuestionDTO();
+            tq.setTestId(test.getTestId());
+            tq.setQuestionId(qId);
+            tq.setAssignedBy(teacherUsername);
+            tq.setOrderNo(order++);
+            testMapper.insertTestQuestion(tq);
+        }
+
+        // Gán đề cho học sinh
+        for (String studentUsername : studentUsernames) {
+            TestAssignmentDTO ta = new TestAssignmentDTO();
+            ta.setTestId(test.getTestId());
+            ta.setStudentUsername(studentUsername);
+            ta.setAssignedAt(LocalDateTime.now());
+            testMapper.insertTestAssignment(ta);
+        }
+
+        // ❌ Chưa gọi lưu lịch sử → sẽ làm sau
+    }
+
+
+    public List<String> getAssignedStudents(Integer testId) {
+        return testMapper.getAssignedStudents(testId);
+    }
+
+
+    public void assignQuestionsToTest(Integer testId, List<Integer> questionIds) {
+        TestDTO test = testMapper.findTestById(testId);
+        if (test == null) throw new RuntimeException("Không tìm thấy đề kiểm tra");
+
+        String assignedBy = test.getCreatedBy();
+        int order = testQuestionMapper.countQuestionsInTest(testId) + 1;
+
+        List<Integer> aiIds = aiGenerateQuestionService.findAllIds();
+
+        for (Integer qId : questionIds) {
+            String source = aiIds.contains(qId) ? "ai" : "manual";
+
+            testQuestionMapper.insertTestQuestionForTest(
+                    testId, qId, assignedBy, null, order++, source
+            );
+        }
+
+        System.out.println("✅ Gán " + questionIds.size() + " câu hỏi vào đề #" + testId);
+    }
+
+
+
 }

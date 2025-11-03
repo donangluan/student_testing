@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>🧠 Trợ lý Tạo Câu hỏi bằng AI</title>
+    <style>
+        body { font-family: sans-serif; margin: 2rem; }
+        label { display: block; margin-top: 1rem; font-weight: bold; }
+        textarea, input, select { width: 100%; padding: 0.5rem; margin-top: 0.5rem; }
+        button { margin-top: 1rem; padding: 0.5rem 1rem; font-weight: bold; }
+        .question { margin-top: 1rem; padding: 1rem; border: 1px solid #ccc; border-radius: 5px; background: #f9f9f9; }
+        .error { color: red; font-weight: bold; }
+    </style>
+    <!-- CSRF token -->
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+</head>
+<body>
+
+<h1>🧠 Sinh câu hỏi bằng AI</h1>
+
+<form id="generateForm">
+    <label>👨‍🏫 Mã giáo viên:
+        <input type="number" name="teacherId" value="1" required>
+    </label>
+
+    <label>📚 Chủ đề:
+        <input type="text" name="topic" placeholder="VD: Vòng lặp trong Java" required>
+    </label>
+
+    <label>🎯 Độ khó:
+        <select name="difficulty" required>
+            <option value="Easy">Dễ</option>
+            <option value="Medium" selected>Trung bình</option>
+            <option value="Hard">Khó</option>
+        </select>
+    </label>
+
+    <label>🔢 Số lượng câu hỏi (1–50):
+        <input type="number" name="quantity" value="5" min="1" max="50" required>
+    </label>
+
+    <button type="submit">🚀 Gửi yêu cầu</button>
+</form>
+
+<div id="result"></div>
+
+<script>
+    document.getElementById("generateForm").addEventListener("submit", function(e) {
+        e.preventDefault();
+
+        const form = e.target;
+        const formData = new FormData(form);
+        const params = new URLSearchParams(formData).toString();
+
+        const token = document.querySelector('meta[name="_csrf"]').getAttribute("content");
+        const header = document.querySelector('meta[name="_csrf_header"]').getAttribute("content");
+
+        fetch("/api/ai-questions/generate?" + params, {
+            method: "POST",
+            headers: {
+                [header]: token
+            }
+        })
+            .then(res => {
+                if (!res.ok) throw new Error("Lỗi từ server");
+                return res.json();
+            })
+            .then(data => {
+                const container = document.getElementById("result");
+                if (!Array.isArray(data) || data.length === 0) {
+                    container.innerHTML = "<p class='error'>❌ Không có câu hỏi nào được tạo.</p>";
+                    return;
+                }
+
+                container.innerHTML = "<h2>📦 Kết quả:</h2>";
+                data.forEach((q, i) => {
+                    container.innerHTML += `
+                <div class="question">
+                    <strong>Câu ${i + 1}:</strong> ${q.questionContent}<br>
+                    <em>Chủ đề:</em> ${q.topic} | <em>Độ khó:</em> ${q.difficulty}<br>
+                    <em>Đáp án đúng:</em> ${q.correctAnswer}<br>
+                    <ul>
+                        <li>A. ${q.optionsMap?.A || ""}</li>
+                        <li>B. ${q.optionsMap?.B || ""}</li>
+                        <li>C. ${q.optionsMap?.C || ""}</li>
+                        <li>D. ${q.optionsMap?.D || ""}</li>
+                    </ul>
+                </div>
+            `;
+                });
+            })
+            .catch(err => {
+                console.error("Chi tiết lỗi:", err);
+                document.getElementById("result").innerHTML = "<p class='error'>❌ Lỗi khi gọi API: " + err.message + "</p>";
+            });
+    });
+</script>
+
+</body>
+</html>

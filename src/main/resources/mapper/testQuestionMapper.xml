@@ -7,12 +7,49 @@
 
     <mapper namespace="org.example.student_testing.test.mapper.TestQuestionMapper">
     <insert id="insertTestQuestion">
-        INSERT INTO test_questions (test_id, question_id, student_username, difficulty_id, order_no)
-        VALUES (#{testId}, #{questionId}, #{studentUsername}, #{difficultyId}, #{orderNo})
+        INSERT INTO test_questions (test_id, question_id, student_username, difficulty_id, order_no,source)
+        VALUES (#{testId}, #{questionId}, #{studentUsername}, #{difficultyId}, #{orderNo},#{source})
     </insert>
 
 
     <select id="countByQuestionId" resultType="int">
         SELECT COUNT(*) FROM test_questions WHERE question_id = #{questionId}
+    </select>
+
+    <select id="findQuestionsByTestId" resultType="org.example.student_testing.test.dto.QuestionDTO">
+        SELECT
+            tq.question_id AS questionId,
+            q.content,
+            q.option_a AS optionA,
+            q.option_b AS optionB,
+            q.option_c AS optionC,
+            q.option_d AS optionD,
+            q.correct_option AS correctOption,
+            q.difficulty_id AS difficultyId,
+            q.topic_id AS topicId,
+            t.topic_name AS topicName,
+            tq.order_no AS orderNo,
+            tq.source
+        FROM test_questions tq
+                 JOIN questions q ON tq.question_id = q.question_id
+                 JOIN topics t ON q.topic_id = t.topic_id
+        WHERE tq.test_id = #{testId}
+        ORDER BY tq.order_no
+    </select>
+
+
+
+    <insert id="insertTestQuestionForTest">
+        INSERT INTO test_question (test_id, question_id, assigned_by, difficulty_id, order_no, source)
+        VALUES (#{testId}, #{questionId}, #{assignedBy}, #{difficultyId}, #{orderNo}, #{source})
+    </insert>
+
+    <insert id="insertTestQuestionForStudent">
+        INSERT INTO test_question (test_id, question_id, student_username, difficulty_id, order_no, source)
+        VALUES (#{testId}, #{questionId}, #{studentUsername}, #{difficultyId}, #{orderNo}, #{source})
+    </insert>
+
+    <select id="countQuestionsInTest" resultType="int">
+        SELECT COUNT(*) FROM test_question WHERE test_id = #{testId}
     </select>
     </mapper>

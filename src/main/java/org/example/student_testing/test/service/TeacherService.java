@@ -53,9 +53,9 @@ public class TeacherService {
         return questionService.previewQuestions(topicId, numberOfQuestions);
     }
 
-    public void assignTest(Integer testId, String studentUsername, List<Integer> questionIds) {
+    public void assignTest(Integer testId, String studentUsername, List<Integer> questionIds,String source) {
         testService.assignTestToStudent(testId, studentUsername);
-        testQuestionService.assignQuestions(testId, questionIds, studentUsername);
+        testQuestionService.assignQuestions(testId, questionIds, studentUsername,source);
     }
 
     public void createMixedTest(MixedTopicTestDTO dto, List<String> studentUsernames, String teacherUsername) {

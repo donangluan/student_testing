@@ -94,4 +94,14 @@
                          updated_at = CURRENT_TIMESTAMP
         WHERE username = #{username}
     </update>
+
+
+    <select id="findTeacherIdByUsername" resultType="int">
+        SELECT tp.teacher_id
+        FROM teacher_profile tp
+                 JOIN users u ON tp.username = u.username
+        WHERE u.username = #{username}
+    </select>
+
+
 </mapper>

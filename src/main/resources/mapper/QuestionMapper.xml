@@ -9,7 +9,7 @@
         SELECT question_id AS questionId, content, option_a AS optionA, option_b AS optionB,
                option_c AS optionC, option_d AS optionD, correct_option AS correctOption,
                difficulty_id AS difficultyId, topic_id AS topicId, created_by AS createdBy,
-               created_at AS createdAt
+               created_at AS createdAt, source
         FROM questions
         ORDER BY created_at DESC
     </select>
@@ -18,16 +18,19 @@
         SELECT question_id AS questionId, content, option_a AS optionA, option_b AS optionB,
                option_c AS optionC, option_d AS optionD, correct_option AS correctOption,
                difficulty_id AS difficultyId, topic_id AS topicId, created_by AS createdBy,
-               created_at AS createdAt
+               created_at AS createdAt,source
         FROM questions
         WHERE question_id = #{questionId}
     </select>
 
-    <insert id="insert" parameterType="org.example.student_testing.test.dto.QuestionDTO">
+    <insert id="insert"
+            parameterType="org.example.student_testing.test.dto.QuestionDTO"
+            useGeneratedKeys="true"
+            keyProperty="questionId">
         INSERT INTO questions(content, option_a, option_b, option_c, option_d, correct_option,
-                              difficulty_id, topic_id, created_by, created_at)
+                              difficulty_id, topic_id, created_by, created_at, source)
         VALUES (#{content}, #{optionA}, #{optionB}, #{optionC}, #{optionD}, #{correctOption},
-                #{difficultyId}, #{topicId}, #{createdBy}, CURRENT_TIMESTAMP)
+                #{difficultyId}, #{topicId}, #{createdBy}, CURRENT_TIMESTAMP, #{source})
     </insert>
 
     <update id="update" parameterType="org.example.student_testing.test.dto.QuestionDTO">
@@ -62,7 +65,8 @@
                q.correct_option AS correctOption,
                q.difficulty_id AS difficultyId,
                q.topic_id AS topicId,
-               t.topic_name AS topicName
+               t.topic_name AS topicName,
+               q.source
         FROM test_questions tq
                  JOIN questions q ON tq.question_id = q.question_id
                  JOIN topics t ON q.topic_id = t.topic_id
@@ -85,7 +89,8 @@
                option_d AS optionD,
                correct_option AS correctOption,
                difficulty_id AS difficultyId,
-               created_by AS createdBy
+               created_by AS createdBy,
+               source
         FROM questions
         WHERE topic_id = #{topicId}
         ORDER BY RANDOM()
@@ -125,13 +130,12 @@
                q.option_c AS optionC,
                q.option_d AS optionD,
                q.correct_option AS correctOption,
-
                q.topic_id AS topicId,
-               t.topic_name AS topicName
+               t.topic_name AS topicName,
+               q.source
         FROM questions q
                  JOIN topics t ON q.topic_id = t.topic_id
         WHERE q.topic_id = #{topicId}
-
         ORDER BY RANDOM()
             LIMIT #{limit}
     </select>
@@ -146,7 +150,8 @@
                q.correct_option AS correctOption,
                q.difficulty_id AS difficultyId,
                q.topic_id AS topicId,
-               t.topic_name AS topicName
+               t.topic_name AS topicName,
+               q.source
         FROM test_questions tq
                  JOIN questions q ON tq.question_id = q.question_id
                  JOIN topics t ON q.topic_id = t.topic_id
@@ -189,5 +194,31 @@
     <select id="getDifficultyByQuestionId" resultType="Integer">
         SELECT difficulty_id FROM questions WHERE question_id = #{questionId}
     </select>
+
+    <select id="findByCourseAndTopic" resultType="org.example.student_testing.test.dto.QuestionDTO">
+        SELECT q.question_id AS questionId,
+               q.content,
+               q.option_a AS optionA,
+               q.option_b AS optionB,
+               q.option_c AS optionC,
+               q.option_d AS optionD,
+               q.correct_option AS correctOption,
+               q.difficulty_id AS difficultyId,
+               q.topic_id AS topicId,
+               q.created_by AS createdBy,
+               q.created_at AS createdAt,
+               t.topic_name AS topicName
+        FROM questions q
+                 JOIN topics t ON q.topic_id = t.topic_id
+                 JOIN courses c ON t.course_id = c.course_id
+        WHERE c.course_name = #{courseName}
+          AND t.topic_name = #{topicName}
+    </select>
+
+    <select id="findIdByContent" resultType="int">
+        SELECT question_id FROM questions WHERE content = #{content}
+    </select>
+
+
 
 </mapper>

@@ -46,4 +46,12 @@
             #{id}
         </foreach>
     </select>
+
+    <select id="findIdByName" resultType="int">
+        SELECT topic_id FROM topics WHERE topic_name = #{name}
+    </select>
+
+    <select id="findCourseIdByTopicId" resultType="int">
+        SELECT course_id FROM topics WHERE topic_id = #{topicId}
+    </select>
 </mapper>
