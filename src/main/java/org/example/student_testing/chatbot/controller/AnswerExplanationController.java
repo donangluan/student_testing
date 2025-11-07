@@ -47,7 +47,7 @@ public class AnswerExplanationController {
 
                                    Model model) {
 
-        // ✅ Lấy username từ tài khoản đang đăng nhập
+        //  Lấy username từ tài khoản đang đăng nhập
         String studentUsername = userDetails.getUsername();
         // Lấy danh sách tin nhắn theo hội thoại
         List<ChatMessageDTO> messages = chatMessageService.getMessagesByConversationId(conversationId);

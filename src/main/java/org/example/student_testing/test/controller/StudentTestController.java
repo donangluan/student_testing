@@ -203,7 +203,7 @@ public class StudentTestController {
         result.setRankCode(rankCode);
         result.setCompletedAt(LocalDateTime.now());
 
-        // ✅ Thêm dòng này để chatbot hoạt động
+
         Integer conversationId = testService.getOrCreateConversationId(testId, studentUsername);
 
 

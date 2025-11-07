@@ -150,10 +150,10 @@ public class GeminiService {
         RestTemplate restTemplate = new RestTemplate();
         try {
             ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
-            System.out.println("✅ Danh sách model được phép dùng:");
+            System.out.println(" Danh sách model được phép dùng:");
             System.out.println(response.getBody());
         } catch (Exception e) {
-            System.out.println("❌ Không thể lấy danh sách model: " + e.getMessage());
+            System.out.println(" Không thể lấy danh sách model: " + e.getMessage());
         }
     }
 
@@ -190,7 +190,7 @@ public class GeminiService {
          Mẹo ghi nhớ:
         [1 mẹo ngắn gọn]
 
-        Bạn đã hiểu chưa? Nếu cần mình giải thích thêm thì cứ nói nhé! 😊
+        Bạn đã hiểu chưa? Nếu cần mình giải thích thêm thì cứ nói nhé! 
 
         BẮT ĐẦU GIẢI THÍCH:
         """.formatted(

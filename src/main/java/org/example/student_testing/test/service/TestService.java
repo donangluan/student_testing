@@ -72,16 +72,16 @@ public class TestService {
 
         testMapper.insertTest(test);
 
-        // 🔥 Lấy courseId từ topic hiện tại
+
         Integer courseId = topicService.getCourseIdByTopicId(request.getTopicId());
 
-        // 🔥 Lấy câu hỏi AI từ các chủ đề khác nhưng cùng môn học
+
         List<AiGeneratedQuestion> aiQuestions = aiGenerateQuestionService.findByCourseId(courseId);
 
-        // 🔥 Chuyển câu hỏi AI sang bảng questions
+
         aiGenerateQuestionService.convertAiQuestionsToOfficial(aiQuestions);
 
-        // ✅ Lấy danh sách câu hỏi từ chủ đề hiện tại
+
         List<QuestionDTO> selectedQuestions = questionMapper.randomQuestionsByTopic(
                 request.getTopicId(), request.getNumberOfQuestions()
         );
@@ -90,13 +90,12 @@ public class TestService {
         int actual = selectedQuestions.size();
 
         if (actual < requested) {
-            System.out.println("⚠️ Chỉ tìm được " + actual + " câu hỏi phù hợp (yêu cầu: " + requested + ")");
+
         }
 
-        System.out.println(">> Đề #" + test.getTestId() + " | Chủ đề: " + request.getTopicId());
-        System.out.println(">> Số câu hỏi: " + actual);
 
-        // ✅ Gán đề cho từng học sinh
+
+        //  Gán đề cho từng học sinh
         for (String studentUsername : request.getStudentUsername()) {
             if (studentUsername == null || studentUsername.isBlank()) continue;
 
@@ -111,14 +110,14 @@ public class TestService {
                 Integer qId = q.getQuestionId();
                 if (qId == null) continue;
 
-                String source = q.getSource(); // ✅ lấy từ bảng questions
+                String source = q.getSource();
 
                 if (source == null || source.isBlank()) {
-                    System.out.println("⚠️ Bỏ qua câu hỏi " + qId + " vì thiếu source");
+
                     continue;
                 }
 
-                System.out.printf("✅ Gán câu #%d cho %s | nguồn: %s%n", qId, studentUsername, source);
+
 
                 testQuestionMapper.insertTestQuestion(
                         test.getTestId(),
@@ -241,9 +240,6 @@ public class TestService {
     }
 
     public TestDTO getTestById(Integer testId) {
-        System.out.println("🔍 testId = " + testId);
-        System.out.println("🔍 testId type = " + (testId == null ? "null" : testId.getClass().getName()));
-        System.out.println("🧩 Mapper class = " + testMapper.getClass());
 
         return testMapper.findTestById(testId);
     }
@@ -282,7 +278,7 @@ public class TestService {
             testMapper.insertTestAssignment(ta);
         }
 
-        // ❌ Chưa gọi lưu lịch sử → sẽ làm sau
+
     }
 
 
@@ -308,19 +304,19 @@ public class TestService {
             );
         }
 
-        System.out.println("✅ Gán " + questionIds.size() + " câu hỏi vào đề #" + testId);
+
     }
     @Transactional
     public Integer getOrCreateConversationId(Integer testId, String studentUsername) {
         Integer existing = testMapper.findConversationId(testId, studentUsername);
         if (existing != null) return existing;
 
-        Integer newId = (int) (System.currentTimeMillis() % 1000000); // hoặc Random
+        Integer newId = (int) (System.currentTimeMillis() % 1000000);
 
-        // ✅ Lưu vào bảng test_conversations
+
         testMapper.insertConversation(testId, studentUsername, newId);
 
-        // ✅ Tạo bản ghi trong bảng chat_conversations để tránh lỗi khóa ngoại
+
         chatConversationMapper.insertConversation(newId,studentUsername);
 
         return newId;
