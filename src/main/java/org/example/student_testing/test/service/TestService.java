@@ -2,6 +2,7 @@ package org.example.student_testing.test.service;
 
 
 import org.example.student_testing.chatbot.entity.AiGeneratedQuestion;
+import org.example.student_testing.chatbot.mapper.ChatConversationMapper;
 import org.example.student_testing.chatbot.service.AiGenerateQuestionService;
 import org.example.student_testing.test.dto.*;
 import org.example.student_testing.test.entity.Question;
@@ -13,10 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 @Service
 public class TestService {
@@ -34,6 +32,9 @@ public class TestService {
 
     @Autowired
     private AiGenerateQuestionService  aiGenerateQuestionService;
+
+    @Autowired
+    private ChatConversationMapper chatConversationMapper;
 
 
 
@@ -309,7 +310,21 @@ public class TestService {
 
         System.out.println("✅ Gán " + questionIds.size() + " câu hỏi vào đề #" + testId);
     }
+    @Transactional
+    public Integer getOrCreateConversationId(Integer testId, String studentUsername) {
+        Integer existing = testMapper.findConversationId(testId, studentUsername);
+        if (existing != null) return existing;
 
+        Integer newId = (int) (System.currentTimeMillis() % 1000000); // hoặc Random
+
+        // ✅ Lưu vào bảng test_conversations
+        testMapper.insertConversation(testId, studentUsername, newId);
+
+        // ✅ Tạo bản ghi trong bảng chat_conversations để tránh lỗi khóa ngoại
+        chatConversationMapper.insertConversation(newId,studentUsername);
+
+        return newId;
+    }
 
 
 }

@@ -18,5 +18,7 @@ public class TestResultDTO {
     private String testType;
     private String  rankCode;
     private LocalDateTime completedAt;
+    private String  studentAnswer;
+
 
 }

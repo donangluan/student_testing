@@ -15,7 +15,8 @@
         <th>Nội dung câu hỏi</th>
         <th>Độ khó</th>
         <th>Chủ đề</th>
-        <th class="text-center">Nguồn</th> <!-- ✅ Cột mới -->
+        <th class="text-center">Nguồn</th>
+        <th class="text-center">Hành động</th>
     </tr>
     </thead>
     <tbody>
@@ -27,6 +28,12 @@
         <td class="text-center">
             <span th:class="${q.source == 'ai' ? 'badge bg-primary' : 'badge bg-secondary'}"
                   th:text="${q.source == 'ai' ? 'AI' : 'Thủ công'}">Thủ công</span>
+        </td>
+        <td class="text-center">
+            <a th:href="@{/teacher/chatbot/question(conversationId=${conversationId}, questionId=${q.questionId})}"
+               class="btn btn-sm btn-info">
+                💬 Hỏi Chatbot
+            </a>
         </td>
     </tr>
     </tbody>

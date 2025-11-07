@@ -22,4 +22,7 @@ public interface TestResultMapper {
 
     List<SubmissionViewDTO> findSubmissionsByTestId(@Param("testId") Integer testId);
 
+    String findStudentAnswer(@Param("questionId") Integer questionId, @Param("username") String username);
+    String findCorrectAnswer(@Param("questionId") Integer questionId);
+
 }

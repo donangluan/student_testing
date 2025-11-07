@@ -21,6 +21,8 @@ public interface AiGeneratedQuestionMapper {
 
     AiGeneratedQuestion findById(@Param("id") Integer id);
 
+    List<AiGeneratedQuestion> findByTopicId(@Param("topicId") Integer topicId);
+
 
     List<AiGeneratedQuestion> findByCourseAndTopic(@Param("courseName") String courseName,
                                                       @Param("topicName") String topicName);

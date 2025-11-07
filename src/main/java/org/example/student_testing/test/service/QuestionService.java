@@ -179,8 +179,12 @@ public class QuestionService {
         return "UNKNOWN";
     }
 
-    private String convertDifficultyToText(Integer difficultyId) {
-        return switch (difficultyId) {
+    public String convertDifficultyToText(Integer difficultyId) {
+        if (difficultyId == null) {
+            return "UNKNOWN"; // hoặc "CHƯA GÁN"
+        }
+
+        return switch (difficultyId.intValue()) {
             case 1 -> "EASY";
             case 2 -> "MEDIUM";
             case 3 -> "HARD";

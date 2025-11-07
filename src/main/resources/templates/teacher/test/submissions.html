@@ -22,28 +22,25 @@
     </thead>
     <tbody>
     <tr th:each="s : ${submissions}">
-        <td th:text="${s.testName}"></td>
-        <td th:text="${s.studentUsername}"></td>
+        <td th:text="${s.testName}">Tên bài kiểm tra</td>
+        <td th:text="${s.studentUsername}">Tên học sinh</td>
         <td>
-            <span th:if="${s.hasSubmitted}" class="text-success"> Đã làm</span>
-            <span th:unless="${s.hasSubmitted}" class="text-danger"> Chưa làm</span>
+            <span th:if="${s.hasSubmitted}" class="text-success">Đã làm</span>
+            <span th:unless="${s.hasSubmitted}" class="text-danger">Chưa làm</span>
         </td>
         <td>
-            <span th:if="${s.hasSubmitted}" th:text="${s.totalAnswered}"></span>
+            <span th:if="${s.hasSubmitted}" th:text="${s.totalAnswered}">0</span>
             <span th:unless="${s.hasSubmitted}">-</span>
         </td>
         <td>
-            <span th:if="${s.hasSubmitted}" th:text="${s.correctCount}"></span>
+            <span th:if="${s.hasSubmitted}" th:text="${s.correctCount}">0</span>
             <span th:unless="${s.hasSubmitted}">-</span>
         </td>
         <td>
-             <span th:if="${s.hasSubmitted and s.lastAnswered != null}"
-          th:text="${s.lastAnswered}"></span>
-            <span th:unless="${s.hasSubmitted and s.lastAnswered != null}">-</span>
+            <span th:if="${s.hasSubmitted} and ${s.lastAnswered != null}" th:text="${#temporals.format(s.lastAnswered, 'dd/MM/yyyy HH:mm')}">Thời gian</span>
+            <span th:unless="${s.hasSubmitted} or ${s.lastAnswered == null}">-</span>
         </td>
-
     </tr>
-
     </tbody>
 </table>
 </body>

@@ -82,5 +82,16 @@
     </select>
 
 
+    <select id="findStudentAnswer" resultType="string">
+        SELECT student_answer
+        FROM test_results
+        WHERE question_id = #{questionId}
+          AND student_username = #{username}
+    </select>
 
+    <select id="findCorrectAnswer" resultType="string">
+        SELECT correct_answer
+        FROM questions
+        WHERE id = #{questionId}
+    </select>
 </mapper>

@@ -22,10 +22,24 @@ public class TestQuestionService {
         int order = 1;
 
         for (Integer questionId : questionIds) {
+            if (questionId == null) {
+                System.out.println("⚠️ Bỏ qua questionId null");
+                continue;
+            }
 
             QuestionDTO question = questionMapper.findById(questionId);
-            Integer difficultyId = question.getDifficultyId();
+            if (question == null) {
+                System.out.println("❌ Không tìm thấy câu hỏi ID = " + questionId);
+                continue;
+            }
 
+            Integer difficultyId = question.getDifficultyId();
+            if (difficultyId == null) {
+                System.out.println("❌ Bỏ qua câu hỏi ID = " + questionId + " vì thiếu độ khó");
+                continue;
+            }
+
+            System.out.println("✅ Gán câu hỏi ID = " + questionId + " → difficulty = " + difficultyId + " → source = " + source);
             testQuestionMapper.insertTestQuestion(
                     testId,
                     questionId,

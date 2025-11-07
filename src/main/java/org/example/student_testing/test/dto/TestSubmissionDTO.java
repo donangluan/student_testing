@@ -14,5 +14,10 @@ public class TestSubmissionDTO {
     private Integer totalAnswered;
     private Integer correctCount;
     private Double score;
+    private String testName;
     private Boolean graded;
+
+    private Boolean hasSubmitted;
+    private LocalDateTime lastAnswered;
+
 }

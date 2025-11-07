@@ -2,8 +2,11 @@ package org.example.student_testing.test.service;
 
 import lombok.RequiredArgsConstructor;
 
+import org.example.student_testing.chatbot.dto.AnswerExplanationRequestDTO;
+import org.example.student_testing.test.dto.QuestionDTO;
 import org.example.student_testing.test.dto.TestResultDTO;
 
+import org.example.student_testing.test.entity.Question;
 import org.example.student_testing.test.mapper.QuestionMapper;
 import org.example.student_testing.test.mapper.TestResultMapper;
 import org.springframework.stereotype.Service;
@@ -101,5 +104,37 @@ public class TestResultService {
     public TestResultDTO getResultById(Integer resultId) {
         return testResultMapper.findById(resultId);
     }
+
+
+    public AnswerExplanationRequestDTO buildExplanationDTO(Integer testId, Integer questionId, String username) {
+        QuestionDTO question = questionMapper.findById(questionId);
+        String selectedContent = questionMapper.findSelectedOption(testId, username, questionId);
+        String correctContent = questionMapper.findCorrectOptionByQuestionId(questionId);
+
+        AnswerExplanationRequestDTO dto = new AnswerExplanationRequestDTO();
+        dto.setQuestionId(questionId);
+        dto.setQuestionContent(question.getContent());
+        dto.setOptionA(question.getOptionA());
+        dto.setOptionB(question.getOptionB());
+        dto.setOptionC(question.getOptionC());
+        dto.setOptionD(question.getOptionD());
+        dto.setStudentAnswer(findAnswerLabel(question, selectedContent));
+        dto.setCorrectAnswer(findAnswerLabel(question, correctContent));
+        return dto;
+    }
+
+
+
+    private String findAnswerLabel(QuestionDTO q, String selectedContent) {
+        if (selectedContent == null) return "";
+        if (selectedContent.equalsIgnoreCase(q.getOptionA())) return "A";
+        if (selectedContent.equalsIgnoreCase(q.getOptionB())) return "B";
+        if (selectedContent.equalsIgnoreCase(q.getOptionC())) return "C";
+        if (selectedContent.equalsIgnoreCase(q.getOptionD())) return "D";
+        return selectedContent;
+    }
+
+
+
 
 }

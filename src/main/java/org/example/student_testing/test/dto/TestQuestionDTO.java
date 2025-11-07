@@ -20,4 +20,5 @@ public class TestQuestionDTO {
     private String source;
 
     private String assignedBy;
+    private String  studentAnswer;
 }

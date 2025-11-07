@@ -35,4 +35,10 @@ public class StudentAnswerService {
     public List<StudentAnswerDTO> getTestsByTeacher(String teacherUsername) {
         return studentAnswerMapper.getTestsByTeacher(teacherUsername);
     }
+
+    public StudentAnswerDTO getAnswerByQuestionIdAndStudent(Integer testId, Integer questionId, String studentUsername) {
+      return   studentAnswerMapper.findAnswerByQuestionIdAndStudent(testId, questionId, studentUsername);
+
+    }
+
 }

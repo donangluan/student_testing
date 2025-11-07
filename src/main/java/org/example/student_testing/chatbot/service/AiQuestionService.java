@@ -57,7 +57,7 @@ public class AiQuestionService {
     - Đảm bảo đúng định dạng JSON như trên, không thêm mô tả ngoài JSON
     """, quantity, difficulty, topic, topic, difficulty);
 
-        // 2. Gọi AI để lấy kết quả
+        // 2. Gọi AI để lấy kết quả+
         String aiText = geminiService.chat(prompt, List.of());
 
         // 3. Tách phần JSON ra khỏi văn bản AI trả về

@@ -4,11 +4,12 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="org.example.student_testing.test.mapper.StudentAnswerMapper">
     <select id="findAllAnswers" resultType="org.example.student_testing.test.dto.StudentAnswerDTO">
-            select id, test_id as testId, student_username as studentUsername, question_id as questionId,
-                   selected_option as selectedOption, answered_at as answeredAt
-                from student_answers
-            where test_id = #{testId}
-                and student_username = #{studentUsername}
+        SELECT a.question_id, a.test_id, a.student_username, a.question_id, a.selected_option, a.answered_at,
+               q.content AS question_content,
+               q.option_a, q.option_b, q.option_c, q.option_d
+        FROM student_answers a
+                 JOIN questions q ON a.question_id = q.question_id
+        WHERE a.test_id = #{testId} AND a.student_username = #{studentUsername}
 
 
     </select>
@@ -35,5 +36,22 @@
         WHERE tc.username = #{teacherUsername};
 
     </select>
+
+
+    <select id="findAnswerByQuestionIdAndStudent" resultType="org.example.student_testing.test.dto.StudentAnswerDTO">
+        SELECT sa.selected_option,
+               q.option_a,
+               q.option_b,
+               q.option_c,
+               q.option_d,
+               q.correct_option
+        FROM student_answers sa
+                 JOIN questions q ON sa.question_id = q.question_id
+        WHERE sa.test_id = #{testId}
+          AND sa.question_id = #{questionId}
+          AND sa.student_username = #{studentUsername}
+            LIMIT 1
+    </select>
+
 
 </mapper>

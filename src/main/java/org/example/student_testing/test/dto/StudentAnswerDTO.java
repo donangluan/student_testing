@@ -18,4 +18,10 @@ public class StudentAnswerDTO {
     private String selectedOption;
 
     private LocalDateTime answeredAt;
+
+    private String questionContent;
+    private String optionA;
+    private String optionB;
+    private String optionC;
+    private String optionD;
 }

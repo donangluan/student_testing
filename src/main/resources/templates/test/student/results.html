@@ -39,18 +39,37 @@
         <th>Đáp án đã chọn</th>
         <th>Đáp án đúng</th>
         <th>Đánh giá</th>
+        <th>Hành động</th>
     </tr>
     </thead>
     <tbody>
     <tr th:each="a : ${answers}">
         <td th:text="${a.questionId}">1</td>
+        <td th:text="${a.questionContent}">Nội dung câu hỏi</td>
+        <td>
+            <ul>
+                <li>A. <span th:text="${a.optionA}">Đáp án A</span></li>
+                <li>B. <span th:text="${a.optionB}">Đáp án B</span></li>
+                <li>C. <span th:text="${a.optionC}">Đáp án C</span></li>
+                <li>D. <span th:text="${a.optionD}">Đáp án D</span></li>
+            </ul>
+        </td>
         <td th:text="${a.selectedOption}">A</td>
         <td th:text="${correctMap[a.questionId]}">B</td>
         <td th:text="${a.selectedOption.equalsIgnoreCase(correctMap[a.questionId]) ? 'Đúng' : 'Sai'}"
             th:class="${a.selectedOption.equalsIgnoreCase(correctMap[a.questionId]) ? 'text-success' : 'text-danger'}">
-            Đúng
+            Sai
+        </td>
+        <td>
+            <a th:if="${conversationId != null and !a.selectedOption.equalsIgnoreCase(correctMap[a.questionId])}"
+               th:href="@{/student/chatbot/question(conversationId=${conversationId}, testId=${a.testId}, questionId=${a.questionId})}"
+               class="btn btn-sm btn-info">
+                 Hỏi Chatbot
+            </a>
+
         </td>
     </tr>
+
     </tbody>
 </table>
 <div class="mt-4 d-flex justify-content-end">

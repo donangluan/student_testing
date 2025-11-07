@@ -176,4 +176,8 @@ public class AiGenerateQuestionService {
     }
 
 
+    public List<AiGeneratedQuestion> getAiQuestionsByTestId(Integer topicId) {
+        return aiGeneratedQuestionMapper.findByTopicId(topicId);
+    }
+
 }

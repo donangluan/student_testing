@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Giải thích đáp án</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}" />
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 30px;
+        }
+        .question-box {
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+        }
+        .chat-message {
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 6px;
+        }
+        .chat-message.user {
+            background-color: #e0f7fa;
+        }
+        .chat-message.bot {
+            background-color: #f1f8e9;
+        }
+        .btn-info {
+            background-color: #2196f3;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+<h2> Câu hỏi bạn vừa làm sai</h2>
+
+<div class="question-box">
+    <p><strong>Câu hỏi:</strong> <span th:text="${question.questionContent}"></span></p>
+    <ul>
+        <li>A. <span th:text="${question.optionA}"></span></li>
+        <li>B. <span th:text="${question.optionB}"></span></li>
+        <li>C. <span th:text="${question.optionC}"></span></li>
+        <li>D. <span th:text="${question.optionD}"></span></li>
+    </ul>
+    <h2 th:if="${question.studentAnswer != null and question.studentAnswer.equalsIgnoreCase(question.correctAnswer)}"
+        style="color: green">
+         Câu hỏi bạn đã trả lời đúng
+    </h2>
+    <h2 th:if="${question.studentAnswer != null and !question.studentAnswer.equalsIgnoreCase(question.correctAnswer)}"
+        style="color: red">
+         Câu hỏi bạn vừa làm sai
+    </h2>
+    <p><strong>Đáp án bạn đã chọn:</strong>
+        <span th:text="${question.studentAnswer}" style="color: red; font-weight: bold"></span>
+    </p>
+    <p><strong>Đáp án đúng:</strong>
+        <span th:text="${question.correctAnswer}" style="color: green; font-weight: bold"></span>
+    </p>
+
+
+
+
+
+
+
+</div>
+
+
+<form th:action="@{/student/chatbot/explain}" method="post" th:object="${question}">
+    <input type="hidden" name="conversationId" th:value="${conversationId}" />
+    <input type="hidden" th:field="*{questionId}" />
+    <input type="hidden" th:field="*{questionContent}" />
+    <input type="hidden" th:field="*{optionA}" />
+    <input type="hidden" th:field="*{optionB}" />
+    <input type="hidden" th:field="*{optionC}" />
+    <input type="hidden" th:field="*{optionD}" />
+    <input type="hidden" th:field="*{studentAnswer}" />
+    <input type="hidden" th:field="*{correctAnswer}" />
+    <button type="submit" class="btn-info"> Hỏi Chatbot</button>
+</form>
+
+
+<div class="chat-section">
+    <h3> Giải thích từ Chatbot</h3>
+    <div th:if="${#lists.isEmpty(chatMessages)}">
+        <p>Chưa có phản hồi nào từ chatbot.</p>
+    </div>
+    <div th:each="msg : ${chatMessages}">
+        <div th:class="'chat-message ' + (msg.role == 'USER' ? 'user' : 'bot')">
+            <strong th:text="${msg.role == 'USER' ? 'Bạn:' : ' Chatbot:'}"></strong>
+            <span th:text="${msg.content}"></span>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

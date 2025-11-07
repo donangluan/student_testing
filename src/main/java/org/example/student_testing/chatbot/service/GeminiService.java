@@ -3,6 +3,7 @@ package org.example.student_testing.chatbot.service;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.annotation.PostConstruct;
+import org.example.student_testing.chatbot.dto.AnswerExplanationRequestDTO;
 import org.example.student_testing.chatbot.entity.AiGeneratedQuestion;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -155,4 +156,55 @@ public class GeminiService {
             System.out.println("❌ Không thể lấy danh sách model: " + e.getMessage());
         }
     }
+
+
+
+
+    /**
+     * Tạo prompt giải thích đáp án từ dữ liệu câu hỏi.
+     */
+    public String buildExplanationPrompt(AnswerExplanationRequestDTO dto) {
+        boolean isCorrect = dto.getStudentAnswer().equalsIgnoreCase(dto.getCorrectAnswer());
+
+        return """
+        Bạn là một gia sư thân thiện, chuyên giải thích bài tập cho học sinh theo cách dễ hiểu, tích cực và truyền cảm hứng.
+
+        === THÔNG TIN CÂU HỎI ===
+        Câu hỏi: %s
+
+        Các đáp án:
+        A. %s
+        B. %s
+        C. %s
+        D. %s
+
+        Học sinh đã chọn: %s
+        Đáp án đúng: %s
+
+        === YÊU CẦU GIẢI THÍCH ===
+        %s
+
+         Ví dụ minh họa:
+        [Ví dụ thực tế hoặc liên hệ dễ hiểu]
+
+         Mẹo ghi nhớ:
+        [1 mẹo ngắn gọn]
+
+        Bạn đã hiểu chưa? Nếu cần mình giải thích thêm thì cứ nói nhé! 😊
+
+        BẮT ĐẦU GIẢI THÍCH:
+        """.formatted(
+                dto.getQuestionContent(),
+                dto.getOptionA(),
+                dto.getOptionB(),
+                dto.getOptionC(),
+                dto.getOptionD(),
+                dto.getStudentAnswer(),
+                dto.getCorrectAnswer(),
+                isCorrect
+                        ? " Bạn đã chọn đúng rồi đó! Giỏi lắm! Cùng xem vì sao đáp án này là chính xác nhé \n\n Tại sao \"" + dto.getCorrectAnswer() + "\" là đúng?\n→ [Giải thích chi tiết 2–3 câu]"
+                        : " Tại sao \"" + dto.getStudentAnswer() + "\" không đúng?\n→ [Giải thích 1–2 câu]\n\n Tại sao \"" + dto.getCorrectAnswer() + "\" là đúng?\n→ [Giải thích chi tiết 2–3 câu]"
+        );
+    }
+
 }

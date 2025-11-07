@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.example.student_testing.chatbot.mapper.QuestionAnalysisMapper">
+    <select id="analyzeQuestion" parameterType="org.example.student_testing.chatbot.dto.QuestionAnalysisDTO">
+        SELECT
+            tq.order_no AS orderNo,
+            q.content AS content,
+            dl.level_code AS difficulty,
+            t.topic_name AS topic,
+            ROUND(
+                    COUNT(*) FILTER (WHERE sa.selected_option = q.correct_option) * 100.0 / COUNT(*),
+                    2
+            ) AS correctRate
+        FROM test_questions tq
+                 JOIN questions q ON tq.question_id = q.question_id
+                 JOIN difficulty_levels dl ON q.difficulty_id = dl.difficulty_id
+                 JOIN topics t ON q.topic_id = t.topic_id
+                 JOIN student_answers sa ON sa.question_id = q.question_id AND sa.test_id = tq.test_id
+        WHERE tq.test_id = #{testId}
+        GROUP BY tq.order_no, q.content, dl.level_code, t.topic_name
+        ORDER BY tq.order_no
+
+    </select>
+</mapper>

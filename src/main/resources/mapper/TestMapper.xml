@@ -137,4 +137,29 @@
         WHERE tq.test_id = #{testId}
         ORDER BY tq.order_no
     </select>
+
+
+
+
+        <select id="findTestNameById" resultType="String">
+            SELECT test_name FROM tests WHERE test_id = #{testId}
+        </select>
+
+
+
+    <!-- Tìm conversationId -->
+    <select id="findConversationId" resultType="int">
+        SELECT conversation_id
+        FROM test_conversations
+        WHERE test_id = #{testId}
+          AND student_username = #{studentUsername}
+            LIMIT 1
+    </select>
+
+    <!-- Tạo mới conversationId -->
+    <insert id="insertConversation">
+        INSERT INTO test_conversations(test_id, student_username, conversation_id)
+        VALUES(#{testId}, #{studentUsername}, #{conversationId})
+    </insert>
+
 </mapper>

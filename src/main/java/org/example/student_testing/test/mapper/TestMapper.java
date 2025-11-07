@@ -40,6 +40,11 @@ public interface TestMapper {
 
     List<QuestionDTO> findQuestionsByTestId(@Param("testId") Integer testId);
 
+    String findTestNameById(@Param("testId") int testId);
 
+    Integer findConversationId(@Param("testId") Integer testId, @Param("studentUsername") String studentUsername);
+    void insertConversation(@Param("testId") Integer testId,
+                            @Param("studentUsername") String studentUsername,
+                            @Param("conversationId") Integer conversationId);
 
 }

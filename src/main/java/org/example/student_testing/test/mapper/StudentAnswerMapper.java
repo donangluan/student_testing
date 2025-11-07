@@ -17,4 +17,11 @@ public interface StudentAnswerMapper {
     StudentAnswerDTO findAnswerById(Integer id);
 
     List<StudentAnswerDTO> getTestsByTeacher(@Param("teacherUsername") String teacherUsername);
+
+    StudentAnswerDTO findAnswerByQuestionIdAndStudent(@Param("testId") Integer testId,
+                                                      @Param("questionId") Integer questionId,
+                                                      @Param("studentUsername") String studentUsername);
+
+
+
 }

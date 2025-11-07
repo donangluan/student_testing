@@ -46,6 +46,7 @@ public class StudentTestController {
                 test.setResultId(resultId); // Gán resultId vào DTO
             }
         }
+
         model.addAttribute("tests", tests);
         model.addAttribute("studentUsername", username);
         model.addAttribute("testResultMap", testResultMap);
@@ -64,6 +65,7 @@ public class StudentTestController {
         model.addAttribute("duration", test.getDurationMinutes());
         model.addAttribute("questions", questions);
         model.addAttribute("testId", testId);
+
         return "test/student/do";
     }
 
@@ -97,6 +99,7 @@ public class StudentTestController {
 
     @GetMapping("/results")
     public String viewResults(@AuthenticationPrincipal UserDetails userDetails, Model model) {
+
         model.addAttribute("results", testService.getResultsForStudent(userDetails.getUsername()));
         return "test/student/results";
     }
@@ -147,6 +150,7 @@ public class StudentTestController {
         int total = answers.size();
 
         for (StudentAnswerDTO ans : answers) {
+            ans.setTestId(testId);
             String difficulty = questionService.getDifficulty(ans.getQuestionId());
             int weight = switch (difficulty) {
                 case "EASY" -> 1;
@@ -199,11 +203,18 @@ public class StudentTestController {
         result.setRankCode(rankCode);
         result.setCompletedAt(LocalDateTime.now());
 
+        // ✅ Thêm dòng này để chatbot hoạt động
+        Integer conversationId = testService.getOrCreateConversationId(testId, studentUsername);
+
+
         model.addAttribute("results", List.of(result));
         model.addAttribute("answers", answers);
         model.addAttribute("correctMap", correctMap);
         model.addAttribute("correct", score);
         model.addAttribute("total", total);
+        model.addAttribute("conversationId", conversationId);
+        model.addAttribute("testId", testId);
+
 
         return "test/student/results";
     }

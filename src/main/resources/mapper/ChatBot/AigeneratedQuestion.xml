@@ -121,4 +121,9 @@
         WHERE LOWER(c.course_name) = LOWER(#{courseName})
     </select>
 
+
+    <select id="findByTopicId" resultMap="aiGeneratedQuestionMap">
+        SELECT * FROM ai_generated_questions WHERE topic_id = #{topicId}
+    </select>
+
 </mapper>

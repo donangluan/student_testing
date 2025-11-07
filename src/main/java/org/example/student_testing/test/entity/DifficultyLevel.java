@@ -11,4 +11,6 @@ public class DifficultyLevel {
 
     private Integer pointValue;
 
+    private String description;
+
 }
