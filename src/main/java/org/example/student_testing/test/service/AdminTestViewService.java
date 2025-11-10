@@ -21,11 +21,11 @@ public class AdminTestViewService {
 
     public List<SubmissionViewDTO> getSubmissionsWithAnswers(Integer testId) {
         List<SubmissionViewDTO> submissions = testResultMapper.findSubmissionsByTestId(testId);
-        log.info("🔍 Found {} submissions for testId={}", submissions.size(), testId);
+        log.info(" Found {} submissions for testId={}", submissions.size(), testId);
 
         for (SubmissionViewDTO submission : submissions) {
             List<QuestionViewDTO> questions = questionMapper.findQuestionsWithAnswer(testId, submission.getStudentUsername());
-            log.info("📘 Student={} has {} answered questions", submission.getStudentUsername(), questions.size());
+            log.info(" Student={} has {} answered questions", submission.getStudentUsername(), questions.size());
             submission.setQuestions(questions);
         }
 

@@ -129,13 +129,13 @@ public class QuestionService {
     }
 
     public List<QuestionDTO> findByCourseAndTopic(String courseName, String topicName) {
-        // 🔍 Lấy câu hỏi thủ công
+
         List<QuestionDTO> manualQuestions = questionMapper.findByCourseAndTopic(courseName, topicName);
 
-        // 🔍 Lấy câu hỏi AI
+
         List<AiGeneratedQuestion> aiQuestions = aiGeneratedQuestionMapper.findByCourseAndTopic(courseName, topicName);
 
-        // 🔁 Chuyển đổi AI sang QuestionDTO
+
         for (AiGeneratedQuestion ai : aiQuestions) {
             QuestionDTO dto = new QuestionDTO();
             dto.setQuestionId(ai.getId());
@@ -146,7 +146,6 @@ public class QuestionService {
             dto.setCreatedAt(ai.getCreatedAt());
             dto.setCreatedBy("AI");
 
-            // Nếu có optionsMap
             if (ai.getOptionsMap() != null) {
                 dto.setOptionA(ai.getOptionsMap().get("A"));
                 dto.setOptionB(ai.getOptionsMap().get("B"));

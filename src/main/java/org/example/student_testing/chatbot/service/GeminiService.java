@@ -59,7 +59,7 @@ public class GeminiService {
             List<Map<String, Object>> parts = (List<Map<String, Object>>) content.get("parts");
             String rawText = (String) parts.get(0).get("text");
 
-            System.out.println("✅ Nội dung trả về từ Gemini:");
+            System.out.println("Nội dung trả về từ Gemini:");
             System.out.println(rawText);
 
             return rawText;
@@ -122,8 +122,8 @@ public class GeminiService {
                 optionsMap.put("C", node.get("optionC").asText());
                 optionsMap.put("D", node.get("optionD").asText());
 
-                q.setOptions(mapper.writeValueAsString(optionsMap)); // lưu vào DB
-                q.setOptionsMap(optionsMap);                         // dùng cho Thymeleaf
+                q.setOptions(mapper.writeValueAsString(optionsMap));
+                q.setOptionsMap(optionsMap);
 
                 q.setCorrectAnswer(node.get("correctAnswer").asText());
                 q.setDifficulty(node.get("difficulty").asText());

@@ -31,17 +31,16 @@
 </div>
 
 
-<!--nội dung của student list-->
 <div class="container mt-4">
     <h2 class="text-center mb-4">Student List</h2>
 
     <div class="row g-2 align-items-center mb-3">
-        <!--  Add student button -->
+
         <div class="col-md-2" sec:authorize="hasAnyRole('ADMIN')">
             <a th:href="@{/student/add}" class="btn btn-success w-100">Add Student</a>
         </div>
 
-        <!--  Search form -->
+
         <div class="col-md-5">
             <form th:action="@{/student/search}" method="get" class="d-flex"  sec:authorize="hasAnyRole('ADMIN','TEACHER')">
                 <input type="text" class="form-control me-2" name="keyword"
@@ -53,7 +52,7 @@
             </form>
         </div>
 
-        <!--  Filter form: status + course -->
+
         <div class="col-md-5">
             <form th:action="@{/student/filter}" method="get" id="filterForm" class="row g-2"  sec:authorize="hasAnyRole('ADMIN','TEACHER')">
                 <input type="hidden" name="keyword" th:value="${keyword}">
@@ -133,7 +132,7 @@
     <nav th:if="${dto !=null and !dto.isEmpty()}">
         <ul class="pagination justify-content-center">
 
-            <!-- Previous -->
+
             <th:block th:switch="${currentMode}">
                 <th:block th:case="'search'">
                     <li class="page-item" th:classappend="${currentPage == 1} ? 'disabled'">
@@ -161,7 +160,7 @@
                 </th:block>
             </th:block>
 
-            <!-- Page numbers -->
+
             <th:block th:each="i : ${#numbers.sequence(1, totalPages)}">
                 <th:block th:switch="${currentMode}">
                     <th:block th:case="'search'">
@@ -188,7 +187,7 @@
                 </th:block>
             </th:block>
 
-            <!-- Next -->
+
             <th:block th:switch="${currentMode}">
                 <th:block th:case="'search'">
                     <li class="page-item" th:classappend="${currentPage == totalPages} ? 'disabled'">
@@ -256,7 +255,7 @@
 </script>
 
 
-<!-- Nhúng footer -->
+
 <div th:insert="fragments/footer :: footer"></div>
 </body>
 

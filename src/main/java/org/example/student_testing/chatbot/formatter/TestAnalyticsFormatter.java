@@ -11,12 +11,13 @@ public class TestAnalyticsFormatter {
         StringBuilder sb = new StringBuilder();
         for (QuestionAnalysisDTO q : questions) {
             String status;
+
             if (q.getCorrectRate() >= 60 && q.getCorrectRate() <= 85) {
                 status = " Phù hợp";
             } else if (q.getCorrectRate() < 30) {
-                status = "⚠ Quá khó";
+                status = " Quá khó";
             } else if (q.getCorrectRate() > 95 && q.getDifficulty().equalsIgnoreCase("Hard")) {
-                status = "⚠ Quá dễ";
+                status = "Quá dễ";
             } else {
                 status = "";
             }

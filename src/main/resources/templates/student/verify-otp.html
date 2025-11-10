@@ -15,25 +15,24 @@
                 </div>
                 <div class="card-body">
                     <form th:action="@{/register/verify-otp}" method="post" th:object="${userDTO}">
-                        <!-- Hidden fields -->
+
                         <input type="hidden" th:field="*{username}"/>
                         <input type="hidden" th:field="*{fullName}"/>
                         <input type="hidden" th:field="*{email}"/>
                         <input type="hidden" th:field="*{password}"/>
                         <input type="hidden" th:field="*{roleCode}" />
 
-                        <!-- OTP input -->
                         <div class="mb-3">
                             <label class="form-label">Mã OTP</label>
                             <input type="text" name="otp" class="form-control" placeholder="Nhập mã OTP" required>
                         </div>
 
-                        <!-- Submit button -->
+
                         <div class="d-grid">
                             <button type="submit" class="btn btn-warning">Xác nhận</button>
                         </div>
 
-                        <!-- Error message -->
+
                         <div th:if="${errorMessage}" class="alert alert-danger mt-3 text-center">
                             <span th:text="${errorMessage}"></span>
                         </div>

@@ -18,15 +18,7 @@ public class AiQuestionController {
         @Autowired
         private AiQuestionService aiQuestionService;
 
-        /**
-         * API để giáo viên tạo câu hỏi bằng AI.
-         *
-         * @param teacherId ID giáo viên
-         * @param topic Chủ đề (ví dụ: "Đạo hàm")
-         * @param difficulty Độ khó ("Easy", "Medium", "Hard")
-         * @param quantity Số lượng câu hỏi cần tạo
-         * @return Danh sách câu hỏi đã sinh và lưu vào DB
-         */
+
         @PostMapping("/generate")
         public ResponseEntity<List<AiGeneratedQuestion>> generateQuestions(
             @RequestParam Integer teacherId,
@@ -44,25 +36,14 @@ public class AiQuestionController {
         return ResponseEntity.ok(question);
     }
 
-        /**
-         * API để lấy danh sách câu hỏi AI đã tạo theo giáo viên.
-         *
-         * @param teacherId ID giáo viên
-         * @return Danh sách câu hỏi
-         */
+
         @GetMapping("/teacher/{teacherId}")
         public ResponseEntity<List<AiGeneratedQuestion>> getQuestionsByTeacher(@PathVariable Integer teacherId) {
         List<AiGeneratedQuestion> questions = aiQuestionService.getByTeacher(teacherId);
         return ResponseEntity.ok(questions);
     }
 
-        /**
-         * API để cập nhật trạng thái câu hỏi (ví dụ: ACCEPTED, REJECTED).
-         *
-         * @param questionId ID câu hỏi
-         * @param status Trạng thái mới
-         * @return Trạng thái cập nhật thành công
-         */
+
         @PutMapping("/{questionId}/status")
         public ResponseEntity<String> updateQuestionStatus(
             @PathVariable Integer questionId,

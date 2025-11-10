@@ -103,14 +103,14 @@
             List<String> assignedUsernames = testService.getAssignedStudents(testId);
             List<StudentDTO> students = studentService.findByUsernames(assignedUsernames);
 
-            // ✅ Câu hỏi thủ công
+
             List<QuestionDTO> manualQuestions = questionService.findByCourseAndTopic(courseName, topicName);
             for (QuestionDTO q : manualQuestions) {
                 q.setSource("manual");
                 System.out.println("📋 Thủ công: ID = " + q.getQuestionId() + " → source = " + q.getSource());
             }
 
-            // ✅ Câu hỏi AI
+
             List<AiGeneratedQuestion> aiQuestions = aiGenerateQuestionService.findByCourse(courseName);
             List<QuestionDTO> aiConvertedQuestions = new ArrayList<>();
 
@@ -120,7 +120,7 @@
                         Map<String, String> map = new ObjectMapper().readValue(ai.getOptions(), Map.class);
                         ai.setOptionsMap(map);
                     } catch (Exception e) {
-                        System.out.println("❌ Không parse được options JSON cho AI ID = " + ai.getId() + ": " + e.getMessage());
+                        System.out.println(" Không parse được options JSON cho AI ID = " + ai.getId() + ": " + e.getMessage());
                     }
 
 
@@ -142,7 +142,7 @@
 
                     Integer diffId = convertDifficulty(ai.getDifficulty());
                     if (diffId == null) {
-                        System.out.println("⚠️ Câu hỏi AI ID = " + ai.getId() + " có độ khó không hợp lệ: " + ai.getDifficulty());
+                        System.out.println("Câu hỏi AI ID = " + ai.getId() + " có độ khó không hợp lệ: " + ai.getDifficulty());
                     }
                     q.setDifficultyId(diffId);
 
@@ -153,7 +153,7 @@
                 aiConvertedQuestions.add(q);
             }
 
-            System.out.println("✅ Tổng số câu hỏi AI: " + aiConvertedQuestions.size());
+            System.out.println("Tổng số câu hỏi AI: " + aiConvertedQuestions.size());
 
 
 
@@ -194,11 +194,11 @@
 
             for (Integer questionId : questionIds) {
                 String source = questionSources.get(String.valueOf(questionId));
-                System.out.println("🧾 ID = " + questionId + " → source = " + source);
+                System.out.println("ID = " + questionId + " → source = " + source);
 
                 if (source == null || source.isBlank()) {
                     source = aiQuestionIds.contains(questionId) ? "ai" : "manual";
-                    System.out.println("⚠️ Source bị thiếu → gán tạm: " + source);
+                    System.out.println("Source bị thiếu → gán tạm: " + source);
 
                 }
 
@@ -208,11 +208,11 @@
                 if ("ai".equals(source)) {
                     AiGeneratedQuestion ai = aiGenerateQuestionService.findById(questionId);
                     if (ai == null) {
-                        System.out.println("❌ Không tìm thấy câu hỏi AI ID = " + questionId);
+                        System.out.println(" Không tìm thấy câu hỏi AI ID = " + questionId);
                         continue;
                     }
 
-                    // ✅ Nếu chưa có trong bảng questions → insert
+
                     Integer existingId = questionMapper.findIdByContent(ai.getQuestionContent());
                     if (existingId == null) {
                         QuestionDTO q = new QuestionDTO();
@@ -228,7 +228,7 @@
                         q.setSource("ai");
 
                         questionMapper.insert(q);
-                        System.out.println("✅ Đã insert câu hỏi AI ID = " + questionId + " vào bảng questions");
+                        System.out.println(" Đã insert câu hỏi AI ID = " + questionId + " vào bảng questions");
                     }
 
                     difficultyId = convertDifficulty(ai.getDifficulty());
@@ -239,16 +239,16 @@
                 }
 
                 if (difficultyId == null) {
-                    System.out.println("❌ Bỏ qua câu hỏi " + questionId + " vì không xác định được độ khó");
+                    System.out.println(" Bỏ qua câu hỏi " + questionId + " vì không xác định được độ khó");
                     continue;
                 }
 
 
-                System.out.println("✅ Gán câu hỏi " + questionId + " → source = " + source + " → order = " + order);
+                System.out.println("Gán câu hỏi " + questionId + " → source = " + source + " → order = " + order);
                 testQuestionService.assignSingleQuestion(testId, questionId, studentUsername, difficultyId, order++, source);
             }
 
-            System.out.println("✅ Hoàn tất gán câu hỏi cho học sinh: " + studentUsername);
+            System.out.println(" Hoàn tất gán câu hỏi cho học sinh: " + studentUsername);
             return "redirect:/teacher/tests/detail/" + testId;
         }
 
@@ -279,9 +279,9 @@
                                            @RequestParam List<String> studentUsernames,
                                            @AuthenticationPrincipal UserDetails userDetails
                                            ) {
-            System.out.println("📦 testName = " + mixedTestDTO.getTestName());
-            System.out.println("📦 topicDistribution = " + mixedTestDTO.getTopicDistribution());
-            System.out.println("📥 selectedCourseIds = " + mixedTestDTO.getSelectedCourseIds());
+            System.out.println("testName = " + mixedTestDTO.getTestName());
+            System.out.println(" topicDistribution = " + mixedTestDTO.getTopicDistribution());
+            System.out.println(" selectedCourseIds = " + mixedTestDTO.getSelectedCourseIds());
 
             mixedTestDTO.setCreatedBy(userDetails.getUsername());
             testService.createMixedTopicTest(mixedTestDTO, studentUsernames);
@@ -307,7 +307,7 @@
             );
 
             if (selectedQuestions.size() < request.getNumberOfQuestions()) {
-                model.addAttribute("warning", "⚠️ Chỉ có " + selectedQuestions.size() + " câu hỏi phù hợp với yêu cầu.");
+                model.addAttribute("warning", "️ Chỉ có " + selectedQuestions.size() + " câu hỏi phù hợp với yêu cầu.");
                 model.addAttribute("request", request);
                 model.addAttribute("topics", topicService.findAll());
                 model.addAttribute("difficultyLevels", difficultyService.findAll());
@@ -387,7 +387,7 @@
             model.addAttribute("topic", topic);
             model.addAttribute("difficulty", difficulty);
             model.addAttribute("count", count);
-            return "teacher/test/review-ai"; // tạo giao diện này để hiển thị câu hỏi
+            return "teacher/test/review-ai";
         }
 
         @GetMapping("/generate-ai")
@@ -395,7 +395,7 @@
             model.addAttribute("topic", "");
             model.addAttribute("difficultyLevels", List.of("Easy", "Medium", "Hard"));
             model.addAttribute("count", 5);
-            return "teacher/test/generate-ai-form"; // tạo file này để hiển thị form
+            return "teacher/test/generate-ai-form";
         }
         @PostMapping("/save-ai-questions")
         public String saveAiQuestions(@RequestParam Map<String, String> formData,
@@ -408,7 +408,7 @@
             String difficulty = formData.get("difficulty");
             Integer testId = formData.containsKey("testId") ? Integer.parseInt(formData.get("testId")) : null;
 
-            // Lấy danh sách câu hỏi AI đã sinh
+
             List<AiGeneratedQuestion> previewQuestions =
                     (List<AiGeneratedQuestion>) session.getAttribute("previewQuestions");
 
@@ -417,7 +417,7 @@
                 return "redirect:/teacher/tests/generate-ai-form";
             }
 
-            // Lấy các chỉ số câu hỏi được chọn
+
             List<Integer> selectedIndexes = formData.entrySet().stream()
                     .filter(e -> e.getKey().startsWith("selectedIndexes["))
                     .map(Map.Entry::getValue)
@@ -429,7 +429,7 @@
                 return "redirect:/teacher/tests/generate-ai-form";
             }
 
-            // Tạo các map dữ liệu cho từng trường
+
             Map<String, String> contents = new HashMap<>();
             Map<String, String> corrects = new HashMap<>();
             Map<String, String> answersA = new HashMap<>();
@@ -447,7 +447,7 @@
                 answersD.put(key, formData.getOrDefault("answers[" + key + "][D]", ""));
             }
 
-            // Lưu câu hỏi vào DB
+
             List<AiGeneratedQuestion> savedQuestions = aiGenerateQuestionService.processAndSave(
                     selectedIndexes, contents, corrects, topic, difficulty,
                     answersA, answersB, answersC, answersD, username
@@ -458,7 +458,7 @@
                 return "redirect:/teacher/tests/generate-ai-form";
             }
 
-            // Nếu có testId → gán câu hỏi vào đề kiểm tra
+
             if (testId != null) {
                 List<Integer> questionIds = savedQuestions.stream()
                         .map(AiGeneratedQuestion::getId)
@@ -467,10 +467,10 @@
 
                 testService.assignQuestionsToTest(testId, questionIds);
                 redirectAttributes.addFlashAttribute("success",
-                        "✅ Đã lưu và gán " + questionIds.size() + " câu hỏi vào đề #" + testId);
+                        "Đã lưu và gán " + questionIds.size() + " câu hỏi vào đề #" + testId);
             } else {
                 redirectAttributes.addFlashAttribute("success",
-                        "✅ Đã lưu thành công " + savedQuestions.size() + " câu hỏi từ AI.");
+                        " Đã lưu thành công " + savedQuestions.size() + " câu hỏi từ AI.");
             }
 
             return "redirect:/teacher/tests";
@@ -481,7 +481,7 @@
 
         private String extractAnswerLetter(String raw) {
             if (raw == null) return null;
-            return raw.trim().substring(0, 1); // "B. Nguyễn Du" → "B"
+            return raw.trim().substring(0, 1);
         }
 
 

@@ -43,7 +43,7 @@ public class StudentTestController {
 
             if (submitted) {
                 Integer resultId = testResultService.getResultId(test.getTestId(), username);
-                test.setResultId(resultId); // Gán resultId vào DTO
+                test.setResultId(resultId);
             }
         }
 

@@ -23,23 +23,23 @@ public class ScoreController {
 
     @Autowired
     private ScoreService scoreService;
-    // ✅ ADMIN và GIẢNG VIÊN được xem danh sách điểm
+
 
     @GetMapping("/list")
     public String scoreList(Model model){
-        //
+
         List<ScoreDTO> dto = scoreService.getAllScores();
         model.addAttribute("score",dto);
         return "student/score-list";
     }
-    // ✅ Chỉ ADMIN được xử lý thêm điểm
+
 
     @GetMapping("/add")
     public String scoreShowAdd(Model model){
         model.addAttribute("score",new ScoreDTO());
         return "student/score-add";
     }
-    // ✅ Chỉ ADMIN được thêm điểm
+
 
     @PostMapping("/add")
     public String scoreAdd(@ModelAttribute ScoreDTO scoreDTO){

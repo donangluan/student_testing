@@ -49,22 +49,22 @@ public class UserService {
 
 
 
-        //  Nếu roleCode bị null hoặc sai → gán lại cho chắc chắn
+
         if (userDTO.getRoleCode() == null || !"STUDENT".equalsIgnoreCase(userDTO.getRoleCode())) {
             System.out.println("Cảnh báo: Vai trò không hợp lệ hoặc bị mất khi đăng ký. Đang gán lại là STUDENT.");
             userDTO.setRoleCode("STUDENT");
         }
 
-        //  Tạo tài khoản người dùng
+
         User user = new User();
         user.setUsername(userDTO.getUsername());
         user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
         user.setFullName(userDTO.getFullName());
         user.setEmail(userDTO.getEmail());
-        user.setRoleCode("STUDENT"); // Gán cứng vai trò
+        user.setRoleCode("STUDENT");
         userMapper.insertUser(user);
 
-        //  Gán quyền ROLE_STUDENT
+
         Integer roleId = roleMapper.findRoleIdByName("STUDENT");
         if (roleId == null) {
             throw new IllegalArgumentException("Vai trò không hợp lệ: STUDENT");
@@ -72,7 +72,7 @@ public class UserService {
         userMapper.assignRoles(userDTO.getUsername(), roleId);
         userMapper.insertUserRole(userDTO.getUsername(), "ROLE_STUDENT");
 
-        //  Tạo hồ sơ học viên
+
         StudentProfile profile = new StudentProfile();
         profile.setStudentId(userDTO.getUsername());
         profile.setUsername(userDTO.getUsername());

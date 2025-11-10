@@ -7,7 +7,7 @@
 </head>
 <body class="container mt-4">
 
-<h2>✏️ Sửa người dùng</h2>
+<h2> Sửa người dùng</h2>
 
 <form th:action="@{/admin/users/update}" th:object="${user}" method="post" class="row g-3">
     <input type="hidden" th:field="*{username}" />
@@ -29,8 +29,8 @@
         </select>
     </div>
     <div class="col-12">
-        <button type="submit" class="btn btn-success">💾 Cập nhật</button>
-        <a th:href="@{/admin/users}" class="btn btn-secondary">⬅️ Quay lại</a>
+        <button type="submit" class="btn btn-success"> Cập nhật</button>
+        <a th:href="@{/admin/users}" class="btn btn-secondary"> Quay lại</a>
     </div>
 </form>
 

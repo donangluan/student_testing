@@ -8,6 +8,6 @@ public class AiQuestionPageController {
 
     @GetMapping("/ai-questions/list")
     public String showForm() {
-        return "chatbot/ai-question"; // ✅ render HTML từ templates/chatbot/
+        return "chatbot/ai-question";
     }
 }

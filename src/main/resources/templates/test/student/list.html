@@ -32,13 +32,13 @@
         <td>
 
             <div th:if="${!testResultMap[test.testId]}">
-                <!-- Nút làm bài kiểu thường -->
+
                 <a th:href="@{'/student/do/' + ${test.testId}}"
                    class="btn btn-primary btn-sm me-2">
                     Làm bài
                 </a>
 
-                <!-- Nút làm bài động nếu có topicId -->
+
                 <a th:if="${test.topicId != null}"
                    th:href="@{'/student/dynamic/do-test?testId=' + ${test.testId} +
                      '&studentUsername=' + ${studentUsername} +
@@ -48,7 +48,7 @@
                     Làm bài động
                 </a>
 
-                <!-- Nút làm bài động nếu là Mixed và không có topicId -->
+
                 <a th:if="${test.topicId == null and #strings.equals(test.testType, 'Mixed')}"
                    th:href="@{'/student/dynamic/do-test?testId=' + ${test.testId} +
                      '&studentUsername=' + ${studentUsername} +

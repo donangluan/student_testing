@@ -42,7 +42,7 @@ public class StudentProfileController {
         boolean isStudent = authentication.getAuthorities().stream()
                 .anyMatch(auth -> auth.getAuthority().equals("ROLE_STUDENT"));
 
-        // ✅ Gán profile trước khi dùng
+
         StudentProfile profile = studentProfileService.getStudentProfileById(studentId);
 
         if (profile == null) {

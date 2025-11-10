@@ -85,7 +85,7 @@
             <a th:href="@{'/teacher/tests/detail/' + ${test.testId}}" class="btn btn-outline-info btn-sm">Xem chi tiết</a>
             <a th:href="@{'/teacher/tests/assign'(testId=${test.testId})}" class="btn btn-outline-secondary btn-sm">Gán câu hỏi</a>
 
-
+            <a th:href="@{/teacher/analytics/{id}(id=${test.testId})}" class="btn btn-outline-success btn-sm">Phân tích bài kiểm tra</a>
 
 
         </td>

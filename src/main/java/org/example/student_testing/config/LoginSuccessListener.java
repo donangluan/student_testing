@@ -30,13 +30,13 @@ public class LoginSuccessListener {
     public void onLoginSuccess(AuthenticationSuccessEvent event) {
         String username = event.getAuthentication().getName();
 
-        // Lấy thông tin chi tiết từ principal
+
         Object principal = event.getAuthentication().getPrincipal();
         String fullName = username;
         String role = "UNKNOWN";
 
         if (principal instanceof UserDetails userDetails) {
-            fullName = userDetails.getUsername(); // hoặc getFullName nếu có
+            fullName = userDetails.getUsername();
             role = userDetails.getAuthorities().stream()
                     .map(GrantedAuthority::getAuthority)
                     .findFirst().orElse("UNKNOWN");

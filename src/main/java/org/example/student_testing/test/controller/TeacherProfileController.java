@@ -28,7 +28,7 @@ public class TeacherProfileController {
 
     @GetMapping("/add")
     public String showAddTeacherForm() {
-        return "/admin/teacher-add"; // đường dẫn đến file HTML trong templates/admin/
+        return "/admin/teacher-add";
     }
 
 

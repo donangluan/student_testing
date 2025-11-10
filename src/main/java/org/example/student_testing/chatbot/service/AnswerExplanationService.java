@@ -18,20 +18,20 @@ import java.util.Map;
 public class AnswerExplanationService {
 
     @Autowired
-    private GeminiService geminiService; // Gọi AI sinh giải thích
+    private GeminiService geminiService;
 
     @Autowired
     private ChatMessageMapper chatMessageMapper;
 
 
     public List<ChatMessageDTO> explainAnswer(Integer conversationId, AnswerExplanationRequestDTO dto) {
-        // Tạo prompt từ dữ liệu
+
         String prompt = geminiService.buildExplanationPrompt(dto);
 
-        // Gọi Gemini để sinh giải thích
+
         String aiResponse = geminiService.chat(prompt, List.of());
 
-        // Tạo metadata JSON
+
         Map<String, Object> metadataMap = Map.of(
                 "questionId", dto.getQuestionId(),
                 "studentAnswer", dto.getStudentAnswer(),
@@ -45,7 +45,7 @@ public class AnswerExplanationService {
         }
 
 
-        // Lưu tin nhắn học sinh
+
         ChatMessageDTO userMsg = new ChatMessageDTO();
         userMsg.setConversationId(conversationId);
         userMsg.setRole("USER");
@@ -54,7 +54,7 @@ public class AnswerExplanationService {
         userMsg.setCreatedAt(LocalDateTime.now());
         chatMessageMapper.insertMessage(userMsg);
 
-        // Lưu phản hồi của AI
+
         ChatMessageDTO botMsg = new ChatMessageDTO();
         botMsg.setConversationId(conversationId);
         botMsg.setRole("ASSISTANT");

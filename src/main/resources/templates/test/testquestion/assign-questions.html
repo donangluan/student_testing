@@ -10,11 +10,11 @@
     <h2 class="mb-4"> Gán câu hỏi vào bài kiểm tra #<span th:text="${testId}"></span></h2>
 
     <form th:action="@{/tests/assign}" method="post">
-        <!-- Hidden fields -->
+
         <input type="hidden" name="testId" th:value="${testId}" />
         <input type="hidden" name="studentUsername" th:value="${studentUsername}" />
 
-        <!-- Question table -->
+
         <div class="table-responsive">
             <table class="table table-bordered table-hover align-middle">
                 <thead class="table-light">
@@ -39,13 +39,13 @@
                             <span th:case="*">Không rõ</span>
                         </span>
                     </td>
-                    <td th:text="${topics[q.topicId]}">Chủ đề</td> <!-- nếu có map topics -->
+                    <td th:text="${topics[q.topicId]}">Chủ đề</td>
                 </tr>
                 </tbody>
             </table>
         </div>
 
-        <!-- Action buttons -->
+
         <div class="d-flex justify-content-between mt-4">
             <a th:href="@{/tests/detail/{id}(id=${testId})}" class="btn btn-outline-secondary"> Quay lại</a>
             <button type="submit" class="btn btn-success">Gán câu hỏi</button>

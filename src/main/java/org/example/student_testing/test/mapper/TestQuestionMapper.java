@@ -22,7 +22,7 @@ public interface TestQuestionMapper {
 
     List<QuestionDTO> findQuestionsByTestId(@Param("testId") Integer testId);
 
-    // Gán câu hỏi vào đề kiểm tra (không gán cho học sinh)
+
     void insertTestQuestionForTest(@Param("testId") Integer testId,
                                    @Param("questionId") Integer questionId,
                                    @Param("assignedBy") String assignedBy,
@@ -30,7 +30,7 @@ public interface TestQuestionMapper {
                                    @Param("orderNo") Integer orderNo,
                                    @Param("source") String source);
 
-    // Gán câu hỏi cho học sinh (nếu cần)
+
     void insertTestQuestionForStudent(@Param("testId") Integer testId,
                                       @Param("questionId") Integer questionId,
                                       @Param("studentUsername") String studentUsername,

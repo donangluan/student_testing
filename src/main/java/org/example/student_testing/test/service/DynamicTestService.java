@@ -101,9 +101,9 @@ public class DynamicTestService {
 
     public Question getNextQuestionMixedByDifficulty(int difficulty, String studentUsername, int testId) {
         List<Integer> answeredIds = mapper.getAnsweredQuestionIds(testId, studentUsername);
-        List<Integer> topicIds = mapper.getTopicIdsInTest(testId); // ví dụ: [1,2,3]
+        List<Integer> topicIds = mapper.getTopicIdsInTest(testId);
 
-        // Ưu tiên độ khó hiện tại
+
         for (Integer topicId : topicIds) {
             List<Question> pool = mapper.getQuestionsByDifficultyAndTopic(difficulty, topicId);
             for (Question q : pool) {
@@ -111,7 +111,7 @@ public class DynamicTestService {
             }
         }
 
-        // Fallback xuống độ khó thấp hơn
+
         for (int d = difficulty - 1; d >= 1; d--) {
             for (Integer topicId : topicIds) {
                 List<Question> pool = mapper.getQuestionsByDifficultyAndTopic(d, topicId);
@@ -121,7 +121,7 @@ public class DynamicTestService {
             }
         }
 
-        // Fallback lên độ khó cao hơn
+
         for (int d = difficulty + 1; d <= 5; d++) {
             for (Integer topicId : topicIds) {
                 List<Question> pool = mapper.getQuestionsByDifficultyAndTopic(d, topicId);

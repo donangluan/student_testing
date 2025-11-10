@@ -43,21 +43,21 @@ public class RegisterController {
         }
 
 
-        // ✅ Kiểm tra trùng username
+
         if (userService.existsByUsername(userDTO.getUsername())) {
             bindingResult.rejectValue("username", "duplicate", "Tên đăng nhập đã tồn tại");
             model.addAttribute("userDTO", userDTO);
             return "student/register";
         }
 
-        // ✅ Kiểm tra trùng email
+
         if (userService.existsByEmail(userDTO.getEmail())) {
             bindingResult.rejectValue("email", "duplicate", "Email đã được sử dụng");
             model.addAttribute("userDTO", userDTO);
             return "student/register";
         }
 
-        // ✅ Gán role mặc định
+
         if (userDTO.getRoleCode() == null || userDTO.getRoleCode().isBlank()) {
             userDTO.setRoleCode("STUDENT");
         }

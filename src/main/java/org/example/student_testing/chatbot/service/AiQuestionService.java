@@ -28,7 +28,7 @@ public class AiQuestionService {
      * @return Danh sách câu hỏi đã lưu vào DB
      */
     public List<AiGeneratedQuestion> generate(Integer teacherId, String topic, String difficulty, int quantity) {
-        // 1. Tạo prompt gửi đến AI
+
         String prompt = String.format("""
     Bạn là chuyên gia tạo đề kiểm tra. Hãy tạo chính xác %d câu hỏi trắc nghiệm theo định dạng JSON sau:
 
@@ -57,17 +57,16 @@ public class AiQuestionService {
     - Đảm bảo đúng định dạng JSON như trên, không thêm mô tả ngoài JSON
     """, quantity, difficulty, topic, topic, difficulty);
 
-        // 2. Gọi AI để lấy kết quả+
+
         String aiText = geminiService.chat(prompt, List.of());
 
-        // 3. Tách phần JSON ra khỏi văn bản AI trả về
+
         String json = geminiService.extractJsonFromText(aiText);
 
-        // 4. Parse JSON thành danh sách câu hỏi
+
         List<AiGeneratedQuestion> questions = geminiService.parseQuestionsFromJson(json);
 
 
-        // 5. Gắn thông tin giáo viên và lưu vào DB
         for (AiGeneratedQuestion q : questions) {
             q.setTeacherId(teacherId);
             q.setStatus("PENDING");
@@ -76,7 +75,7 @@ public class AiQuestionService {
         }
         System.out.println("question" +questions );
 
-        // 6. Trả về danh sách câu hỏi đã lưu
+
         return questions;
     }
 

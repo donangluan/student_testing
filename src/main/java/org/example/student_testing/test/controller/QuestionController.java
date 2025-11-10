@@ -52,7 +52,7 @@ public class QuestionController {
     ) {
 
         if (result.hasErrors()) {
-            System.out.println("❌ Validation lỗi:");
+            System.out.println(" Validation lỗi:");
             result.getAllErrors().forEach(error -> System.out.println(" - " + error.getDefaultMessage()));
 
             model.addAttribute("topics", topicService.findAll());
@@ -71,7 +71,7 @@ public class QuestionController {
 
     @GetMapping("/edit/{questionId}")
     public String showEditForm(@PathVariable Integer questionId, Model model) {
-        System.out.println("✅ Options: " + answerOptionService.findAll());
+        System.out.println(" Options: " + answerOptionService.findAll());
         model.addAttribute("questionDTO", questionService.getQuestionById(questionId));
         model.addAttribute("topics", topicService.findAll());
         model.addAttribute("difficulties", difficultyService.findAll());

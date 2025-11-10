@@ -24,6 +24,6 @@ public class TestDTO {
 
     private String topicName;
     private String courseName;
-    private Integer resultId; // ID của kết quả đã nộp
+    private Integer resultId;
 
 }

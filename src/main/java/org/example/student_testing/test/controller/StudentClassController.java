@@ -42,7 +42,7 @@ public class StudentClassController {
         System.out.println("DEBUG: studentUsername = " + dto.getStudentUsername());
         System.out.println("DEBUG: classId = " + dto.getClassId());
         studentClassService.assignStudentToClass(dto);
-        redirectAttributes.addFlashAttribute("successMessage", "✅ Gán học sinh vào lớp thành công!");
+        redirectAttributes.addFlashAttribute("successMessage", " Gán học sinh vào lớp thành công!");
         return "redirect:/admin/student-class/assign";
     }
 

@@ -8,7 +8,7 @@
 <body class="container mt-5">
 <h2 class="mb-4">Tạo đề kiểm tra (Một chủ đề)</h2>
 
-<!-- Form chọn môn học để lọc chủ đề -->
+
 <form method="get" th:action="@{/teacher/tests/generate}">
     <div class="mb-3">
         <label for="courseId" class="form-label">Môn học</label>
@@ -23,7 +23,7 @@
     </div>
 </form>
 
-<!-- Form tạo đề kiểm tra -->
+
 <form method="post" th:action="@{/teacher/tests/generate}">
     <input type="hidden" name="courseId" th:value="${selectedCourseId}" />
 

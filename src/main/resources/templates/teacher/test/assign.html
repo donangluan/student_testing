@@ -11,20 +11,20 @@
 <form method="post" th:action="@{/teacher/tests/assign}">
     <input type="hidden" name="testId" th:value="${testId}" />
 
-    <!-- Kiểm tra danh sách học sinh -->
+
     <div th:if="${#lists.isEmpty(students)}">
         <div class="alert alert-danger">Không có học sinh nào để gán câu hỏi.</div>
     </div>
 
     <div th:if="${not #lists.isEmpty(students)}">
-        <!-- Chọn học sinh -->
+
         <div class="mb-3">
             <label class="form-label">Học sinh được gán</label>
             <input type="hidden" name="studentUsername" th:value="${students[0].username}" />
             <p class="form-text">Học sinh: <strong th:text="${students[0].fullName}"></strong></p>
         </div>
 
-        <!-- Câu hỏi thủ công -->
+
         <h5 class="mt-4">Câu hỏi thủ công</h5>
         <div th:if="${#lists.isEmpty(manualQuestions)}">
             <p class="text-muted">Không có câu hỏi thủ công nào.</p>
@@ -44,7 +44,6 @@
                    th:value="${q.source}" />
         </div>
 
-        <!-- Câu hỏi AI -->
         <h5 class="mt-4">Câu hỏi AI</h5>
         <div th:if="${#lists.isEmpty(aiQuestions)}">
             <p class="text-muted">Không có câu hỏi AI nào.</p>
@@ -64,7 +63,7 @@
                    th:value="${q.source}" />
         </div>
 
-        <!-- Nút submit -->
+
         <button type="submit" class="btn btn-success mt-4">Gán câu hỏi</button>
     </div>
 </form>

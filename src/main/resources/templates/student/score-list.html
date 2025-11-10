@@ -8,13 +8,13 @@
     <h2>Score List</h2>
 
 
-    <!-- ✅ Chỉ ADMIN được thêm điểm -->
-    <div th:replace="layout :: content">
-        <h2>📈 Danh sách điểm</h2>
 
-        <!-- ✅ Chỉ ADMIN được thêm điểm -->
+    <div th:replace="layout :: content">
+        <h2> Danh sách điểm</h2>
+
+
         <div sec:authorize="hasRole('ADMIN')">
-            <a th:href="@{/score/add}" class="btn btn-primary mb-3">➕ Thêm điểm</a>
+            <a th:href="@{/score/add}" class="btn btn-primary mb-3"> Thêm điểm</a>
         </div>
 
         <table class="table table-bordered">
@@ -36,10 +36,10 @@
                 <td th:text="${s.subject}"></td>
                 <td th:text="${s.score}"></td>
                 <td>
-                    <!-- ✅ ADMIN và GIẢNG VIÊN được sửa -->
+
                     <a th:href="@{'/score/edit/' + ${s.scoreId}}" sec:authorize="hasAnyRole('ADMIN', 'TEACHER')" class="btn btn-warning btn-sm">Sửa</a>
 
-                    <!-- ✅ Chỉ ADMIN được xóa -->
+
                     <a th:href="@{'/score/delete/' + ${s.scoreId}}" sec:authorize="hasRole('ADMIN')" class="btn btn-danger btn-sm">Xóa</a>
                 </td>
             </tr>

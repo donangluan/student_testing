@@ -9,9 +9,9 @@ import java.util.List;
 @Mapper
 public interface CourseMapper {
 
-//    get list of courses
+
     List<Course> findAll();
-//    get list of course by courseId
+
     Course findByCourseId(Integer courseId);
 
     void create(Course course);

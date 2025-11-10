@@ -8,7 +8,7 @@ import java.util.List;
 
 @Mapper
 public interface LoginHistoryMapper {
-    //thêm mới những người đã đăng nhập
+
     void insertLoginHistory(LoginHistoryDTO dto);
     List<LoginHistoryDTO> findAll();
     List<LoginHistoryDTO> findByUsername(String username);

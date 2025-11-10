@@ -33,7 +33,7 @@ public class AiGenerateQuestionService {
     @Autowired
     private TopicService topicService;
 
-    // ✅ Lưu danh sách câu hỏi AI từ form nhập tay
+
     public List<AiGeneratedQuestion> processAndSave(
             List<Integer> selectedIndexes,
             Map<String, String> contents,
@@ -49,7 +49,7 @@ public class AiGenerateQuestionService {
         Integer teacherId = userMapper.findTeacherIdByUsername(username);
         if (teacherId == null) throw new RuntimeException("Không tìm thấy teacherId cho username: " + username);
 
-        Integer topicId = topicService.getIdByName(topic); // ✅ lấy topicId từ topicName
+        Integer topicId = topicService.getIdByName(topic);
 
         List<AiGeneratedQuestion> toSave = new ArrayList<>();
         ObjectMapper mapper = new ObjectMapper();
@@ -72,18 +72,18 @@ public class AiGenerateQuestionService {
             q.setCorrectAnswer(correct);
             q.setDifficulty(difficulty);
             q.setTopic(topic);
-            q.setTopicId(topicId); // ✅ gán topicId
+            q.setTopicId(topicId);
             q.setStatus("ACCEPTED");
             q.setCreatedAt(LocalDateTime.now());
             q.setTeacherId(teacherId);
-            q.setSource("ai"); // ✅ Gán source
+            q.setSource("ai");
 
             q.setOptionsMap(optionsMap);
 
             try {
                 q.setOptions(mapper.writeValueAsString(optionsMap));
             } catch (Exception e) {
-                System.out.println("❌ Lỗi JSON tại index " + index + ": " + e.getMessage());
+                System.out.println(" Lỗi JSON tại index " + index + ": " + e.getMessage());
                 continue;
             }
 
@@ -93,7 +93,7 @@ public class AiGenerateQuestionService {
         List<AiGeneratedQuestion> saved = new ArrayList<>();
         for (AiGeneratedQuestion q : toSave) {
             aiGeneratedQuestionMapper.insertQuestion(q);
-            System.out.println("✅ Đã lưu: " + q.getQuestionContent() + " → ID: " + q.getId());
+            System.out.println(" Đã lưu: " + q.getQuestionContent() + " → ID: " + q.getId());
             if (q.getId() != null) saved.add(q);
         }
 
@@ -104,14 +104,14 @@ public class AiGenerateQuestionService {
         return s == null || s.trim().isEmpty();
     }
 
-    // ✅ Lưu 1 câu hỏi AI đơn lẻ
+
     public void saveSingle(AiGeneratedQuestion q) {
         if (q.getTopicId() == null && q.getTopic() != null) {
             Integer topicId = topicService.getIdByName(q.getTopic());
             q.setTopicId(topicId);
         }
         if (q.getSource() == null) {
-            q.setSource("ai"); // ✅ Gán source nếu chưa có
+            q.setSource("ai");
         }
         aiGeneratedQuestionMapper.insertQuestion(q);
     }
@@ -144,17 +144,17 @@ public class AiGenerateQuestionService {
     @Transactional
     public void convertAiQuestionsToOfficial(List<AiGeneratedQuestion> aiQuestions) {
         for (AiGeneratedQuestion aiQ : aiQuestions) {
-            // ✅ Ép gán nếu thiếu source
+
             if (aiQ.getSource() == null || aiQ.getSource().trim().isEmpty()) {
                 aiQ.setSource("ai");
             }
 
-            System.out.printf("🧾 ID = %d | source = %s | content = %s%n",
+            System.out.printf(" ID = %d | source = %s | content = %s%n",
                     aiQ.getId(), aiQ.getSource(), aiQ.getQuestionContent());
 
             Integer existingId = questionMapper.findIdByContent(aiQ.getQuestionContent());
             if (existingId != null) {
-                System.out.printf("⚠️ Bỏ qua câu hỏi AI ID = %d vì đã tồn tại trong bảng questions (ID = %d)%n", aiQ.getId(), existingId);
+                System.out.printf(" Bỏ qua câu hỏi AI ID = %d vì đã tồn tại trong bảng questions (ID = %d)%n", aiQ.getId(), existingId);
                 continue;
             }
 
@@ -168,10 +168,10 @@ public class AiGenerateQuestionService {
             q.setDifficultyId(difficultyService.getIdByName(aiQ.getDifficulty()));
             q.setTopicId(aiQ.getTopicId());
             q.setCreatedBy(aiQ.getCreatedBy());
-            q.setSource(aiQ.getSource()); // ✅ đảm bảo luôn có source
+            q.setSource(aiQ.getSource());
 
             questionMapper.insert(q);
-            System.out.printf("✅ Đã insert câu hỏi AI ID = %d vào bảng questions%n", aiQ.getId());
+            System.out.printf(" Đã insert câu hỏi AI ID = %d vào bảng questions%n", aiQ.getId());
         }
     }
 

@@ -50,7 +50,7 @@ public class StudentController {
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", totalPages);
         model.addAttribute("size", size);
-        model.addAttribute("currentMode", "list"); // trong listStudent()
+        model.addAttribute("currentMode", "list");
 
         model.addAttribute("courses", courseService.getAllCourse());
         return "student/student-list";
@@ -85,18 +85,18 @@ public class StudentController {
 
             studentService.createStudent(studentDTO);
 
-            redirectAttributes.addFlashAttribute("successMessage", "✅ Thêm học viên thành công và đã gửi email!");
+            redirectAttributes.addFlashAttribute("successMessage", " Thêm học viên thành công và đã gửi email!");
             return "redirect:/student/list";
 
         } catch (MessagingException e) {
 
-            redirectAttributes.addFlashAttribute("successMessage", "✅ Thêm học viên thành công nhưng gửi email thất bại: " + e.getMessage());
+            redirectAttributes.addFlashAttribute("successMessage", " Thêm học viên thành công nhưng gửi email thất bại: " + e.getMessage());
             return "redirect:/student/list";
 
         } catch (Exception e) {
 
             model.addAttribute("student", studentDTO);
-            model.addAttribute("dbError", "❌ Lỗi khi lưu dữ liệu: " + e.getMessage());
+            model.addAttribute("dbError", "Lỗi khi lưu dữ liệu: " + e.getMessage());
             model.addAttribute("courses", courseService.getAllCourse());
             return "student/student-add";
         }
@@ -108,7 +108,7 @@ public class StudentController {
     public String deleteStudent(@PathVariable("studentId") String studentId,
                                 RedirectAttributes redirectAttributes){
         studentService.deleteStudent(studentId);
-        redirectAttributes.addFlashAttribute("successMessage", "🗑️ Xóa học viên thành công!");
+        redirectAttributes.addFlashAttribute("successMessage", "🗑 Xóa học viên thành công!");
         return "redirect:/student/list";
     }
     @PreAuthorize("hasRole('ADMIN')")
@@ -146,7 +146,7 @@ public class StudentController {
         return "redirect:/student/list";
 
     }
-    //search function by email name code
+
     @PreAuthorize("hasAnyRole('ADMIN','TEACHER')")
     @GetMapping("/search")
     public String searchStudent(@RequestParam("keyword") String keyword,
@@ -204,9 +204,9 @@ public class StudentController {
             for (StudentDTO s : students) {
                 studentService.createStudent(s);
             }
-            model.addAttribute("message", "✅ Import thành công " + students.size() + " sinh viên.");
+            model.addAttribute("message", " Import thành công " + students.size() + " sinh viên.");
         } catch (Exception e) {
-            model.addAttribute("message", "❌ Lỗi import: " + e.getMessage());
+            model.addAttribute("message", " Lỗi import: " + e.getMessage());
         }
         return "student/student-import";
     }

@@ -23,14 +23,16 @@ public class TestAnalyticsService {
     @Autowired
     private QuestionAnalysisMapper questionAnalysisMapper;
 
-    /**
-     * Phân tích bài test theo testId, trả về prompt đã gắn dữ liệu
-     */
+
+    @Autowired
+    private GeminiService geminiService;
+
+
     public String analyzeTest(int testId) {
-        // 1. Lấy tên bài test
+
         String testName = testMapper.findTestNameById(testId);
 
-        // 2. Lấy danh sách điểm học sinh
+
         List<Double> scores = testResultMapper.findScoresByTestId(testId);
         int studentCount = scores.size();
         double avgScore = calculateAverage(scores);
@@ -38,11 +40,11 @@ public class TestAnalyticsService {
         double minScore = scores.stream().mapToDouble(Double::doubleValue).min().orElse(0);
         double stdDev = calculateStdDev(scores, avgScore);
 
-        // 3. Lấy phân tích câu hỏi
+
         List<QuestionAnalysisDTO> questions = questionAnalysisMapper.analyzeQuestion(testId);
         String questionAnalysis = TestAnalyticsFormatter.formatQuestionStats(questions);
 
-        // 4. Gắn vào template
+
         String prompt = ANALYZE_TEST_PROMPT
                 .replace("{testName}", testName)
                 .replace("{studentCount}", String.valueOf(studentCount))
@@ -52,7 +54,9 @@ public class TestAnalyticsService {
                 .replace("{stdDev}", String.format("%.1f", stdDev))
                 .replace("{questionAnalysis}", questionAnalysis);
 
-        return prompt;
+        String finalReport = geminiService.chat(prompt, null);
+
+        return finalReport;
     }
 
     private double calculateAverage(List<Double> scores) {
@@ -67,8 +71,9 @@ public class TestAnalyticsService {
     }
 
     public static final String ANALYZE_TEST_PROMPT = """
-        Bạn là chuyên gia phân tích giáo dục, giúp giáo viên hiểu rõ kết quả học tập của học sinh.
-
+       Bạn là chuyên gia phân tích giáo dục, giúp giáo viên hiểu rõ kết quả 
+        học tập của học sinh.
+        
         === DỮ LIỆU BÀI TEST ===
         Tên bài test: {testName}
         Số học sinh: {studentCount}
@@ -76,10 +81,55 @@ public class TestAnalyticsService {
         Điểm cao nhất: {maxScore}
         Điểm thấp nhất: {minScore}
         Độ lệch chuẩn: {stdDev}
-
+        
         === PHÂN TÍCH CÂU HỎI ===
         {questionAnalysis}
-
+        
+        Ví dụ format:
+        - Câu 1: Tỷ lệ đúng 85% (Easy)  Phù hợp
+        - Câu 5: Tỷ lệ đúng 22% (Medium)  Quá khó
+        - Câu 8: Tỷ lệ đúng 98% (Hard)  Quá dễ
+        
+        === NHIỆM VỤ ===
+        Phân tích theo 4 bước:
+        
+        1 TỔNG QUAN:
+            - Đánh giá chung về kết quả lớp
+            - So sánh với tiêu chuẩn (điểm TB nên 60-75)
+        
+        2 ĐIỂM YẾU:
+            - Xác định 3-5 câu hỏi khó nhất
+            - Tìm pattern: học sinh yếu về topic nào?
+        
+        3 PHÂN PHỐI ĐỘ KHÓ:
+            - Kiểm tra xem độ khó câu hỏi có phù hợp không
+            - Gợi ý điều chỉnh (chuyển Easy→Medium, etc.)
+        
+       4 ĐỀ XUẤT HÀNH ĐỘNG:
+            - 3 đề xuất cụ thể để cải thiện
+            - Ưu tiên theo mức độ quan trọng
+        
+        === OUTPUT FORMAT ===
+         PHÂN TÍCH BÀI TEST: {testName}
+        ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        
+        TỔNG QUAN:
+        [Đánh giá tổng quan 2-3 câu]
+        
+         CÂU HỎI KHÓ NHẤT (Tỷ lệ sai >70%):
+        1. Câu X: "[Nội dung]" (78% sai)
+           → Topic: [topic name]
+        2. ...
+        
+        ⚖ ĐÁNH GIÁ ĐỘ KHÓ:
+        - Cần điều chỉnh: [số câu] câu
+        - Cụ thể: [liệt kê]
+        
+         ĐỀ XUẤT CẢI THIỆN:
+        1. [Đề xuất 1 - Ưu tiên cao]
+        2. [Đề xuất 2]
+        3. [Đề xuất 3]
+        
         BẮT ĐẦU PHÂN TÍCH:
         """;
 }

@@ -7,7 +7,7 @@
 </head>
 <body class="container mt-5">
 <h2 class="mb-4">Tạo đề kiểm tra nhiều chủ đề</h2>
-<!-- Bước 1: Chọn môn học -->
+
 <form method="post" th:action="@{/teacher/tests/select-courses}" enctype="application/x-www-form-urlencoded"
       th:if="${groupedTopics == null or #maps.isEmpty(groupedTopics)}">
     <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
@@ -22,7 +22,7 @@
     <button type="submit" class="btn btn-primary">Tiếp tục</button>
 </form>
 
-<!-- Bước 2: Phân phối chủ đề và tạo đề -->
+
 <form method="post" th:action="@{/teacher/tests/create-mixed}"
       th:if="${groupedTopics != null and !#maps.isEmpty(groupedTopics)}">
     <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />

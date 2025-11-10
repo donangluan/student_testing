@@ -37,16 +37,16 @@ public class SecurityConfig {
 
 
                 .authorizeHttpRequests(auth -> auth
-                        // Public routes
+
                         .requestMatchers("/login", "/register/**", "/css/**", "/js/**").permitAll()
 
 
-                        // Student routes
+
                         .requestMatchers("/student/**").hasAnyRole("TEACHER", "ADMIN","STUDENT")
-                        // Teacher routes
+
                         .requestMatchers("/teacher/**").hasRole("TEACHER")
 
-                        // Admin routes
+
                         .requestMatchers("/admin/**", "/users/**").hasRole("ADMIN")
 
                         .requestMatchers("/api/ai-questions/generate").permitAll()
@@ -55,7 +55,7 @@ public class SecurityConfig {
 
 
 
-                        // All other routes require authentication
+
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form

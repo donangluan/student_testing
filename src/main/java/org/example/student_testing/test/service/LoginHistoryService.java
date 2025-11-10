@@ -15,7 +15,7 @@ public class LoginHistoryService {
     private LoginHistoryMapper mapper;
 
     public void save(LoginHistoryDTO dto) {
-        // Nếu cần xử lý thêm logic trước khi lưu, làm tại đây
+
         mapper.insertLoginHistory(dto);
     }
 

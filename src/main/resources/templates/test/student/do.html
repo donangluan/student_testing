@@ -8,9 +8,9 @@
 <body class="container mt-5">
 <h2 class="mb-4">Làm bài kiểm tra</h2>
 
-<!-- ✅ THÊM MỚI: hiển thị thời gian còn lại -->
+
 <div class="alert alert-warning text-center">
-    ⏳ Thời gian còn lại: <span id="countdown" class="fw-bold text-danger">--:--</span>
+    Thời gian còn lại: <span id="countdown" class="fw-bold text-danger">--:--</span>
 </div>
 
 <form method="post" th:action="@{/student/submit}" id="submitForm">
@@ -40,9 +40,9 @@
     <button type="submit" class="btn btn-success">Nộp bài</button>
 </form>
 
-<!-- ✅ THÊM MỚI: script đếm ngược và auto-submit -->
+
 <script>
-    const duration = /*[[${duration}]]*/ 30; // thời lượng đề thi (phút)
+    const duration = /*[[${duration}]]*/ 30;
     let remaining = duration * 60;
 
     const countdownEl = document.getElementById("countdown");
@@ -51,7 +51,7 @@
         if (remaining <= 0) {
             clearInterval(timer);
             countdownEl.innerText = "00:00";
-            document.getElementById("submitForm").submit(); // ✅ auto-submit khi hết giờ
+            document.getElementById("submitForm").submit();
         } else {
             const minutes = Math.floor(remaining / 60);
             const seconds = remaining % 60;

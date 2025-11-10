@@ -95,7 +95,7 @@ public class TestService {
 
 
 
-        //  Gán đề cho từng học sinh
+
         for (String studentUsername : request.getStudentUsername()) {
             if (studentUsername == null || studentUsername.isBlank()) continue;
 
@@ -141,7 +141,7 @@ public class TestService {
             throw new IllegalArgumentException("Phân phối chủ đề không được để trống.");
         }
 
-        // Tạo đề kiểm tra
+
         TestDTO testDTO = new TestDTO();
         testDTO.setTestName(dto.getTestName());
         testDTO.setCreatedBy(dto.getCreatedBy());
@@ -152,7 +152,7 @@ public class TestService {
         Integer testId = testDTO.getTestId();
         List<Integer> aiQuestionIds = aiGenerateQuestionService.findAllIds();
 
-        // Gom toàn bộ câu hỏi từ các chủ đề
+
         List<QuestionDTO> allQuestions = new java.util.ArrayList<>();
 
         for (Map.Entry<Integer, Integer> entry : dto.getTopicDistribution().entrySet()) {
@@ -169,7 +169,7 @@ public class TestService {
 
             allQuestions.addAll(questionDTOs);
 
-            // Gán câu hỏi vào đề (chung cho giáo viên)
+
             int order = 1;
             for (QuestionDTO q : questionDTOs) {
                 String source = aiQuestionIds.contains(q.getQuestionId()) ? "ai" : "manual";
@@ -185,7 +185,7 @@ public class TestService {
             }
         }
 
-        // Gán đề cho từng học sinh
+
         for (String studentUsername : studentUsernames) {
             if (studentUsername == null || studentUsername.isBlank()) continue;
 
@@ -209,7 +209,7 @@ public class TestService {
             }
         }
 
-        System.out.println("Đã tạo đề kiểm tra nhiều chủ đề: " + testDTO.getTestName());
+
     }
 
 
@@ -249,7 +249,7 @@ public class TestService {
     public void createAiTest(String testName, String topic, List<Integer> questionIds,
                              List<String> studentUsernames, String teacherUsername) {
 
-        // Tạo đề kiểm tra
+
         TestDTO test = new TestDTO();
         test.setTestName(testName);
         test.setTopicName(topic);
@@ -258,7 +258,7 @@ public class TestService {
         test.setCreatedAt(LocalDateTime.now());
         testMapper.insertTest(test);
 
-        // Gán câu hỏi vào đề
+
         int order = 1;
         for (Integer qId : questionIds) {
             TestQuestionDTO tq = new TestQuestionDTO();
@@ -269,7 +269,7 @@ public class TestService {
             testMapper.insertTestQuestion(tq);
         }
 
-        // Gán đề cho học sinh
+
         for (String studentUsername : studentUsernames) {
             TestAssignmentDTO ta = new TestAssignmentDTO();
             ta.setTestId(test.getTestId());

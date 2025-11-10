@@ -38,7 +38,7 @@ public class TeacherProfileService {
                                          String department, String username, String password) {
 
         String teacherId = generateTeacherId();
-        // 1. Tạo tài khoản đăng nhập
+
         User dto = new User();
         dto.setUsername(username);
         dto.setPassword(passwordEncoder.encode(password));
@@ -47,22 +47,20 @@ public class TeacherProfileService {
         dto.setRoleCode("teacher");
         userMapper.insertUser(dto);
 
-        // 2. Gắn quyền TEACHER
 
-        // 3. Gán quyền TEACHER
         Integer roleId = roleMapper.findRoleIdByName("TEACHER");
         if (roleId == null) {
             throw new IllegalArgumentException("Vai trò không hợp lệ: TEACHER");
         }
         userMapper.assignRoles(username, roleId);
 
-        // 3. Tạo hồ sơ giáo viên
+
         TeacherProfile teacher = new TeacherProfile();
         teacher.setTeacherId(teacherId);
         teacher.setFullName(fullName);
         teacher.setPhone(phone);
         teacher.setDepartment(department);
-        teacher.setUsername(username); // liên kết với tài khoản
+        teacher.setUsername(username);
         teacher.setEmail(email);
         teacher.setCreatedAt(LocalDateTime.now());
         teacherProfileMapper.insertTeacher(teacher);
@@ -93,7 +91,7 @@ public class TeacherProfileService {
 
 
     public String generateTeacherId() {
-        String lastId = teacherProfileMapper.getLastTeacherId(); // ví dụ: GV012
+        String lastId = teacherProfileMapper.getLastTeacherId();
         int nextNumber = 1;
 
         if (lastId != null && lastId.startsWith("GV")) {
@@ -102,7 +100,7 @@ public class TeacherProfileService {
             } catch (NumberFormatException ignored) {}
         }
 
-        return String.format("GV%03d", nextNumber); // GV001, GV002,...
+        return String.format("GV%03d", nextNumber);
     }
 
 

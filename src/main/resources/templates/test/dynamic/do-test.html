@@ -58,7 +58,7 @@
         if (remaining <= 0) {
             clearInterval(timer);
             countdownEl.innerText = "00:00";
-            document.getElementById("submitForm").submit(); // ✅ auto-submit
+            document.getElementById("submitForm").submit(); /
         } else {
             const minutes = Math.floor(remaining / 60);
             const seconds = remaining % 60;
