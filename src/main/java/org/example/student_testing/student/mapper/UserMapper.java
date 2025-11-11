@@ -46,4 +46,9 @@ public interface UserMapper {
     Integer findTeacherIdByUsername(@Param("username") String username);
 
 
+    String findPasswordByUsername(@Param("username") String username);
+
+    int updatePassword(@Param("username") String username, @Param("newPassword") String newPassword);
+
+
 }

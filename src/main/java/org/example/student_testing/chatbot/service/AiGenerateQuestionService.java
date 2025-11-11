@@ -50,6 +50,23 @@ public class AiGenerateQuestionService {
         if (teacherId == null) throw new RuntimeException("Không tìm thấy teacherId cho username: " + username);
 
         Integer topicId = topicService.getIdByName(topic);
+        if(topicId == null){
+            System.out.println("Lỗi: Không tìm thấy Topic ID cho tên: "+topic );
+            throw new RuntimeException("Không tìm thấy câu hỏi vì chủ đề không tồn tại: " +topic);
+        }
+
+        String courseName = topicService.findCourseNameByTopicId(topicId);
+        if (courseName == null) {
+
+            System.err.println("Cảnh báo: Không tìm thấy Course Name cho Topic ID: " + topicId);
+        }
+
+        String vietnameseDifficulty = mapDifficultyToVietnamese(difficulty);
+
+        Integer difficultyId = difficultyService.getIdByName(vietnameseDifficulty);
+        if (difficultyId == null) {
+            throw new RuntimeException("Độ khó không hợp lệ: " + difficulty);
+        }
 
         List<AiGeneratedQuestion> toSave = new ArrayList<>();
         ObjectMapper mapper = new ObjectMapper();
@@ -74,6 +91,7 @@ public class AiGenerateQuestionService {
             q.setTopic(topic);
             q.setTopicId(topicId);
             q.setStatus("ACCEPTED");
+            q.setCourseName(courseName);
             q.setCreatedAt(LocalDateTime.now());
             q.setTeacherId(teacherId);
             q.setSource("ai");
@@ -90,14 +108,51 @@ public class AiGenerateQuestionService {
             toSave.add(q);
         }
 
-        List<AiGeneratedQuestion> saved = new ArrayList<>();
+        List<AiGeneratedQuestion> savedAndOfficial = new ArrayList<>();
         for (AiGeneratedQuestion q : toSave) {
             aiGeneratedQuestionMapper.insertQuestion(q);
             System.out.println(" Đã lưu: " + q.getQuestionContent() + " → ID: " + q.getId());
-            if (q.getId() != null) saved.add(q);
+            if (q.getId() != null) {
+
+                // BẮT ĐẦU PHẦN BỔ SUNG LƯU VÀO BẢNG CHÍNH (questions)
+
+                // 2. CHUẨN BỊ QuestionDTO
+                QuestionDTO qDTO = new QuestionDTO();
+                qDTO.setContent(q.getQuestionContent());
+
+                // Đảm bảo OptionsMap đã được gán trước đó
+                qDTO.setOptionA(q.getOptionsMap().get("A"));
+                qDTO.setOptionB(q.getOptionsMap().get("B"));
+                qDTO.setOptionC(q.getOptionsMap().get("C"));
+                qDTO.setOptionD(q.getOptionsMap().get("D"));
+                qDTO.setCorrectOption(q.getCorrectAnswer());
+                qDTO.setDifficultyId(difficultyId); // Sử dụng ID số đã tìm
+                qDTO.setTopicId(q.getTopicId());
+                qDTO.setCreatedBy(username);
+                qDTO.setSource("ai"); // Source luôn là 'ai'
+
+                // 3. INSERT VÀO BẢNG questions (Cần useGeneratedKeys="true" trong Mapper XML)
+                questionMapper.insert(qDTO);
+
+                // 4. LẤY ID TỰ ĐỘNG SINH VÀ GÁN VÀO ENTITY AI
+                if (qDTO.getQuestionId() != null) {
+                    // Giả định AiGeneratedQuestion đã có field 'officialQuestionId'
+                    Integer officialId = qDTO.getQuestionId();
+
+                    // 2. Gán ID vào Entity trong bộ nhớ
+                    q.setOfficialQuestionId(officialId);
+
+                    aiGeneratedQuestionMapper.updateOfficialQuestionId(q.getId(), officialId);
+                    savedAndOfficial.add(q);
+                    System.out.println(" Đã gán Official Question ID: " + qDTO.getQuestionId());
+                } else {
+                    System.err.println("Lỗi: Không lấy được questionId sau khi INSERT câu hỏi chính thức.");
+                }
+
+            }
         }
 
-        return saved;
+        return savedAndOfficial;
     }
 
     private boolean isBlank(String s) {
@@ -178,6 +233,16 @@ public class AiGenerateQuestionService {
 
     public List<AiGeneratedQuestion> getAiQuestionsByTestId(Integer topicId) {
         return aiGeneratedQuestionMapper.findByTopicId(topicId);
+    }
+
+    private String mapDifficultyToVietnamese(String englishDifficulty) {
+        if (englishDifficulty == null) return null;
+        return switch (englishDifficulty.toLowerCase().trim()) {
+            case "easy" -> "Dễ";
+            case "medium" -> "Trung bình";
+            case "hard" -> "Khó";
+            default -> englishDifficulty; // Trả về nguyên gốc nếu không khớp
+        };
     }
 
 }

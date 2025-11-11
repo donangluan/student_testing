@@ -16,10 +16,11 @@
         <result property="topicId" column="topic_id"/>
         <result property="status" column="status"/>
         <result property="createdAt" column="created_at"/>
-        <result property="source" column="source"/> <!-- ✅ map rõ ràng -->
+        <result property="source" column="source"/>
+        <result property="officialQuestionId" column="official_question_id"/>
     </resultMap>
 
-    <!-- Truy vấn theo giáo viên -->
+
     <select id="getByTeacherId" resultMap="aiGeneratedQuestionMap">
         SELECT *
         FROM ai_generated_questions
@@ -27,14 +28,14 @@
         ORDER BY created_at DESC
     </select>
 
-    <!-- Cập nhật trạng thái -->
+
     <update id="updateStatus" parameterType="org.example.student_testing.chatbot.entity.AiGeneratedQuestion">
         UPDATE ai_generated_questions
         SET status = #{status}
         WHERE id = #{id}
     </update>
 
-    <!-- Insert hàng loạt câu hỏi AI -->
+
     <insert id="insertAiQuestions" parameterType="org.example.student_testing.chatbot.dto.AiGeneratedQuestionDTO">
         <foreach collection="list" item="q" separator=";">
             INSERT INTO ai_generated_questions (
@@ -47,7 +48,7 @@
         </foreach>
     </insert>
 
-    <!-- Insert 1 câu hỏi AI -->
+
     <insert id="insertQuestion"
             parameterType="org.example.student_testing.chatbot.entity.AiGeneratedQuestion"
             useGeneratedKeys="true"
@@ -62,7 +63,7 @@
                )
     </insert>
 
-    <!-- Truy vấn theo danh sách ID -->
+
     <select id="findByIds" resultMap="aiGeneratedQuestionMap">
         SELECT * FROM ai_generated_questions
         WHERE id IN
@@ -72,7 +73,7 @@
     </select>
 
 
-    <!-- Cập nhật câu hỏi AI -->
+
     <update id="updateQuestion" parameterType="org.example.student_testing.chatbot.entity.AiGeneratedQuestion">
         UPDATE ai_generated_questions
         SET options = CAST(#{options} AS jsonb),
@@ -83,13 +84,13 @@
         WHERE id = #{id}
     </update>
 
-    <!-- Truy vấn theo ID -->
+
     <select id="findById" resultMap="aiGeneratedQuestionMap">
         SELECT * FROM ai_generated_questions WHERE id = #{id}
     </select>
 
 
-    <!-- Truy vấn theo courseId qua topic_id -->
+
     <select id="findByCourseId" resultMap="aiGeneratedQuestionMap">
         SELECT agq.*
         FROM ai_generated_questions agq
@@ -97,12 +98,12 @@
         WHERE t.course_id = #{courseId}
     </select>
 
-    <!-- Truy vấn tất cả ID -->
+
     <select id="findAllIds" resultType="int">
         SELECT id FROM ai_generated_questions
     </select>
 
-    <!-- Truy vấn theo courseName và topicName -->
+
     <select id="findByCourseAndTopic" resultMap="aiGeneratedQuestionMap">
         SELECT q.*
         FROM ai_generated_questions q
@@ -126,4 +127,23 @@
         SELECT * FROM ai_generated_questions WHERE topic_id = #{topicId}
     </select>
 
+
+    <select id="findByOfficialQuestionId"
+            resultMap="aiGeneratedQuestionMap">
+        SELECT
+            id,
+
+            official_question_id,
+            question_content, correct_answer,
+            difficulty, topic, options, created_at
+        FROM ai_generated_questions
+        WHERE official_question_id = #{questionId}
+    </select>
+
+
+    <update id="updateOfficialQuestionId">
+        UPDATE ai_generated_questions
+        SET official_question_id = #{officialQuestionId}
+        WHERE id = #{aiQuestionId}
+    </update>
 </mapper>

@@ -36,4 +36,6 @@ public class AiGeneratedQuestion {
     private LocalDateTime createdAt;
     private Integer topicId;
     private String createdBy;
+
+    private Integer officialQuestionId;
 }

@@ -26,4 +26,6 @@ public interface TopicMapper {
 
     Integer findCourseIdByTopicId(@Param("topicId") Integer topicId);
 
+    String findCourseNameById(@Param("topicId") Integer topicId);
+
 }

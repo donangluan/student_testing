@@ -70,7 +70,7 @@ public class SecurityConfig {
                                     .anyMatch(auth -> auth.getAuthority().equals("ROLE_ADMIN"));
 
                             if (isStudent) {
-                                response.sendRedirect("/student/tests");
+                                response.sendRedirect("/student/dashboard");
                             } else if (isTeacher) {
                                 response.sendRedirect("/teacher/dashboard");
                             } else if (isAdmin) {

@@ -65,14 +65,26 @@ public class AnswerExplanationService {
         return List.of(userMsg, botMsg);
     }
 
-    public String findAnswerLabel(QuestionDTO q, String selectedContent) {
-        if (selectedContent == null) return "";
-        selectedContent = selectedContent.trim();
-        if (selectedContent.equalsIgnoreCase(q.getOptionA().trim())) return "A";
-        if (selectedContent.equalsIgnoreCase(q.getOptionB().trim())) return "B";
-        if (selectedContent.equalsIgnoreCase(q.getOptionC().trim())) return "C";
-        if (selectedContent.equalsIgnoreCase(q.getOptionD().trim())) return "D";
-        return selectedContent;
+    public String findAnswerLabel(QuestionDTO q, String selectedOption) {
+        if ("A".equalsIgnoreCase(selectedOption)) {
+            // CẦN KIỂM TRA NULL TRƯỚC KHI GỌI .trim()
+            String optionA = q.getOptionA();
+            return optionA != null ? optionA.trim() : "";
+        }
+        if ("B".equalsIgnoreCase(selectedOption)) {
+            String optionB = q.getOptionB();
+            return optionB != null ? optionB.trim() : "";
+        }
+        if ("C".equalsIgnoreCase(selectedOption)) {
+            String optionC = q.getOptionC();
+            return optionC != null ? optionC.trim() : "";
+        }
+        if ("D".equalsIgnoreCase(selectedOption)) {
+            String optionD = q.getOptionD();
+            return optionD != null ? optionD.trim() : "";
+        }
+
+        return "";
     }
 
 

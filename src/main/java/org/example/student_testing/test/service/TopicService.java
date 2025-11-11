@@ -53,11 +53,23 @@ public class TopicService {
 
 
     public Integer getIdByName(String name) {
-        return topicMapper.findIdByName(name);
+        if (name == null || name.trim().isEmpty()) {
+            return null;
+        }
+
+        String normalizedName = name.trim();
+        return topicMapper.findIdByName(normalizedName);
     }
 
     public Integer getCourseIdByTopicId(Integer topicId) {
         return topicMapper.findCourseIdByTopicId(topicId);
+    }
+
+    public String findCourseNameByTopicId(Integer topicId) {
+        if (topicId == null) {
+            return null;
+        }
+        return topicMapper.findCourseNameById(topicId);
     }
 
 }

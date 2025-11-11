@@ -10,6 +10,7 @@ import org.example.student_testing.student.mapper.UserMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -138,5 +139,32 @@ public class UserService {
     public boolean existsByEmail(String email) {
         return userMapper.existsByEmail(email);
     }
+
+    @Transactional
+    public boolean changePassword(String username, String currentPassword, String newPassword) {
+        String encodedPassword = userMapper.findPasswordByUsername(username);
+
+        if(encodedPassword == null){
+            return false;
+        }
+
+        if(!passwordEncoder.matches(currentPassword, encodedPassword)){
+
+            System.out.println("Lỗi: Mật khẩu hiện tại không khớp.");
+            return false;
+        }
+
+        if(passwordEncoder.matches(newPassword, encodedPassword)){
+            System.out.println("Lỗi: Mật khẩu mới trùng với mật khẩu cũ.");
+
+            return false;
+        }
+        String newEncodedPassword = passwordEncoder.encode(newPassword);
+
+        int updatedRows = userMapper.updatePassword(username, newEncodedPassword);
+
+        return updatedRows > 0;
+    }
+
 
 }

@@ -8,9 +8,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -27,10 +25,24 @@ public class StudentProfileController {
         model.addAttribute("profileList",profileList);
         return "student/studentprofile-list";
     }
-    @PreAuthorize("hasAnyRole('STUDENT')")
+
+
+    @PreAuthorize("hasRole('STUDENT')")
     @GetMapping("")
-    public String redirectToList() {
-        return "redirect:/student/profile/list";
+    public String viewOwnStudentProfile(Model model, Authentication authentication) {
+
+        String currentUsername = authentication.getName();
+
+
+        StudentProfile profile = studentProfileService.findStudentProfileByUsername(currentUsername);
+
+        if (profile == null) {
+            model.addAttribute("errorMessage", "Không tìm thấy hồ sơ cá nhân cho người dùng: " + currentUsername);
+            return "student/studentprofile-view";
+        }
+
+        model.addAttribute("profile", profile);
+        return "student/studentprofile-view";
     }
 
 
@@ -58,4 +70,55 @@ public class StudentProfileController {
         model.addAttribute("profile", profile);
         return "student/studentprofile-view";
     }
+
+
+
+    @PreAuthorize("hasRole('STUDENT')")
+    @GetMapping("/create")
+    public String showCreateProfileForm(Model model, Authentication authentication) {
+
+        StudentProfile newProfile = new StudentProfile();
+
+
+        newProfile.setUsername(authentication.getName());
+
+
+        model.addAttribute("profile", newProfile);
+
+
+        model.addAttribute("formTitle", "Tạo Hồ sơ cá nhân");
+
+
+        return "student/studentprofile-form";
+    }
+
+
+
+    @PreAuthorize("hasRole('STUDENT')")
+    @PostMapping("/save")
+    public String saveProfile(@ModelAttribute("profile") StudentProfile profile,
+                              Authentication authentication,
+                              Model model) {
+
+
+        if (!profile.getUsername().equals(authentication.getName())) {
+            model.addAttribute("errorMessage", "Lỗi bảo mật: Không thể lưu hồ sơ cho người dùng khác.");
+            return "student/studentprofile-form";
+        }
+
+        try {
+
+            studentProfileService.saveProfile(profile);
+
+
+            return "redirect:/student/profile";
+
+        } catch (Exception e) {
+
+            model.addAttribute("errorMessage", "Lỗi khi lưu hồ sơ: " + e.getMessage());
+            model.addAttribute("formTitle", "Tạo Hồ sơ cá nhân");
+            return "student/studentprofile-form";
+        }
+    }
+
 }

@@ -33,4 +33,10 @@ public interface AiGeneratedQuestionMapper {
     List<AiGeneratedQuestion> findByCourseId(@Param("courseId") Integer courseId);
 
 
+    AiGeneratedQuestion findByOfficialQuestionId(@Param("questionId") Integer questionId);
+
+
+
+    void updateOfficialQuestionId(@Param("aiQuestionId") Integer aiQuestionId,
+                                  @Param("officialQuestionId") Integer officialQuestionId);
 }

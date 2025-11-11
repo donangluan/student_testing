@@ -33,7 +33,7 @@
             <tr><th>Ngày sửa</th><td th:text="${#temporals.format(profile.updatedAt, 'dd/MM/yyyy HH:mm')}"></td></tr>
             <tr><th>UserName</th><td th:text="${profile.username}"></td></tr>
         </table>
-        <a th:href="@{'/student/profile/list'}" class="btn btn-secondary">⬅ Quay lại danh sách</a>
+        <a th:href="@{'/student/dashboard'}" class="btn btn-secondary"> Quay lại Dashboard</a>
     </div>
 </div>
 </body>

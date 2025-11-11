@@ -5,6 +5,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.annotation.PostConstruct;
 import org.example.student_testing.chatbot.dto.AnswerExplanationRequestDTO;
 import org.example.student_testing.chatbot.entity.AiGeneratedQuestion;
+import org.example.student_testing.chatbot.exception.AiServiceException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -24,20 +27,17 @@ public class GeminiService {
 
     private final String ENDPOINT = "https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent";
 
-
+    private static final Logger logger = LoggerFactory.getLogger(GeminiService.class.getName());
 
 
 
     private final ObjectMapper mapper = new ObjectMapper();
 
-    /**
-     * Gửi prompt đến AI và nhận lại nội dung trả về (text hoặc JSON).
-     * @param prompt Nội dung yêu cầu gửi đến AI
-     * @param history Danh sách hội thoại trước đó (nếu có)
-     * @return Nội dung trả về từ AI
-     */
+
     public String chat(String prompt, List<String> history) {
         String fullPrompt = prompt;
+
+        logger.info("Sending prompt to Gemini. Prompt: " + fullPrompt.length());
 
         Map<String, Object> requestBody = Map.of(
                 "contents", List.of(
@@ -54,6 +54,13 @@ public class GeminiService {
         try {
             String url = ENDPOINT + "?key=" + apiKey;
             ResponseEntity<Map> response = restTemplate.postForEntity(url, entity, Map.class);
+
+            if (response.getBody() == null || !response.getBody().containsKey("candidates")) {
+                logger.error("Gemini API returned empty or invalid body for prompt: {}", fullPrompt);
+
+                throw new AiServiceException("Phản hồi từ AI không hợp lệ, không tìm thấy nội dung.");
+            }
+
             List<Map<String, Object>> candidates = (List<Map<String, Object>>) response.getBody().get("candidates");
             Map<String, Object> content = (Map<String, Object>) candidates.get(0).get("content");
             List<Map<String, Object>> parts = (List<Map<String, Object>>) content.get("parts");
@@ -62,17 +69,18 @@ public class GeminiService {
             System.out.println("Nội dung trả về từ Gemini:");
             System.out.println(rawText);
 
+            logger.info("Successfully received response from Gemini. Response length: {}", rawText.length());
+
             return rawText;
         } catch (Exception e) {
-            throw new RuntimeException("Lỗi khi gọi Gemini: " + e.getMessage(), e);
+            logger.error("Lỗi khi gọi Gemini API. Prompt: {}. Chi tiết lỗi: {}", fullPrompt, e.getMessage(), e);
+
+
+            throw new AiServiceException("Lỗi khi gọi dịch vụ AI. Vui lòng kiểm tra API key hoặc dịch vụ có bị quá tải.", e);
         }
     }
 
-    /**
-     * Tách phần JSON ra khỏi văn bản trả về từ AI.
-     * @param rawText Văn bản gốc từ AI (có thể chứa cả text và JSON)
-     * @return Chuỗi JSON đã được tách ra
-     */
+
     public String extractJsonFromText(String rawText) {
         int start = -1, end = -1, braceCount = 0;
         for (int i = 0; i < rawText.length(); i++) {
@@ -98,12 +106,11 @@ public class GeminiService {
         }
     }
 
-    /**
-     * Phân tích chuỗi JSON thành danh sách câu hỏi AI đã sinh.
-     * @param json Chuỗi JSON chứa mảng "questions"
-     * @return Danh sách câu hỏi đã parse thành object
-     */
+
     public List<AiGeneratedQuestion> parseQuestionsFromJson(String json) {
+
+        logger.info("Attempting to parse JSON response...");
+
         List<AiGeneratedQuestion> result = new ArrayList<>();
         try {
             JsonNode root = mapper.readTree(json);
@@ -132,9 +139,14 @@ public class GeminiService {
                 q.setCreatedAt(LocalDateTime.now());
 
                 result.add(q);
+                logger.info("Successfully parsed {} questions from JSON.", result.size());
             }
         } catch (Exception e) {
-            throw new RuntimeException("Lỗi khi phân tích JSON từ AI", e);
+
+            logger.error("Lỗi khi phân tích JSON từ AI. JSON nhận được: {}", json, e);
+
+
+            throw new AiServiceException("AI trả về JSON không hợp lệ. Cần điều chỉnh Prompt.", e);
         }
         return result;
     }
@@ -160,9 +172,7 @@ public class GeminiService {
 
 
 
-    /**
-     * Tạo prompt giải thích đáp án từ dữ liệu câu hỏi.
-     */
+
     public String buildExplanationPrompt(AnswerExplanationRequestDTO dto) {
         boolean isCorrect = dto.getStudentAnswer().equalsIgnoreCase(dto.getCorrectAnswer());
 

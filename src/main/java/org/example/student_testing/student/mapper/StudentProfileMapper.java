@@ -1,6 +1,7 @@
 package org.example.student_testing.student.mapper;
 
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 import org.example.student_testing.student.entity.StudentProfile;
 
 
@@ -16,5 +17,10 @@ public interface StudentProfileMapper {
     void deleteStudentProfileById(String id);
 
 
+
+    StudentProfile findStudentProfileByUsername(@Param("username") String username);
+
+    void insertProfile(StudentProfile profile);
+    void updateProfile(StudentProfile profile);
 
 }

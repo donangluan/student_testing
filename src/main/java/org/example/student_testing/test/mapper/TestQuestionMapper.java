@@ -40,4 +40,14 @@ public interface TestQuestionMapper {
 
     int countQuestionsInTest(@Param("testId") Integer testId);
 
+    Integer findMaxOrderNoByTestId(@Param("testId") Integer testId);
+
+    void insertTestQuestionForTest(
+            @Param("testId") Integer testId,
+            @Param("questionId") Integer questionId,
+            @Param("difficultyId") Integer difficultyId,
+            @Param("orderNo") Integer orderNo,
+            @Param("source") String source
+    );
+
 }

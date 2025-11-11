@@ -58,7 +58,7 @@ public class StudentTestController {
                                @AuthenticationPrincipal UserDetails userDetails,
                                HttpSession session,
                                Model model) {
-        List<QuestionDTO> questions = questionService.getQuestionsByTestIdAndStudent(testId, userDetails.getUsername());
+        List<QuestionDTO> questions = questionService.getQuestionsByTestId(testId);
         TestDTO test = testService.getTestById(testId);
         session.setAttribute("startTime", LocalDateTime.now());
         session.setAttribute("duration", test.getDurationMinutes());

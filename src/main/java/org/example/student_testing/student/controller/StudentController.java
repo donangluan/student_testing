@@ -7,10 +7,7 @@ import jakarta.validation.Valid;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.example.student_testing.student.dto.CourseDTO;
 import org.example.student_testing.student.dto.StudentDTO;
-import org.example.student_testing.student.service.CourseService;
-import org.example.student_testing.student.service.EmailService;
-import org.example.student_testing.student.service.ExcelHelper;
-import org.example.student_testing.student.service.StudentService;
+import org.example.student_testing.student.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
@@ -21,6 +18,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.io.IOException;
+import java.security.Principal;
 import java.util.List;
 
 @Controller
@@ -35,6 +33,8 @@ public class StudentController {
 
     @Autowired
     private EmailService emailService;
+    @Autowired
+    private UserService userService;
 
 
     @PreAuthorize("hasAnyRole('ADMIN','TEACHER')")
@@ -220,5 +220,50 @@ public class StudentController {
         Workbook workbook = ExcelHelper.generateStudentExcel(students);
         workbook.write(response.getOutputStream());
         workbook.close();
+    }
+
+
+    @GetMapping("/change-password")
+    public String showChangePasswordForm() {
+
+        return "student/change_password";
+    }
+
+
+    @PostMapping("/change-password")
+    public String changePassword(@RequestParam("currentPassword") String currentPassword,
+                                 @RequestParam("newPassword") String newPassword,
+                                 @RequestParam("confirmNewPassword") String confirmNewPassword,
+                                 Principal principal,
+                                 Model model
+                                 ) {
+
+        String username = principal.getName();
+
+        if(!newPassword.equals(confirmNewPassword)){
+            model.addAttribute("error", "Mật khẩu mới và nhập mật khẩu xác nhận không khớp ");
+            return "student/change_password";
+        }
+
+        if(newPassword.length() < 6){
+            model.addAttribute("error","Độ dài của mật khẩu phải lớn hơn 6 kí tự");
+            return "student/change_password";
+        }
+
+        if(currentPassword.equals(confirmNewPassword)){
+        model.addAttribute("error", "Mật khẩu mới không được trùng với mật khẩu cũ ");
+            return "student/change_password";
+
+        }
+
+        boolean succes = userService.changePassword(username, currentPassword, newPassword);
+
+        if(succes){
+            model.addAttribute("success", "Đổi mật khẩu thành công");
+        }else{
+            model.addAttribute("error","Đổi mật khẩu không thành công");
+        }
+
+        return "student/change_password";
     }
 }

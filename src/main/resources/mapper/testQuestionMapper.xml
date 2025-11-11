@@ -6,7 +6,7 @@
 
 
     <mapper namespace="org.example.student_testing.test.mapper.TestQuestionMapper">
-    <insert id="insertTestQuestion">
+    <insert id="insertTestQuestion" >
         INSERT INTO test_questions (test_id, question_id, student_username, difficulty_id, order_no,source)
         VALUES (#{testId}, #{questionId}, #{studentUsername}, #{difficultyId}, #{orderNo},#{source})
     </insert>
@@ -52,4 +52,9 @@
     <select id="countQuestionsInTest" resultType="int">
         SELECT COUNT(*) FROM test_question WHERE test_id = #{testId}
     </select>
+
+    <select id="findMaxOrderNoByTestId" resultType="int">
+        SELECT COALESCE(MAX(order_no), 0) FROM test_questions WHERE test_id = #{testId}
+    </select>
+
     </mapper>

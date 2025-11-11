@@ -54,4 +54,16 @@
     <select id="findCourseIdByTopicId" resultType="int">
         SELECT course_id FROM topics WHERE topic_id = #{topicId}
     </select>
+
+
+    <select id="findCourseNameById" resultType="java.lang.String">
+        SELECT
+            c.course_name
+        FROM
+            courses c
+                INNER JOIN
+            topics t ON c.course_id = t.course_id
+        WHERE
+            t.topic_id = #{topicId}
+    </select>
 </mapper>

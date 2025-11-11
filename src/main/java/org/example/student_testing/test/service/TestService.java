@@ -59,6 +59,11 @@ public class TestService {
         return q;
     }
 
+    private Set<Integer> getAiQuestionIdSet() {
+        List<Integer> aiIds = aiGenerateQuestionService.findAllIds();
+        return new HashSet<>(aiIds);
+    }
+
     @Transactional
     public void generateUniqueTest(UniqueTestRequest request, String createdBy) {
         // Tạo đề kiểm tra
@@ -90,10 +95,37 @@ public class TestService {
         int actual = selectedQuestions.size();
 
         if (actual < requested) {
-
+            throw new RuntimeException(
+                    String.format("Không đủ câu hỏi cho chủ đề. Yêu cầu %d, chỉ tìm thấy %d.", requested, actual)
+            );
         }
 
 
+
+
+
+
+        Set<Integer> aiQuestionIds = getAiQuestionIdSet();
+
+        int order = 1;
+
+        for (QuestionDTO q : selectedQuestions) {
+            Integer qId = q.getQuestionId();
+            if (qId == null) continue;
+
+
+            String source = aiQuestionIds.contains(qId) ? "ai" : "manual";
+
+
+            testQuestionMapper.insertTestQuestion(
+                    test.getTestId(),
+                    qId,
+                    createdBy,
+                    q.getDifficultyId(),
+                    order++,
+                    source
+            );
+        }
 
 
         for (String studentUsername : request.getStudentUsername()) {
@@ -104,30 +136,6 @@ public class TestService {
             ta.setStudentUsername(studentUsername);
             ta.setAssignedAt(LocalDateTime.now());
             testMapper.insertTestAssignment(ta);
-
-            int order = 1;
-            for (QuestionDTO q : selectedQuestions) {
-                Integer qId = q.getQuestionId();
-                if (qId == null) continue;
-
-                String source = q.getSource();
-
-                if (source == null || source.isBlank()) {
-
-                    continue;
-                }
-
-
-
-                testQuestionMapper.insertTestQuestion(
-                        test.getTestId(),
-                        qId,
-                        studentUsername,
-                        q.getDifficultyId(),
-                        order++,
-                        source
-                );
-            }
         }
     }
 
@@ -136,11 +144,11 @@ public class TestService {
         return testMapper.findAllTests();
     }
 
+    @Transactional
     public void createMixedTopicTest(MixedTopicTestDTO dto, List<String> studentUsernames) {
         if (dto.getTopicDistribution() == null || dto.getTopicDistribution().isEmpty()) {
             throw new IllegalArgumentException("Phân phối chủ đề không được để trống.");
         }
-
 
         TestDTO testDTO = new TestDTO();
         testDTO.setTestName(dto.getTestName());
@@ -150,10 +158,13 @@ public class TestService {
         testMapper.insertTest(testDTO);
 
         Integer testId = testDTO.getTestId();
-        List<Integer> aiQuestionIds = aiGenerateQuestionService.findAllIds();
 
+
+        Set<Integer> aiQuestionIds = getAiQuestionIdSet();
 
         List<QuestionDTO> allQuestions = new java.util.ArrayList<>();
+        int questionOrder = 1;
+
 
         for (Map.Entry<Integer, Integer> entry : dto.getTopicDistribution().entrySet()) {
             Integer topicId = entry.getKey();
@@ -170,16 +181,17 @@ public class TestService {
             allQuestions.addAll(questionDTOs);
 
 
-            int order = 1;
             for (QuestionDTO q : questionDTOs) {
+
                 String source = aiQuestionIds.contains(q.getQuestionId()) ? "ai" : "manual";
-                Question qEntity = toEntity(q);
+
+
                 testQuestionMapper.insertTestQuestion(
                         testId,
-                        qEntity.getQuestionId(),
+                        q.getQuestionId(),
                         dto.getCreatedBy(),
-                        qEntity.getDifficultyId(),
-                        order++,
+                        q.getDifficultyId(),
+                        questionOrder++,
                         source
                 );
             }
@@ -195,21 +207,8 @@ public class TestService {
             ta.setAssignedAt(LocalDateTime.now());
             testMapper.insertTestAssignment(ta);
 
-            int order = 1;
-            for (QuestionDTO q : allQuestions) {
-                String source = aiQuestionIds.contains(q.getQuestionId()) ? "ai" : "manual";
-                testQuestionMapper.insertTestQuestion(
-                        testId,
-                        q.getQuestionId(),
-                        studentUsername,
-                        q.getDifficultyId(),
-                        order++,
-                        source
-                );
-            }
+
         }
-
-
     }
 
 

@@ -103,5 +103,16 @@
         WHERE u.username = #{username}
     </select>
 
+    <select id="findPasswordByUsername" resultType="String">
+        select password
+        from users
+        where username = #{username}
+    </select>
+
+    <update id="updatePassword" >
+        update users
+        set password = #{newPassword}
+        where username = #{username}
+    </update>
 
 </mapper>

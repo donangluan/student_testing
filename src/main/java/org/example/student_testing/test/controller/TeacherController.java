@@ -461,7 +461,7 @@
 
             if (testId != null) {
                 List<Integer> questionIds = savedQuestions.stream()
-                        .map(AiGeneratedQuestion::getId)
+                        .map(AiGeneratedQuestion::getOfficialQuestionId)
                         .filter(Objects::nonNull)
                         .toList();
 

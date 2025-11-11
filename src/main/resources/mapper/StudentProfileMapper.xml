@@ -49,5 +49,34 @@
         where student_id = #{studentId}
     </delete>
 
+    <select id="findStudentProfileByUsername" resultType="org.example.student_testing.student.entity.StudentProfile">
+        SELECT
+            sp.* FROM
+            student_profile sp
+
+        WHERE
+            sp.username = #{username}
+    </select>
+
+
+    <insert id="insertProfile" parameterType="org.example.student_testing.student.entity.StudentProfile">
+        INSERT INTO student_profile (
+            student_id,school_name, class_name, phone, address, username, created_at, updated_at
+        ) VALUES (
+                             #{studentId},    #{schoolName}, #{className}, #{phone}, #{address}, #{username}, NOW(), NOW()
+                 )
+    </insert>
+
+    <update id="updateProfile" parameterType="org.example.student_testing.student.entity.StudentProfile">
+        UPDATE student_profile
+        SET
+            school_name = #{schoolName},
+            class_name = #{className},
+            phone = #{phone},
+            address = #{address},
+            updated_at = NOW()
+        WHERE student_id = #{studentId}
+    </update>
+
 
 </mapper>
