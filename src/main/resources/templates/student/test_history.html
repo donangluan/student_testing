@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Lịch sử làm bài</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+</head>
+<body>
+<div class="container mt-5">
+    <div class="card shadow">
+        <div class="card-header bg-primary text-white">
+            <h3 class="mb-0"><i class="bi bi-clock-history me-2"></i>Lịch sử làm bài thi</h3>
+        </div>
+        <div class="card-body">
+
+            <div th:if="${history.isEmpty()}" class="alert alert-info">
+                Bạn chưa hoàn thành bài thi nào.
+            </div>
+
+            <div th:unless="${history.isEmpty()}">
+                <table class="table table-hover table-striped">
+                    <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Tên bài thi</th>
+                        <th>Loại</th>
+                        <th>Điểm</th>
+                        <th>Xếp loại</th>
+                        <th>Ngày hoàn thành</th>
+                        <th>Hành động</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="result, iter : ${history}">
+                        <td th:text="${iter.index + 1}">1</td>
+                        <td th:text="${result.testName}">Bài thi giữa kỳ</td>
+                        <td th:text="${result.testType}">Chính thức</td>
+                        <td th:text="${result.score}" class="fw-bold">8.5</td>
+                        <td th:text="${result.rankCode}"
+                            th:classappend="${result.rankCode == 'A' ? 'text-success' : (result.rankCode == 'D' ? 'text-danger' : 'text-warning')}">B</td>
+                        <td th:text="${#temporals.format(result.completedAt, 'dd-MM-yyyy HH:mm')}">12-11-2025 14:00</td>
+                        <td>
+                            <a th:href="@{/student/history/details/{testId}(testId=${result.testId})}"
+                               class="btn btn-sm btn-outline-primary">
+                                <i class="bi bi-eye"></i> Xem chi tiết
+                            </a>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="mt-4">
+                <a th:href="@{/student/dashboard}" class="btn btn-secondary"><i class="bi bi-house-door me-2"></i>Về Dashboard</a>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

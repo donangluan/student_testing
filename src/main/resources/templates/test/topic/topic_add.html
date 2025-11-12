@@ -7,11 +7,25 @@
 <body class="container mt-4">
 <h2 class="mb-4">Thêm Chủ đề</h2>
 <form th:action="@{/topics/add}" th:object="${topic}" method="post" class="row g-3">
+
     <div class="col-md-6">
-        <label class="form-label">Tên chủ đề:</label>
-        <input th:field="*{topicName}" class="form-control" />
+        <label for="topicName" class="form-label">Tên chủ đề:</label>
+        <input type="text" id="topicName" th:field="*{topicName}" class="form-control" required />
     </div>
-    <div class="col-12">
+
+    <div class="col-md-6">
+        <label for="course" class="form-label">Môn học liên quan:</label>
+        <select id="course" th:field="*{courseId}" class="form-select" required>
+            <option value="">-- Chọn môn học --</option>
+            <option th:each="course : ${courses}"
+                    th:value="${course.courseId}"
+                    th:text="${course.courseName}">
+                Tên Môn Học
+            </option>
+        </select>
+    </div>
+
+    <div class="col-12 mt-4">
         <button type="submit" class="btn btn-success">Lưu</button>
         <a th:href="@{/topics}" class="btn btn-secondary ms-2"> Quay lại</a>
     </div>

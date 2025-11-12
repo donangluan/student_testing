@@ -12,17 +12,16 @@
     <tr>
         <th>ID</th>
         <th>Tên chủ đề</th>
-        <th>Thao tác</th>
+        <th>Môn học</th> <th>Thao tác</th>
     </tr>
     </thead>
     <tbody>
     <tr th:each="t : ${topics}">
-        <td th:text="${t.topicId}"></td>
-        <td th:text="${t.topicName}"></td>
-        <td>
-            <a th:href="@{'/topics/edit/' + ${t.topicId}}" class="btn btn-sm btn-warning">Sửa</a>
-            <a th:href="@{'/topics/delete/' + ${t.topicId}}" class="btn btn-sm btn-danger">Xóa</a>
-        </td>
+        <td th:text="${t.topicId}">1</td>
+        <td th:text="${t.topicName}">Chủ đề về Lịch sử</td> <td th:text="${t.courseName}">Môn Toán</td> <td>
+        <a th:href="@{'/topics/edit/' + ${t.topicId}}" class="btn btn-sm btn-warning">Sửa</a>
+        <a th:href="@{'/topics/delete/' + ${t.topicId}}" class="btn btn-sm btn-danger">Xóa</a>
+    </td>
     </tr>
     </tbody>
 </table>

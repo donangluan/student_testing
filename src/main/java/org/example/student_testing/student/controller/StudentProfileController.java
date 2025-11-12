@@ -9,7 +9,10 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.io.IOException;
 import java.util.List;
 
 @Controller
@@ -28,7 +31,7 @@ public class StudentProfileController {
 
 
     @PreAuthorize("hasRole('STUDENT')")
-    @GetMapping("")
+    @GetMapping("/")
     public String viewOwnStudentProfile(Model model, Authentication authentication) {
 
         String currentUsername = authentication.getName();
@@ -111,7 +114,7 @@ public class StudentProfileController {
             studentProfileService.saveProfile(profile);
 
 
-            return "redirect:/student/profile";
+            return "redirect:/student/profile/";
 
         } catch (Exception e) {
 
@@ -120,5 +123,34 @@ public class StudentProfileController {
             return "student/studentprofile-form";
         }
     }
+    @PreAuthorize("hasRole('STUDENT')")
+    @PostMapping("/upload-avatar")
+    public String uploadAvatar(@RequestParam("avatarFile") MultipartFile file,
+                               RedirectAttributes redirectAttributes,
+                               Authentication authentication) {
+        String username = authentication.getName();
 
-}
+        if(file.isEmpty()){
+            redirectAttributes.addFlashAttribute("errorMessage", "Vui lòng chọn một tập tin ảnh để tải lên");
+            return "redirect:/student/profile/";
+        }
+
+
+        try {
+            if(file.getContentType() == null || !file.getContentType().startsWith("image/")){
+            redirectAttributes.addFlashAttribute("errorMessage", "Định dạng file không hợp lệ. Vui lòng chọn ảnh ");
+                return "redirect:/student/profile/";
+            }
+
+            studentProfileService.uploadAvatar(username,file);
+            redirectAttributes.addFlashAttribute("successMessage", "Ảnh đại diện đã được cập nhật thành công!");
+        }catch (IOException e){
+            redirectAttributes.addFlashAttribute("errorMessage","Lỗi I/O khi lưu ảnh: " + e.getMessage());
+        }catch (Exception e){
+            redirectAttributes.addFlashAttribute("errorMessage", "Lỗi hệ thống khi cập nhật ảnh: " + e.getMessage());
+        }
+        return "redirect:/student/profile/";
+        }
+    }
+
+

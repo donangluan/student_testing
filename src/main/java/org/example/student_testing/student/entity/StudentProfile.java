@@ -16,4 +16,5 @@ public class StudentProfile {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private String username;
+    private String fullName;
 }

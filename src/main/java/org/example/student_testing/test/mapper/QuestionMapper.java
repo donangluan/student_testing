@@ -67,6 +67,17 @@ public interface QuestionMapper {
     Integer findIdByContent(@Param("content") String content);
 
 
+    List<QuestionDTO> findRandomQuestionsByTopicIds(
+            @Param("topicIds") List<Integer> topicIds,
+            @Param("limit") Integer limit
+    );
+
+    List<QuestionViewDTO> findQuestionsWithStudentAnswer(
+            @Param("testId") Integer testId,
+            @Param("studentUsername") String studentUsername
+    );
+
+
 }
 
 

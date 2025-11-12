@@ -18,7 +18,7 @@ public class TopicService {
     private TopicMapper topicMapper;
 
     public List<TopicDTO> findAll() {
-        return topicMapper.findAll();
+        return topicMapper.findAllTopicsWithCourseName();
     }
 
     public TopicDTO findById(Integer difficultyId) {
@@ -26,10 +26,13 @@ public class TopicService {
     }
 
     public void insert(TopicDTO dto) {
+
+        System.out.println("Inserting Topic: " + dto.getTopicName() + " with Course ID: " + dto.getCourseId());
         topicMapper.insert(dto);
     }
 
     public void update(TopicDTO dto) {
+        System.out.println("Updating Topic ID: " + dto.getTopicId() + " to Course ID: " + dto.getCourseId());
         topicMapper.update(dto);
     }
 

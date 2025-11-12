@@ -15,6 +15,6 @@ public class StudentProfileDTO {
     private String className;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-
+    private String fullName;
     private String username;
 }

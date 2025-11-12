@@ -8,7 +8,13 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.time.Year;
 import java.util.List;
 import java.util.UUID;
@@ -19,7 +25,10 @@ public class StudentProfileService {
     @Autowired
     private StudentProfileMapper studentProfileMapper;
 
-    public List<StudentProfile> getAllStudentProfiles() {
+
+    private final String UPLOAD_DIR =  "src/main/resources/static/images/avatar/";
+
+    public List<StudentProfile>getAllStudentProfiles() {
         return studentProfileMapper.selectAllStudentProfile();
     }
 
@@ -72,5 +81,38 @@ public class StudentProfileService {
         String uuidPart = UUID.randomUUID().toString().substring(0, 8).toUpperCase();
 
         return "SV" + currentYear + "-" + uuidPart;
+    }
+
+    public String saveAvatar(MultipartFile multipartFile, String username) throws IOException {
+        if(multipartFile.isEmpty()){
+            return null;
+        }
+        String originalFilename = multipartFile.getOriginalFilename();
+        String extension = "";
+        if(originalFilename != null && originalFilename.contains(".")){
+            extension = originalFilename.substring(originalFilename.lastIndexOf("."));
+            }
+        String uniqueFilename = username + "-" + UUID.randomUUID().toString()  + extension;
+
+
+        Path  uploadPath = Paths.get(UPLOAD_DIR);
+        if(!Files.exists(uploadPath)){
+            Files.createDirectories(uploadPath);
+        }
+
+
+        Path filePath = uploadPath.resolve(uniqueFilename);
+
+        Files.copy(multipartFile.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+
+        return "/images/avatar/" + uniqueFilename;
+    }
+
+    @Transactional
+    public void uploadAvatar( String username, MultipartFile multipartFile) throws IOException {
+        String avatarUrl = saveAvatar(multipartFile, username);
+        if(avatarUrl != null){
+            studentProfileMapper.updateAvatarUrl(username, avatarUrl);
+        }
     }
 }

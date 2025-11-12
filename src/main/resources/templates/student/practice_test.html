@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${testTitle}">Bài Luyện Tập</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+</head>
+<body>
+
+<div class="container mt-5">
+    <div class="card shadow">
+        <div class="card-header bg-danger text-white">
+            <h3 th:text="${testTitle}">Bài Luyện Tập Cá Nhân Hóa</h3>
+            <p class="mb-0">Tập trung vào các chủ đề bạn cần cải thiện.</p>
+        </div>
+        <div class="card-body">
+
+            <form th:action="@{/student/practice/submit}" method="post">
+
+                <div th:each="question, iter : ${questions}" class="mb-4 border-bottom pb-3">
+
+                    <p class="fw-bold">
+                        Câu <span th:text="${iter.index + 1}">1</span>:
+                        <span th:text="${question.content}">[Nội dung câu hỏi]</span>
+                    </p>
+
+                    <input type="hidden" th:name="'questionId_' + ${iter.index}" th:value="${question.questionId}">
+
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" th:name="'answer_' + ${iter.index}" th:id="'q' + ${question.questionId} + '_a'" value="A" required>
+                        <label class="form-check-label" th:for="'q' + ${question.questionId} + '_a'">A. <span th:text="${question.optionA}"></span></label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" th:name="'answer_' + ${iter.index}" th:id="'q' + ${question.questionId} + '_b'" value="B">
+                        <label class="form-check-label" th:for="'q' + ${question.questionId} + '_b'">B. <span th:text="${question.optionB}"></span></label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" th:name="'answer_' + ${iter.index}" th:id="'q' + ${question.questionId} + '_c'" value="C">
+                        <label class="form-check-label" th:for="'q' + ${question.questionId} + '_c'">C. <span th:text="${question.optionC}"></span></label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" th:name="'answer_' + ${iter.index}" th:id="'q' + ${question.questionId} + '_d'" value="D">
+                        <label class="form-check-label" th:for="'q' + ${question.questionId} + '_d'">D. <span th:text="${question.optionD}"></span></label>
+                    </div>
+                </div>
+
+                <div class="mt-4">
+                    <button type="submit" class="btn btn-danger btn-lg"><i class="bi bi-send me-2"></i>Hoàn thành Luyện tập</button>
+                    <a th:href="@{/student/dashboard}" class="btn btn-secondary btn-lg ms-3">Hủy bỏ</a>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -13,6 +13,23 @@
         <a th:href="@{'/student/profile/list'}" class="btn btn-secondary mt-2"> Quay lại danh sách</a>
     </div>
 
+
+    <div th:if="${profile != null}">
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5 class="card-title">Cập nhật ảnh đại diện  </h5>
+                <form th:action="@{/student/profile/upload-avatar}" method="post" enctype="multipart/form-data" class="mb-3">
+                    <div class="mb-3">
+                        <label for="avatarFile" class="form-label" >Chọn ảnh mới</label>
+                        <input type="file" class="form-control" id="avatarFile" name="avatarFile" accept="image/*" required>
+
+                    </div>
+                    <button type="submit" class="btn btn-sm btn-primary">Tải ảnh lên</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <div th:if="${profile != null}">
         <table class="table table-bordered">
             <tr><th>Mã học viên</th><td th:text="${profile.studentId}"></td></tr>

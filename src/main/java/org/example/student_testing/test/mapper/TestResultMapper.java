@@ -4,6 +4,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.example.student_testing.test.dto.SubmissionViewDTO;
 import org.example.student_testing.test.dto.TestResultDTO;
+import org.example.student_testing.test.dto.TopicScoreDTO;
 
 import java.util.List;
 
@@ -24,5 +25,13 @@ public interface TestResultMapper {
 
     String findStudentAnswer(@Param("questionId") Integer questionId, @Param("username") String username);
     String findCorrectAnswer(@Param("questionId") Integer questionId);
+
+    int countCompletedTestsByUsername(@Param("username") String username);
+    Double calculateAverageScoreByUsername( @Param("username") String username);
+
+    List<TopicScoreDTO> findAverageScoreByTopic(@Param("username") String username);
+
+
+    List<TestResultDTO> findResultsByUsername(@Param("studentUsername") String studentUsername);
 
 }

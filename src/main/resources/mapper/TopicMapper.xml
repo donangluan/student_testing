@@ -17,8 +17,15 @@
     </select>
 
 
-    <insert id="insert" parameterType="org.example.student_testing.test.dto.TopicDTO">
-        INSERT INTO topics (topic_name) VALUES (#{topicName})
+    <insert id="insert" parameterType="org.example.student_testing.test.dto.TopicDTO"
+            useGeneratedKeys="true" keyProperty="topicId">
+
+        <selectKey keyProperty="topicId" resultType="int" order="AFTER">
+            SELECT currval('topics_topic_id_seq')
+        </selectKey>
+
+        INSERT INTO topics (topic_name, course_id)
+        VALUES (#{topicName}, #{courseId})
     </insert>
 
     <update id="update" parameterType="org.example.student_testing.test.dto.TopicDTO">
@@ -65,5 +72,18 @@
             topics t ON c.course_id = t.course_id
         WHERE
             t.topic_id = #{topicId}
+    </select>
+
+
+    <select id="findAllTopicsWithCourseName" resultType="org.example.student_testing.test.dto.TopicDTO">
+        SELECT
+            t.topic_id AS topicId,
+            t.topic_name AS topicName,
+            t.course_id AS courseId,
+            c.course_name AS courseName  FROM
+            topics t
+                JOIN
+            courses c ON t.course_id = c.course_id
+        ORDER BY t.topic_name
     </select>
 </mapper>

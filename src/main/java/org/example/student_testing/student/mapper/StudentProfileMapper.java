@@ -23,4 +23,6 @@ public interface StudentProfileMapper {
     void insertProfile(StudentProfile profile);
     void updateProfile(StudentProfile profile);
 
+    void updateAvatarUrl(@Param("username")  String username, @Param("avatarUrl") String avatarUrl);
+
 }

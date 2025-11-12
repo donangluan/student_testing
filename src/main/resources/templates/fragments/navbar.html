@@ -22,6 +22,15 @@
                     <a class="nav-link" th:href="@{/teacher/tests}"> Đề kiểm tra</a>
                 </li>
 
+                <li class="nav-item dropdown" th:if="${#authorization.expression('hasRole(''ADMIN'')')}">
+                    <a class="nav-link dropdown-toggle" href="#" id="adminTopicsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        Quản lý Chủ đề
+                    </a>
+                    <ul class="dropdown-menu" aria-labelledby="adminTopicsDropdown">
+                        <li><a class="dropdown-item" th:href="@{/topics}"> Xem & Quản lý Chủ đề</a></li>
+                        <li><a class="dropdown-item" th:href="@{/topics/add}"> Tạo Chủ đề Mới</a></li>
+                    </ul>
+                </li>
 
                 <li class="nav-item" th:if="${#authorization.expression('hasRole(''STUDENT'')')}">
                     <a class="nav-link" th:href="@{/my-tests}"> Làm bài kiểm tra</a>

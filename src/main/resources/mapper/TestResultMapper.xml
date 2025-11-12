@@ -94,4 +94,59 @@
         FROM questions
         WHERE id = #{questionId}
     </select>
+
+
+    <select id="countCompletedTestsByUsername" >
+        select  count(id)
+        from test_results
+        where student_username = #{username}
+    </select>
+
+
+    <select id="calculateAverageScoreByUsername">
+        select AVG(score)
+        from test_results
+        where student_username = #{username}
+    </select>
+
+
+
+    <select id="findAverageScoreByTopic"
+            resultType="org.example.student_testing.test.dto.TopicScoreDTO">
+        SELECT
+            t.topic_name AS topicName,
+            t.topic_id AS topicId,  AVG(CASE
+                                            WHEN a.selected_option = q.correct_option THEN 100.0
+                                            ELSE 0.0
+            END) AS averageScore
+        FROM
+            student_answers a
+                JOIN
+            questions q ON a.question_id = q.question_id
+                JOIN
+            topics t ON q.topic_id = t.topic_id
+        WHERE
+            a.student_username = #{username}
+        GROUP BY
+            t.topic_name, t.topic_id
+        ORDER BY
+            averageScore ASC
+    </select>
+
+
+
+    <select id="findResultsByUsername" resultType="org.example.student_testing.test.dto.TestResultDTO">
+        SELECT r.id AS resultId,
+               r.test_id AS testId,
+               r.student_username AS studentUsername,
+               r.score,
+               r.percentile,
+               r.rank_code AS rankCode,
+               r.completed_at AS completedAt,
+               t.test_name AS testName,       t.test_type AS testType
+        FROM test_results r
+                 JOIN tests t ON r.test_id = t.test_id
+        WHERE r.student_username = #{studentUsername}
+        ORDER BY r.completed_at DESC
+    </select>
 </mapper>

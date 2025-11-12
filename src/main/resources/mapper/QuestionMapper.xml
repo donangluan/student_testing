@@ -221,4 +221,48 @@
 
 
 
+    <select id="findRandomQuestionsByTopicIds"
+            resultType="org.example.student_testing.test.dto.QuestionDTO">
+        SELECT question_id AS questionId,
+        topic_id AS topicId,
+        content,
+        option_a AS optionA,
+        option_b AS optionB,
+        option_c AS optionC,
+        option_d AS optionD,
+        correct_option AS correctOption,
+        difficulty_id AS difficultyId,
+        created_by AS createdBy,
+        source
+        FROM questions
+        WHERE topic_id IN
+        <foreach item="id" collection="topicIds" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+        ORDER BY RANDOM()
+        LIMIT #{limit}
+    </select>
+
+
+
+
+    <select id="findQuestionsWithStudentAnswer"
+            resultType="org.example.student_testing.test.dto.QuestionViewDTO">
+        SELECT q.question_id AS questionId,
+               q.content,
+               q.option_a AS optionA,
+               q.option_b AS optionB,
+               q.option_c AS optionC,
+               q.option_d AS optionD,
+               q.correct_option AS correctOption,
+               sa.selected_option AS selectedOption
+        FROM test_questions tq
+                 JOIN questions q ON tq.question_id = q.question_id
+                 LEFT JOIN student_answers sa ON sa.test_id = #{testId}
+            AND sa.student_username = #{studentUsername}
+            AND sa.question_id = q.question_id
+        WHERE tq.test_id = #{testId}
+        ORDER BY tq.order_no
+    </select>
+
 </mapper>

@@ -79,4 +79,10 @@
     </update>
 
 
+    <update id="updateAvatarUrl" >
+        update student_profile
+        set avatar_url = #{avatarUrl}
+        where username = #{username}
+    </update>
+
 </mapper>

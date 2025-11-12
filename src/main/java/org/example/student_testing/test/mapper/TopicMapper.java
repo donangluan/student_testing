@@ -28,4 +28,6 @@ public interface TopicMapper {
 
     String findCourseNameById(@Param("topicId") Integer topicId);
 
+    List<TopicDTO> findAllTopicsWithCourseName();
+
 }
