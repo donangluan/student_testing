@@ -50,5 +50,15 @@
     </select>
 
 
+    <select id="findAllTeachersForDropdown"  resultType="org.example.student_testing.test.dto.TeacherProfileDTO">
+        SELECT
+            tp.username,
+            u.full_name AS fullName
+        FROM teacher_profile tp
+                 JOIN users u ON tp.username = u.username
+        ORDER BY u.full_name ASC
+    </select>
+
+
 
 </mapper>

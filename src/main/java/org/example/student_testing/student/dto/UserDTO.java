@@ -25,7 +25,7 @@ public class UserDTO {
     @Email(message = "Email không hợp lệ")
     private String email;
 
-
+    private boolean isLocked;
 
     private String roleCode;
 

@@ -68,6 +68,9 @@
         @Autowired
         private QuestionMapper questionMapper;
 
+        @Autowired
+        private  ObjectMapper objectMapper;
+
 
         @GetMapping
         public String showTestList(@AuthenticationPrincipal UserDetails userDetails,Model model) {
@@ -112,46 +115,9 @@
 
 
             List<AiGeneratedQuestion> aiQuestions = aiGenerateQuestionService.findByCourse(courseName);
-            List<QuestionDTO> aiConvertedQuestions = new ArrayList<>();
-
-            for (AiGeneratedQuestion ai : aiQuestions) {
-                if (ai.getOptionsMap() == null && ai.getOptions() != null) {
-                    try {
-                        Map<String, String> map = new ObjectMapper().readValue(ai.getOptions(), Map.class);
-                        ai.setOptionsMap(map);
-                    } catch (Exception e) {
-                        System.out.println(" Không parse được options JSON cho AI ID = " + ai.getId() + ": " + e.getMessage());
-                    }
+            List<QuestionDTO> aiConvertedQuestions = questionService.convertAiQuestionsToDTO(aiQuestions);
 
 
-                }
-
-                QuestionDTO q = new QuestionDTO();
-
-                q.setContent(ai.getQuestionContent());
-                q.setCorrectOption(ai.getCorrectAnswer());
-                q.setDifficultyId(convertDifficulty(ai.getDifficulty()));
-                q.setTopicName(ai.getTopic());
-                q.setSource("ai");
-
-                if (ai.getOptionsMap() != null) {
-                    q.setOptionA(ai.getOptionsMap().get("A"));
-                    q.setOptionB(ai.getOptionsMap().get("B"));
-                    q.setOptionC(ai.getOptionsMap().get("C"));
-                    q.setOptionD(ai.getOptionsMap().get("D"));
-
-                    Integer diffId = convertDifficulty(ai.getDifficulty());
-                    if (diffId == null) {
-                        System.out.println("Câu hỏi AI ID = " + ai.getId() + " có độ khó không hợp lệ: " + ai.getDifficulty());
-                    }
-                    q.setDifficultyId(diffId);
-
-
-                }
-
-                System.out.println("🤖 AI: ID = " + q.getQuestionId() + " → source = " + q.getSource());
-                aiConvertedQuestions.add(q);
-            }
 
             System.out.println("Tổng số câu hỏi AI: " + aiConvertedQuestions.size());
 
@@ -170,85 +136,38 @@
 
 
 
-        private Integer convertDifficulty(String difficulty) {
-            return switch (difficulty.toLowerCase()) {
-                case "easy" -> 1;
-                case "medium" -> 2;
-                case "hard" -> 3;
-                default -> null;
-            };
-        }
+
         @PostMapping("/assign")
         public String assignQuestions(@RequestParam Integer testId,
                                       @RequestParam List<Integer> questionIds,
                                       @RequestParam String studentUsername,
-                                      @RequestParam Map<String, String> questionSources) {
+                                      @RequestParam Map<String, String> questionSources,
+                                      RedirectAttributes redirectAttributes) {
 
-            System.out.println(" Bắt đầu gán câu hỏi cho học sinh: " + studentUsername);
-            System.out.println(" Tổng số câu hỏi được chọn: " + questionIds.size());
 
             testService.assignTestToStudent(testId, studentUsername);
 
-            List<Integer> aiQuestionIds = aiGenerateQuestionService.findAllIds();
-            int order = 1;
+            try {
 
-            for (Integer questionId : questionIds) {
-                String source = questionSources.get(String.valueOf(questionId));
-                System.out.println("ID = " + questionId + " → source = " + source);
-
-                if (source == null || source.isBlank()) {
-                    source = aiQuestionIds.contains(questionId) ? "ai" : "manual";
-                    System.out.println("Source bị thiếu → gán tạm: " + source);
-
-                }
+                testQuestionService.assignQuestionsInBatch(
+                        testId,
+                        questionIds,
+                        studentUsername,
+                        questionSources
+                );
 
 
-                Integer difficultyId = null;
 
-                if ("ai".equals(source)) {
-                    AiGeneratedQuestion ai = aiGenerateQuestionService.findById(questionId);
-                    if (ai == null) {
-                        System.out.println(" Không tìm thấy câu hỏi AI ID = " + questionId);
-                        continue;
-                    }
+                redirectAttributes.addFlashAttribute("success",
+                        "Đã gán thành công " + questionIds.size() + " câu hỏi cho học sinh: " + studentUsername);
 
-
-                    Integer existingId = questionMapper.findIdByContent(ai.getQuestionContent());
-                    if (existingId == null) {
-                        QuestionDTO q = new QuestionDTO();
-                        q.setContent(ai.getQuestionContent());
-                        q.setOptionA(ai.getOptionA());
-                        q.setOptionB(ai.getOptionB());
-                        q.setOptionC(ai.getOptionC());
-                        q.setOptionD(ai.getOptionD());
-                        q.setCorrectOption(ai.getCorrectAnswer());
-                        q.setDifficultyId(convertDifficulty(ai.getDifficulty()));
-                        q.setTopicId(ai.getTopicId());
-                        q.setCreatedBy(ai.getCreatedBy());
-                        q.setSource("ai");
-
-                        questionMapper.insert(q);
-                        System.out.println(" Đã insert câu hỏi AI ID = " + questionId + " vào bảng questions");
-                    }
-
-                    difficultyId = convertDifficulty(ai.getDifficulty());
-                    System.out.println(" Câu hỏi AI → độ khó = " + ai.getDifficulty() + " → mapped = " + difficultyId);
-                } else {
-                    difficultyId = questionService.getDifficultyByQuestionId(questionId);
-                    System.out.println(" Câu hỏi thủ công → độ khó ID = " + difficultyId);
-                }
-
-                if (difficultyId == null) {
-                    System.out.println(" Bỏ qua câu hỏi " + questionId + " vì không xác định được độ khó");
-                    continue;
-                }
-
-
-                System.out.println("Gán câu hỏi " + questionId + " → source = " + source + " → order = " + order);
-                testQuestionService.assignSingleQuestion(testId, questionId, studentUsername, difficultyId, order++, source);
+            } catch (Exception e) {
+                System.err.println("Lỗi gán câu hỏi trong Controller: " + e.getMessage());
+                e.printStackTrace();
+                redirectAttributes.addFlashAttribute("error",
+                        "Lỗi gán câu hỏi. Chi tiết: " + e.getMessage());
             }
 
-            System.out.println(" Hoàn tất gán câu hỏi cho học sinh: " + studentUsername);
             return "redirect:/teacher/tests/detail/" + testId;
         }
 
@@ -399,11 +318,11 @@
         }
         @PostMapping("/save-ai-questions")
         public String saveAiQuestions(@RequestParam Map<String, String> formData,
-                                      Principal principal,
+                                      @AuthenticationPrincipal UserDetails userDetails,
                                       RedirectAttributes redirectAttributes,
                                       HttpSession session) {
 
-            String username = principal.getName();
+            String username = userDetails.getUsername();
             String topic = formData.get("topic");
             String difficulty = formData.get("difficulty");
             Integer testId = formData.containsKey("testId") ? Integer.parseInt(formData.get("testId")) : null;

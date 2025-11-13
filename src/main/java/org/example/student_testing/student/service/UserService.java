@@ -167,4 +167,18 @@ public class UserService {
     }
 
 
+    @Transactional
+    public void lockUser(String username){
+        if(username.equalsIgnoreCase("ADMIN")){
+            throw new IllegalArgumentException("không được phép khóa tài khoản admin gốc");
+        }
+        userMapper.updateLockStatus(username, true);
+    }
+
+    @Transactional
+    public void unlockUser(String username){
+        userMapper.updateLockStatus(username, false);
+    }
+
+
 }

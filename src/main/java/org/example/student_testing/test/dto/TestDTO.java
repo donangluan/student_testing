@@ -25,5 +25,16 @@ public class TestDTO {
     private String topicName;
     private String courseName;
     private Integer resultId;
+    private boolean isPublished;
+
+
+    private LocalDateTime startTime;
+
+
+    private LocalDateTime endTime;
+
+
+    private Integer maxAttempts;
+
 
 }

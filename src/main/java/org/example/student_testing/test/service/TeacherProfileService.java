@@ -105,5 +105,10 @@ public class TeacherProfileService {
 
 
 
+    public List<TeacherProfile> getAllTeachersForDropdown() {
+        return teacherProfileMapper.findAllTeachersForDropdown();
+    }
+
+
 
 }

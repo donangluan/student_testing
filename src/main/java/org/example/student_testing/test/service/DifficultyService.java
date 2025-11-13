@@ -37,4 +37,14 @@ public class DifficultyService {
     public Integer getIdByName(String name) {
         return difficultyLevelMapper.findIdByName(name);
     }
+
+    public Integer convertDifficultyToId(String difficulty) {
+        if (difficulty == null) return null;
+        return switch (difficulty.toLowerCase()) {
+            case "easy" -> 1;
+            case "medium" -> 2;
+            case "hard" -> 3;
+            default -> null;
+        };
+    }
 }

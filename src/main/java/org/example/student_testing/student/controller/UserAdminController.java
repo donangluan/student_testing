@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 @RequestMapping("/admin/users")
@@ -54,6 +55,31 @@ public class UserAdminController {
         return "redirect:/admin/users";
 
 
+    }
+
+    @GetMapping("/lock/{username}")
+    public String lockUser(@PathVariable String username, RedirectAttributes redirectAttributes) {
+        try {
+            userService.lockUser(username);
+            redirectAttributes.addFlashAttribute("successMessage", "Đã KHÓA tài khoản: " + username + ".");
+        } catch (IllegalArgumentException e) {
+            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Lỗi hệ thống khi khóa tài khoản: " + username);
+        }
+        return "redirect:/admin/users";
+    }
+
+
+    @GetMapping("/unlock/{username}")
+    public String unlockUser(@PathVariable String username, RedirectAttributes redirectAttributes) {
+        try {
+            userService.unlockUser(username);
+            redirectAttributes.addFlashAttribute("successMessage", "Đã MỞ KHÓA tài khoản: " + username + ".");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Lỗi hệ thống khi mở khóa tài khoản: " + username);
+        }
+        return "redirect:/admin/users";
     }
 
 }

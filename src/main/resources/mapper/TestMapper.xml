@@ -43,6 +43,12 @@
                t.created_at AS createdAt,
                t.topic_id AS topicId,
                t.duration_minutes AS durationMinutes,
+
+               t.is_published AS isPublished,
+               t.start_time AS startTime,
+               t.end_time AS endTime,
+               t.max_attempts AS maxAttempts,
+
                tp.topic_name AS topicName,
                c.course_name AS courseName
         FROM tests t

@@ -265,4 +265,26 @@
         ORDER BY tq.order_no
     </select>
 
+
+
+    <select id="findAllByIds" resultType="org.example.student_testing.test.dto.QuestionDTO">
+        SELECT
+        question_id,
+        content,
+        option_a,
+        option_b,
+        option_c,
+        option_d,
+        correct_option,
+        difficulty_id,
+        topic_id,
+        created_by,
+        created_at
+        FROM questions
+        WHERE question_id IN
+        <foreach item="id" collection="questionIds" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
+
 </mapper>

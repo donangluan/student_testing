@@ -34,6 +34,14 @@ public class AiGenerateQuestionService {
     private TopicService topicService;
 
 
+    public List<Integer> findAllOfficialIds() {
+
+        return aiGeneratedQuestionMapper.findAllOfficialIds();
+
+
+    }
+
+
     public List<AiGeneratedQuestion> processAndSave(
             List<Integer> selectedIndexes,
             Map<String, String> contents,
@@ -244,5 +252,7 @@ public class AiGenerateQuestionService {
             default -> englishDifficulty; // Trả về nguyên gốc nếu không khớp
         };
     }
+
+
 
 }

@@ -21,4 +21,7 @@ public interface TeacherProfileMapper {
     TeacherProfileDTO findById(@Param("teacherId") String teacherId);
     String getLastTeacherId();
 
+
+    List<TeacherProfile> findAllTeachersForDropdown();
+
 }

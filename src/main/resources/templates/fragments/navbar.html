@@ -16,7 +16,9 @@
                 </li>
 
 
-
+                <li class="nav-item" th:if="${#authorization.expression('hasRole(''ADMIN'')')}">
+                    <a class="nav-link" th:href="@{/admin/classes}"> Quản lý Lớp học</a>
+                </li>
 
                 <li class="nav-item" th:if="${#authorization.expression('hasRole(''TEACHER'')')}">
                     <a class="nav-link" th:href="@{/teacher/tests}"> Đề kiểm tra</a>

@@ -9,6 +9,10 @@
 
 <h2 class="mb-4"> Danh sách người dùng</h2>
 
+<div th:if="${successMessage}" class="alert alert-success" role="alert" th:text="${successMessage}">Thông báo thành công</div>
+<div th:if="${errorMessage}" class="alert alert-danger" role="alert" th:text="${errorMessage}">Thông báo lỗi</div>
+
+
 <div class="mb-3">
     <a th:href="@{/admin/users/create}" class="btn btn-primary"> Thêm người dùng</a>
 </div>
@@ -20,7 +24,7 @@
         <th>Họ tên</th>
         <th>Email</th>
         <th>Vai trò</th>
-        <th>Hành động</th>
+        <th>Trạng thái</th> <th>Hành động</th>
     </tr>
     </thead>
     <tbody>
@@ -29,8 +33,23 @@
         <td th:text="${user.fullName}">full name</td>
         <td th:text="${user.email}">email</td>
         <td th:text="${user.roleCode}">role</td>
+
+        <td>
+            <span th:if="${user.isLocked}" class="badge bg-danger">ĐÃ KHÓA</span>
+            <span th:unless="${user.isLocked}" class="badge bg-success">HOẠT ĐỘNG</span>
+        </td>
+
         <td>
             <a th:href="@{'/admin/users/edit/' + ${user.username}}" class="btn btn-sm btn-warning me-1"> Sửa</a>
+
+            <span th:if="${user.isLocked}">
+                <a th:href="@{'/admin/users/unlock/' + ${user.username}}" class="btn btn-sm btn-success me-1"> Mở Khóa</a>
+            </span>
+            <span th:unless="${user.isLocked}">
+                <a th:href="@{'/admin/users/lock/' + ${user.username}}" class="btn btn-sm btn-secondary me-1"
+                   onclick="return confirm('Bạn có chắc chắn muốn KHÓA tài khoản này?');"> Khóa</a>
+            </span>
+
             <a th:href="@{'/admin/users/delete/' + ${user.username}}" class="btn btn-sm btn-danger"
                onclick="return confirm('Xoá người dùng này?')"> Xoá</a>
         </td>

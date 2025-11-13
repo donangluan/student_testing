@@ -11,6 +11,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -57,7 +58,23 @@ public class StudentTestController {
     public String showTestToDo(@PathVariable Integer testId,
                                @AuthenticationPrincipal UserDetails userDetails,
                                HttpSession session,
-                               Model model) {
+                               Model model,
+                               RedirectAttributes redirectAttributes) {
+
+        String username = userDetails.getUsername();
+
+
+        if (!testService.isTestAvailable(testId, username)) {
+            redirectAttributes.addFlashAttribute("error", "Bài thi không khả dụng. Vui lòng kiểm tra lịch thi, trạng thái công bố, hoặc số lần làm bài còn lại.");
+            return "redirect:/student/tests";
+        }
+
+
+        if (testResultService.hasSubmitted(testId, username)) {
+            redirectAttributes.addFlashAttribute("error", "Bạn đã hoàn thành bài kiểm tra này. Không thể làm lại.");
+            return "redirect:/student/tests";
+        }
+
         List<QuestionDTO> questions = questionService.getQuestionsByTestId(testId);
         TestDTO test = testService.getTestById(testId);
         session.setAttribute("startTime", LocalDateTime.now());
@@ -68,12 +85,14 @@ public class StudentTestController {
 
         return "test/student/do";
     }
-
     @PostMapping("/submit")
     public String submitAnswers(@RequestParam Integer testId,
                                 @RequestParam Map<String, String> answers,
                                 HttpSession session,
-                                @AuthenticationPrincipal UserDetails userDetails) {
+                                @AuthenticationPrincipal UserDetails userDetails,
+                                RedirectAttributes redirectAttributes
+                                ) {
+        String studentUsername = userDetails.getUsername();
         Map<Integer, String> parsedAnswers = new HashMap<>();
         for (Map.Entry<String, String> entry : answers.entrySet()) {
             if (entry.getKey().startsWith("q_")) {
@@ -91,9 +110,26 @@ public class StudentTestController {
 
 
         LocalDateTime now = LocalDateTime.now();
+
         boolean isTimeout = Duration.between(startTime, now).toMinutes() > duration;
+
+        session.removeAttribute("startTime");
+        session.removeAttribute("duration");
+
+        if (isTimeout) {
+            System.out.println("Bài thi đã nộp quá giờ.");
+            redirectAttributes.addFlashAttribute("errorMessage", "Bài thi của bạn đã bị nộp do hết giờ.");
+
+            return "redirect:/student/tests";
+        }
+
         System.out.println("Số câu đã nộp: " + parsedAnswers.size());
         answerService.saveAnswers(testId, userDetails.getUsername(), parsedAnswers);
+
+
+        session.removeAttribute("startTime");
+        session.removeAttribute("duration");
+
         return "redirect:/student/result?testId=" + testId + "&studentUsername=" + userDetails.getUsername();
     }
 
@@ -104,44 +140,15 @@ public class StudentTestController {
         return "test/student/results";
     }
 
-    @GetMapping("/do-test")
-    public String showTestForm(@RequestParam Integer testId,
-                               @RequestParam String studentUsername,
-                               Model model) {
 
-        if (testResultService.hasSubmitted(testId, studentUsername)) {
-            model.addAttribute("error", "Bạn đã hoàn thành bài kiểm tra này. Không thể làm lại.");
-            return "test/student/error";
-        }
 
-        List<QuestionDTO> questions = questionService.getQuestionsForTest(testId);
-        model.addAttribute("questions", questions);
-        model.addAttribute("testId", testId);
-        model.addAttribute("studentUsername", studentUsername);
-        return "test/student/do-test";
-    }
 
-    @PostMapping("/submit-test")
-    public String submitTest(@RequestParam Integer testId,
-                             @RequestParam String studentUsername,
-                             @RequestParam Map<String, String> answers) {
-
-        Map<Integer, String> parsedAnswers = new HashMap<>();
-        for (Map.Entry<String, String> entry : answers.entrySet()) {
-            if (entry.getKey().startsWith("q_")) {
-                Integer questionId = Integer.parseInt(entry.getKey().substring(2));
-                parsedAnswers.put(questionId, entry.getValue());
-            }
-        }
-
-        answerService.saveAnswers(testId, studentUsername, parsedAnswers);
-        return "redirect:/student/result?testId=" + testId + "&studentUsername=" + studentUsername;
-    }
     @GetMapping("/result")
     public String showResult(@RequestParam Integer testId,
-                             @RequestParam String studentUsername,
+                             @AuthenticationPrincipal UserDetails userDetails,
                              Model model) {
 
+        String studentUsername = userDetails.getUsername();
 
         List<StudentAnswerDTO> answers = answerService.getStudentAnswers(testId, studentUsername);
         Map<Integer, String> correctMap = new HashMap<>();
@@ -218,5 +225,6 @@ public class StudentTestController {
 
         return "test/student/results";
     }
+
 
 }

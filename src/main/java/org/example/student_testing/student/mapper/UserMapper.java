@@ -51,4 +51,7 @@ public interface UserMapper {
     int updatePassword(@Param("username") String username, @Param("newPassword") String newPassword);
 
 
+
+    void  updateLockStatus(@Param("username") String username, @Param("isLocked") boolean isLocked);
+
 }

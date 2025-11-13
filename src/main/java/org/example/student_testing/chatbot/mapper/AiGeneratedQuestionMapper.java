@@ -39,4 +39,7 @@ public interface AiGeneratedQuestionMapper {
 
     void updateOfficialQuestionId(@Param("aiQuestionId") Integer aiQuestionId,
                                   @Param("officialQuestionId") Integer officialQuestionId);
+
+
+    List<Integer> findAllOfficialIds();
 }

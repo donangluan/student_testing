@@ -9,6 +9,7 @@ import org.example.student_testing.test.entity.Question;
 import org.example.student_testing.test.mapper.QuestionMapper;
 import org.example.student_testing.test.mapper.TestMapper;
 import org.example.student_testing.test.mapper.TestQuestionMapper;
+import org.example.student_testing.test.mapper.TestResultMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,6 +36,9 @@ public class TestService {
 
     @Autowired
     private ChatConversationMapper chatConversationMapper;
+
+    @Autowired
+    private TestResultMapper testResultMapper;
 
 
 
@@ -319,6 +323,54 @@ public class TestService {
         chatConversationMapper.insertConversation(newId,studentUsername);
 
         return newId;
+    }
+
+
+    public boolean isTestAvailable(Integer testId, String  studentUsername) {
+
+        TestDTO test = testMapper.findTestById(testId);
+        if (test == null) {
+            System.err.println("Kiểm tra : Bài thi ID " + testId + " không tồn tại.");
+            return false;
+        }
+
+
+        if (!test.isPublished()) {
+            System.out.println("Kiểm tra : Bài thi chưa được công bố.");
+            return false;
+        }
+
+
+        LocalDateTime now = LocalDateTime.now();
+
+
+        if (test.getStartTime() != null && now.isBefore(test.getStartTime())) {
+            System.out.println("Kiểm tra : Bài thi chưa đến thời điểm bắt đầu (" + test.getStartTime() + ").");
+            return false;
+        }
+
+
+        if (test.getEndTime() != null && now.isAfter(test.getEndTime())) {
+            System.out.println("Kiểm tra : Bài thi đã quá thời gian kết thúc (" + test.getEndTime() + ").");
+            return false;
+        }
+
+
+        Integer maxAttempts = test.getMaxAttempts();
+
+
+        if (maxAttempts != null && maxAttempts > 0) {
+            Integer completedAttempts = testResultMapper.countCompletedAttempts(testId, studentUsername);
+
+            if (completedAttempts >= maxAttempts) {
+                System.out.println("Kiểm tra : Học sinh đã sử dụng hết " + maxAttempts + " lần làm bài.");
+                return false;
+            }
+        }
+
+
+        System.out.println("Kiểm tra : Bài thi ID " + testId + " khả dụng cho " + studentUsername + ".");
+        return true;
     }
 
 

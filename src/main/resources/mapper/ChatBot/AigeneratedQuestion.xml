@@ -146,4 +146,11 @@
         SET official_question_id = #{officialQuestionId}
         WHERE id = #{aiQuestionId}
     </update>
+
+
+    <select id="findAllOfficialIds" resultType="java.lang.Integer">
+        SELECT DISTINCT official_question_id
+        FROM ai_generated_question
+        WHERE official_question_id IS NOT NULL
+    </select>
 </mapper>

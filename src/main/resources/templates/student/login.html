@@ -34,11 +34,12 @@
                         <a th:href="@{/register}" class="btn btn-outline-secondary btn-sm ms-2">Đăng ký ngay</a>
                     </div>
 
-                    <div th:if="${param.error}" class="alert alert-danger mt-3 text-center">
-                        Sai tên đăng nhập hoặc mật khẩu.
+                    <div th:if="${errorMessage}" class="alert alert-danger mt-3 text-center">
+                        <p th:text="${errorMessage}"></p>
                     </div>
-                    <div th:if="${param.logout}" class="alert alert-success mt-3 text-center">
-                        Đã đăng xuất thành công.
+
+                    <div th:if="${successMessage}" class="alert alert-success mt-3 text-center">
+                        <p th:text="${successMessage}"></p>
                     </div>
                 </div>
             </div>

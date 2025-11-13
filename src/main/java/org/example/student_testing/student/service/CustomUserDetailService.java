@@ -30,9 +30,12 @@ public  class CustomUserDetailService implements UserDetailsService {
                 .map(role -> new SimpleGrantedAuthority("ROLE_" + role))
                 .collect(Collectors.toList());
 
-        System.out.println("Authorities for " + username + ": " + authorities);
+        user.setAuthorities(authorities);
 
-        return new org.springframework.security.core.userdetails.User(user.getUsername(), user.getPassword(), authorities);
+        System.out.println("Authorities for " + username + ": " + authorities);
+        System.out.println("Is Locked (from DB): " + user.isLocked());
+
+        return user;
 
     }
 }

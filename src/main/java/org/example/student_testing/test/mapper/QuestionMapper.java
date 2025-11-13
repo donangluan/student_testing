@@ -78,6 +78,11 @@ public interface QuestionMapper {
     );
 
 
+
+
+    List<QuestionDTO> findAllByIds(@Param("questionIds") List<Integer> questionIds);
+
+
 }
 
 

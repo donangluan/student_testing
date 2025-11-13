@@ -2,7 +2,24 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
 <mapper namespace="org.example.student_testing.test.mapper.ClassMapper">
+
+
+
+    <resultMap id="classFullResultMap" type="org.example.student_testing.test.dto.ClassDTO">
+        <id column="class_id" property="classId"/>
+        <result column="class_name" property="className"/>
+        <result column="created_at" property="createdAt"/>
+        <result column="course_id" property="courseId"/>
+        <result column="teacher_username" property="teacherUsername"/>
+        <result column="description" property="description"/>
+        <result column="end_date" property="endDate" javaType="java.sql.Date"/>
+        <result column="is_active" property="isActive"/>
+        <result column="course_name" property="courseName"/>
+        <result column="full_name" property="teacherName"/> </resultMap>
+
+
 
     <select id="findAllClasses" resultType="org.example.student_testing.test.dto.ClassDTO">
         SELECT class_id AS classId, class_name AS className
@@ -23,4 +40,70 @@
         SELECT class_id AS classId, class_name AS className FROM class WHERE class_id = #{classId}
     </select>
 
+    <select id="findAll" resultType="org.example.student_testing.test.dto.ClassDTO">
+        SELECT
+            c.class_id AS classId,
+            c.class_name AS className,
+            c.created_at AS createdAt,
+            c.course_id AS courseId,
+            c.teacher_username AS teacherUsername,
+            c.is_active AS isActive,
+            c.description AS description,
+            c.end_date AS endDate,
+            co.course_name AS courseName,
+            u.full_name AS teacherName
+        FROM class c
+                 LEFT JOIN courses  co ON c.course_id = co.course_id
+                 LEFT JOIN users u ON c.teacher_username = u.username
+        ORDER BY c.class_id DESC
+    </select>
+
+    <select id="findById" parameterType="int" resultType="org.example.student_testing.test.dto.ClassDTO">
+        SELECT
+            c.class_id AS classId,
+            c.class_name AS className,
+            c.created_at AS createdAt,
+            c.course_id AS courseId,
+            c.teacher_username AS teacherUsername,
+            c.is_active AS isActive,
+            c.description AS description,
+            c.end_date AS endDate,
+            co.course_name AS courseName,
+            u.full_name AS teacherName
+        FROM class c
+                 JOIN courses co ON c.course_id = co.course_id
+                 LEFT JOIN users u ON c.teacher_username = u.username
+        WHERE c.class_id = #{classId}
+    </select>
+
+    <insert id="insert" parameterType="org.example.student_testing.test.dto.ClassDTO"
+            useGeneratedKeys="true" keyProperty="classId">
+        INSERT INTO class (
+            class_name, course_id, teacher_username, description, end_date, created_at, is_active
+        )
+        VALUES (
+                   #{className},
+                   #{courseId},
+                   #{teacherUsername, jdbcType=VARCHAR},
+                   #{description, jdbcType=VARCHAR},
+                   #{endDate, jdbcType=DATE},
+                   NOW(),
+                   #{isActive, jdbcType=BOOLEAN}
+               )
+    </insert>
+
+    <update id="update" parameterType="org.example.student_testing.test.dto.ClassDTO">
+        UPDATE class SET
+                         class_name = #{className},
+                         course_id = #{courseId},
+                         teacher_username = #{teacherUsername, jdbcType=VARCHAR},
+                         description = #{description, jdbcType=VARCHAR},
+                         end_date = #{endDate, jdbcType=DATE},
+                         is_active = #{isActive}
+        WHERE class_id = #{classId}
+    </update>
+
+    <delete id="delete" parameterType="int">
+        DELETE FROM class WHERE class_id = #{classId}
+    </delete>
 </mapper>

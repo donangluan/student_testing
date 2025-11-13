@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import org.slf4j.Logger;
@@ -36,6 +37,9 @@ public class QuestionService {
 
     @Autowired
     private AiGeneratedQuestionMapper aiGeneratedQuestionMapper;
+
+    @Autowired
+    private DifficultyService difficultyService;
 
 
 
@@ -276,5 +280,45 @@ public class QuestionService {
             case 3 -> "HARD";
             default -> "UNKNOWN";
         };
+    }
+
+
+    public List<QuestionDTO> convertAiQuestionsToDTO(List<AiGeneratedQuestion> aiQuestions) {
+        List<QuestionDTO> dtos = new ArrayList<>();
+        // Giả định ObjectMapper đã được inject/khởi tạo
+        ObjectMapper mapper = new ObjectMapper();
+
+        for (AiGeneratedQuestion ai : aiQuestions) {
+            try {
+                // Logic xử lý JSON Options phức tạp (giống như logic cũ trong Controller)
+                Map<String, String> optionsMap = ai.getOptionsMap();
+                if (optionsMap == null && ai.getOptions() != null) {
+                    optionsMap = mapper.readValue(ai.getOptions(), Map.class);
+                }
+
+                // Chuyển đổi sang DTO
+                QuestionDTO q = new QuestionDTO();
+                q.setContent(ai.getQuestionContent());
+                q.setCorrectOption(ai.getCorrectAnswer());
+                q.setTopicName(ai.getTopic());
+                q.setSource("ai");
+
+                // Chuyển đổi độ khó (Dùng Service/logic chuẩn hóa)
+                Integer diffId = difficultyService.convertDifficultyToId(ai.getDifficulty());
+                q.setDifficultyId(diffId);
+
+                if (optionsMap != null) {
+                    q.setOptionA(optionsMap.get("A"));
+                    q.setOptionB(optionsMap.get("B"));
+                    q.setOptionC(optionsMap.get("C"));
+                    q.setOptionD(optionsMap.get("D"));
+                }
+                dtos.add(q);
+            } catch (Exception e) {
+                // Bỏ qua câu hỏi lỗi và ghi log
+                System.err.println("Lỗi chuyển đổi câu hỏi AI: " + e.getMessage());
+            }
+        }
+        return dtos;
     }
 }

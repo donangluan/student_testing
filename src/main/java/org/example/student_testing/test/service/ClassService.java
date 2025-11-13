@@ -15,7 +15,7 @@ public class ClassService {
     private ClassMapper classMapper;
 
     public List<ClassDTO> getAllClasses() {
-        return classMapper.findAllClasses();
+        return classMapper.findAll();
     }
 
 
@@ -24,6 +24,27 @@ public class ClassService {
     }
 
     public ClassDTO getClassById(Integer id) {
-        return classMapper.getClassById(id);
+        return classMapper.findById(id);
+    }
+
+
+    public void saveClass(ClassDTO classDTO) {
+        if (classDTO.getClassId() == null) {
+
+            classMapper.insert(classDTO);
+        } else {
+
+            classMapper.update(classDTO);
+        }
+    }
+
+
+    public void deleteClass(Integer classId) {
+        try {
+            classMapper.delete(classId);
+        } catch (Exception e) {
+
+            throw new RuntimeException("Không thể xóa Lớp học ID " + classId + " vì có dữ liệu liên quan (Học sinh/Bài thi) đang tham chiếu.", e);
+        }
     }
 }

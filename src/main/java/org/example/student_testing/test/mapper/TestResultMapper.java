@@ -34,4 +34,6 @@ public interface TestResultMapper {
 
     List<TestResultDTO> findResultsByUsername(@Param("studentUsername") String studentUsername);
 
+    Integer countCompletedAttempts(@Param("testId")  Integer testId, @Param("username") String username);
+
 }

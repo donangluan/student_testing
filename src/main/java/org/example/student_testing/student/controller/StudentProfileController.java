@@ -31,48 +31,65 @@ public class StudentProfileController {
 
 
     @PreAuthorize("hasRole('STUDENT')")
+    @GetMapping("/view/{username}")
+    public String viewOwnStudentProfile(@PathVariable("username") String targetUsername,
+            Model model, Authentication authentication) {
+
+        String currentUsername = authentication.getName();
+
+        boolean isOwner = currentUsername.equals(targetUsername);
+        boolean isAuthorizedRole = authentication.getAuthorities().stream()
+                .anyMatch(auth -> auth.getAuthority().equals("ROLE_ADMIN") || auth.getAuthority().equals("ROLE_TEACHER"));
+
+        if (!isOwner && !isAuthorizedRole) {
+            model.addAttribute("errorMessage", "Bạn không được phép xem hồ sơ của người dùng này.");
+            return "student/studentprofile-view";
+        }
+
+
+        StudentProfile profile = studentProfileService.findStudentProfileByUsername(targetUsername);
+
+        if (profile == null) {
+            model.addAttribute("errorMessage", "Không tìm thấy hồ sơ cá nhân cho người dùng: " + targetUsername);
+            return "student/studentprofile-view";
+        }
+
+        model.addAttribute("profile", profile);
+        return "student/studentprofile-view";
+    }
+
+    @PreAuthorize("hasRole('STUDENT')")
     @GetMapping("/")
-    public String viewOwnStudentProfile(Model model, Authentication authentication) {
+    public String redirectToOwnProfile(Authentication authentication) {
 
-        String currentUsername = authentication.getName();
-
-
-        StudentProfile profile = studentProfileService.findStudentProfileByUsername(currentUsername);
-
-        if (profile == null) {
-            model.addAttribute("errorMessage", "Không tìm thấy hồ sơ cá nhân cho người dùng: " + currentUsername);
-            return "student/studentprofile-view";
-        }
-
-        model.addAttribute("profile", profile);
-        return "student/studentprofile-view";
+        return "redirect:/student/profile/view/" + authentication.getName();
     }
 
-
-    @PreAuthorize("hasAnyRole('STUDENT', 'TEACHER', 'ADMIN')")
-    @GetMapping("/view/{studentId}")
-    public String viewStudentProfile(@PathVariable("studentId") String studentId, Model model,
-                                     Authentication authentication) {
-        String currentUsername = authentication.getName();
-        boolean isStudent = authentication.getAuthorities().stream()
-                .anyMatch(auth -> auth.getAuthority().equals("ROLE_STUDENT"));
-
-
-        StudentProfile profile = studentProfileService.getStudentProfileById(studentId);
-
-        if (profile == null) {
-            model.addAttribute("errorMessage", " Không tìm thấy hồ sơ học viên.");
-            return "student/studentprofile-view";
-        }
-
-        if (isStudent && !profile.getUsername().equals(currentUsername)) {
-            model.addAttribute("errorMessage", " Bạn không được phép xem hồ sơ của người khác.");
-            return "student/studentprofile-view";
-        }
-
-        model.addAttribute("profile", profile);
-        return "student/studentprofile-view";
-    }
+//
+//    @PreAuthorize("hasAnyRole('STUDENT', 'TEACHER', 'ADMIN')")
+//    @GetMapping("/view/{studentId}")
+//    public String viewStudentProfile(@PathVariable("studentId") String studentId, Model model,
+//                                     Authentication authentication) {
+//        String currentUsername = authentication.getName();
+//        boolean isStudent = authentication.getAuthorities().stream()
+//                .anyMatch(auth -> auth.getAuthority().equals("ROLE_STUDENT"));
+//
+//
+//        StudentProfile profile = studentProfileService.getStudentProfileById(studentId);
+//
+//        if (profile == null) {
+//            model.addAttribute("errorMessage", " Không tìm thấy hồ sơ học viên.");
+//            return "student/studentprofile-view";
+//        }
+//
+//        if (isStudent && !profile.getUsername().equals(currentUsername)) {
+//            model.addAttribute("errorMessage", " Bạn không được phép xem hồ sơ của người khác.");
+//            return "student/studentprofile-view";
+//        }
+//
+//        model.addAttribute("profile", profile);
+//        return "student/studentprofile-view";
+//    }
 
 
 

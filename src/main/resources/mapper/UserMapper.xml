@@ -4,7 +4,7 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="org.example.student_testing.student.mapper.UserMapper">
     <select id="findByUsername" resultType="org.example.student_testing.student.entity.User">
-        select username, password, full_name as fullName, email
+        select username, password, full_name as fullName, email,is_locked
         from users where username = #{username}
     </select>
 
@@ -81,7 +81,7 @@
     </delete>
 
     <select id="findAllUsers" resultType="org.example.student_testing.student.dto.UserDTO">
-        SELECT username, full_name AS fullName, email, role_code AS roleCode
+        SELECT username, full_name AS fullName, email, role_code AS roleCode, is_locked
         FROM users
         ORDER BY created_at DESC
     </select>
@@ -112,6 +112,12 @@
     <update id="updatePassword" >
         update users
         set password = #{newPassword}
+        where username = #{username}
+    </update>
+
+    <update id="updateLockStatus" >
+        update users
+        set is_locked = #{isLocked}
         where username = #{username}
     </update>
 

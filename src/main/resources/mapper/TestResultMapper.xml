@@ -149,4 +149,13 @@
         WHERE r.student_username = #{studentUsername}
         ORDER BY r.completed_at DESC
     </select>
+
+    <select id="countCompletedAttempts" resultType="java.lang.Integer">
+        select count(*)
+        from test_results
+        where test_id = #{testId}
+        and student_username = #{username}
+        and status = 'COMPLETED'
+    </select>
+
 </mapper>

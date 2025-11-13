@@ -25,9 +25,9 @@ public class AdminController {
 
     @GetMapping("/dashboard")
     public String dashboard(Model model) {
-        int totalStudents = studentService.countAll(); // ✅ Tổng số học viên
-        int totalTests = testService.getTotalTests(); // ✅ Tổng số đề
-        int gradedSubmissions = submissionService.countGraded(); // ✅ Bài đã chấm
+        int totalStudents = studentService.countAll();
+        int totalTests = testService.getTotalTests();
+        int gradedSubmissions = submissionService.countGraded();
 
         model.addAttribute("totalStudents", totalStudents);
         model.addAttribute("totalTests", totalTests);
