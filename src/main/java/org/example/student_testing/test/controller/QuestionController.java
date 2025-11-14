@@ -64,7 +64,7 @@ public class QuestionController {
         result.getAllErrors().forEach(error -> System.out.println(" - " + error.getDefaultMessage()));
 
 
-        questionDTO.setCreatedBy("teacher01");
+        questionDTO.setCreatedBy("gv");
         questionService.createQuestion(questionDTO);
         return "redirect:/questions";
     }
@@ -90,7 +90,7 @@ public class QuestionController {
             model.addAttribute("options", answerOptionService.findAll());
             return "test/question/add";
         }
-        questionDTO.setCreatedBy("teacher01");
+        questionDTO.setCreatedBy("gv");
         questionService.update(questionDTO);
         return "redirect:/questions";
     }

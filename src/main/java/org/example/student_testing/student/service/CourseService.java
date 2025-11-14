@@ -27,6 +27,11 @@ public class CourseService {
                 ;
     }
 
+    /**
+     * convert Course entity to CourseDTO
+     * @param course Course entity
+     * @return CourseDTO
+     */
     public CourseDTO toDTO(Course course) {
         CourseDTO courseDTO = new CourseDTO();
         courseDTO.setCourseId(course.getCourseId());
@@ -37,6 +42,11 @@ public class CourseService {
         return courseDTO;
     }
 
+    /**
+     * convert CourseDTO to Course entity
+     * @param courseDTO CourseDTO
+     * @return Course entity
+     */
     public Course toEntity(CourseDTO courseDTO) {
         Course course = new Course();
         course.setCourseId(courseDTO.getCourseId());

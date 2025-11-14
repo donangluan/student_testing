@@ -1,7 +1,5 @@
 package org.example.student_testing.config;
 
-import org.example.student_testing.student.service.CustomUserDetailService;
-import org.example.student_testing.student.service.UserService;
 import org.example.student_testing.test.dto.LoginHistoryDTO;
 import org.example.student_testing.test.service.LoginHistoryService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,9 +40,22 @@ public class LoginSuccessListener {
                     .findFirst().orElse("UNKNOWN");
         }
 
-        String userAgent = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes())
-                .getRequest().getHeader("User-Agent");
-        String ip = ((WebAuthenticationDetails) event.getAuthentication().getDetails()).getRemoteAddress();
+        ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+        String userAgent = attributes != null ? attributes.getRequest().getHeader("User-Agent") : "Unknown";
+        
+        String ip = "Unknown";
+        Object details = event.getAuthentication().getDetails();
+        if (details instanceof WebAuthenticationDetails webDetails) {
+            ip = webDetails.getRemoteAddress();
+        } else if (attributes != null) {
+            // Lấy IP từ request nếu không có WebAuthenticationDetails (REST API)
+            String xForwardedFor = attributes.getRequest().getHeader("X-Forwarded-For");
+            if (xForwardedFor != null && !xForwardedFor.isEmpty()) {
+                ip = xForwardedFor.split(",")[0].trim();
+            } else {
+                ip = attributes.getRequest().getRemoteAddr();
+            }
+        }
 
         LoginHistoryDTO dto = new LoginHistoryDTO();
         dto.setUsername(username);

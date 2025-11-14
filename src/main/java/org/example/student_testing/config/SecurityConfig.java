@@ -2,17 +2,21 @@ package org.example.student_testing.config;
 
 
 import org.example.student_testing.student.service.CustomUserDetailService;
+import org.example.student_testing.utils.JwtAuthenticationFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 
 @Configuration
@@ -29,8 +33,10 @@ public class SecurityConfig {
     }
 
     @Bean
+    @Order(2)
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
+        .securityMatcher("/**")
                 .csrf(csrf -> csrf
                         .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
                 )
@@ -39,7 +45,6 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         // Public routes
                         .requestMatchers("/login", "/register/**", "/css/**", "/js/**").permitAll()
-
 
                         // Student routes
                         .requestMatchers("/student/**").hasAnyRole("TEACHER", "ADMIN","STUDENT")
@@ -50,10 +55,6 @@ public class SecurityConfig {
                         .requestMatchers("/admin/**", "/users/**").hasRole("ADMIN")
 
                         .requestMatchers("/api/ai-questions/generate").permitAll()
-
-
-
-
 
                         // All other routes require authentication
                         .anyRequest().authenticated()
@@ -91,6 +92,19 @@ public class SecurityConfig {
                         .accessDeniedPage("/access-denied")
                 );
 
+        return http.build();
+    }
+
+    @Bean
+    @Order(1)
+    public SecurityFilterChain jwtSecurity(HttpSecurity http, JwtAuthenticationFilter jwtAuthenticationFilter) throws Exception {
+        http.securityMatcher("/swing/rest/api/**")
+        .csrf(csrf->csrf.disable())
+        .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+        .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+        .authorizeHttpRequests(auth -> auth
+                .requestMatchers("/swing/rest/api/auth/login").permitAll()
+                .anyRequest().authenticated());
         return http.build();
     }
 

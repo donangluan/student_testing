@@ -78,8 +78,6 @@ public class RegisterController {
                              Model model
     ){
 
-
-
         if (!otpService.verifyOtp(userDTO.getEmail(), otp)) {
             model.addAttribute("userDTO", userDTO);
             model.addAttribute("errorMessage", "Mã OTP không đúng");
