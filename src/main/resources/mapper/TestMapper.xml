@@ -6,8 +6,22 @@
 
 
     <insert id="insertTest" useGeneratedKeys="true" keyProperty="testId" parameterType="org.example.student_testing.test.dto.TestDTO">
-        INSERT INTO tests(test_name, test_type, created_by, created_at, topic_id, duration_minutes)
-        VALUES (#{testName}, #{testType}, #{createdBy}, current_timestamp, #{topicId}, #{durationMinutes})
+        INSERT INTO tests(
+            test_name,
+            test_type,
+            created_by,
+            created_at,
+            topic_id,
+            duration_minutes,
+            is_published,     start_time        )
+        VALUES (
+                   #{testName},
+                   #{testType},
+                   #{createdBy},
+                   current_timestamp,
+                   #{topicId},
+                   #{durationMinutes},
+                   #{isPublished},   #{startTime}      )
     </insert>
 
 
@@ -18,10 +32,7 @@
     </insert>
 
 
-    <insert id="insertTestQuestion" parameterType="org.example.student_testing.test.dto.TestDTO">
-        INSERT INTO test_questions(test_id, question_id, student_username, order_no, difficulty_id)
-        VALUES (#{testId}, #{questionId}, #{studentUsername}, #{orderNo}, #{difficultyId})
-    </insert>
+
 
 
     <select id="findAllTests" resultType="org.example.student_testing.test.dto.TestDTO">
@@ -100,47 +111,56 @@
 
     <select id="findQuestionsByTestId" resultType="org.example.student_testing.test.dto.QuestionDTO">
         SELECT
-            tq.question_id AS questionId,
+        tq.question_id AS questionId,
 
-            CASE
-                WHEN tq.source = 'ai' THEN ai.question_content
-                ELSE q.content
-                END AS content,
+        CASE
+        WHEN tq.source = 'ai' THEN ai.question_content
+        ELSE q.content
+        END AS content,
 
-            CASE
-                WHEN tq.source = 'ai' THEN ai.options ->> 'A'
-                ELSE q.option_a
-                END AS optionA,
+        CASE
+        WHEN tq.source = 'ai' THEN ai.options ->> 'A'
+        ELSE q.option_a
+        END AS optionA,
 
-            CASE
-                WHEN tq.source = 'ai' THEN ai.options ->> 'B'
-                ELSE q.option_b
-                END AS optionB,
+        CASE
+        WHEN tq.source = 'ai' THEN ai.options ->> 'B'
+        ELSE q.option_b
+        END AS optionB,
 
-            CASE
-                WHEN tq.source = 'ai' THEN ai.options ->> 'C'
-                ELSE q.option_c
-                END AS optionC,
+        CASE
+        WHEN tq.source = 'ai' THEN ai.options ->> 'C'
+        ELSE q.option_c
+        END AS optionC,
 
-            CASE
-                WHEN tq.source = 'ai' THEN ai.options ->> 'D'
-                ELSE q.option_d
-                END AS optionD,
+        CASE
+        WHEN tq.source = 'ai' THEN ai.options ->> 'D'
+        ELSE q.option_d
+        END AS optionD,
 
-            CASE
-                WHEN tq.source = 'ai' THEN ai.correct_answer
-                ELSE q.correct_option
-                END AS correctOption,
+        CASE
+        WHEN tq.source = 'ai' THEN ai.correct_answer
+        ELSE q.correct_option
+        END AS correctOption,
 
-            tq.difficulty_id AS difficultyId,
-            COALESCE(q.topic_id, NULL) AS topicId,
-            tq.order_no AS orderNo,
-            tq.source AS source
+        tq.difficulty_id AS difficultyId,
+        COALESCE(q.topic_id, NULL) AS topicId,
+        tq.order_no AS orderNo,
+        tq.source AS source
 
         FROM test_questions tq
-                 LEFT JOIN questions q ON tq.source = 'manual' AND tq.question_id = q.question_id
-                 LEFT JOIN ai_generated_questions ai ON tq.source = 'ai' AND tq.question_id = ai.id
+        LEFT JOIN questions q ON tq.source = 'manual' AND tq.question_id = q.question_id
+        LEFT JOIN ai_generated_questions ai ON tq.source = 'ai' AND tq.question_id = ai.id
         WHERE tq.test_id = #{testId}
+
+        <if test="studentUsernameToView != null and studentUsernameToView != ''">
+            AND tq.student_username = #{studentUsernameToView}
+        </if>
+
+        <if test="studentUsernameToView == null or studentUsernameToView == ''">
+            AND tq.student_username IS NULL
+        </if>
+
         ORDER BY tq.order_no
     </select>
 
@@ -167,5 +187,41 @@
         INSERT INTO test_conversations(test_id, student_username, conversation_id)
         VALUES(#{testId}, #{studentUsername}, #{conversationId})
     </insert>
+
+
+
+
+
+    <insert id="insertCriteria" parameterType="org.example.student_testing.test.dto.TestCriteriaDTO">
+        INSERT INTO test_criteria(test_id, topic_id, difficulty_id, question_count)
+        VALUES (#{testId}, #{topicId}, #{difficultyId}, #{questionCount})
+    </insert>
+
+    <select id="getCriteriaByTestId" resultType="org.example.student_testing.test.dto.TestCriteriaDTO">
+        SELECT tc.criteria_id AS criteriaId,
+               tc.test_id AS testId,
+               tc.topic_id AS topicId,
+               tc.difficulty_id AS difficultyId,
+               tc.question_count AS questionCount
+        FROM test_criteria tc
+        WHERE tc.test_id = #{testId}
+    </select>
+
+    <select id="findRandomQuestionsByCriteria" resultType="org.example.student_testing.test.entity.Question">
+        SELECT  * FROM questions
+        WHERE topic_id = #{param1} AND difficulty_id = #{param2}
+        ORDER BY RANDOM()
+            LIMIT #{param3}
+    </select>
+
+
+
+
+    <select id="countAssignedQuestionsForStudent" resultType="int">
+        SELECT COUNT(*)
+        FROM test_questions
+        WHERE test_id = #{testId}
+          AND student_username = #{studentUsername}
+    </select>
 
 </mapper>

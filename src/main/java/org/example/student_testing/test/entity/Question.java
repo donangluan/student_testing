@@ -28,4 +28,10 @@ public class Question {
     private String createdBy;
 
     private LocalDateTime createdAt;
+    private String topicName;
+    private Integer orderNo;
+    private String source;
+
+    private String description;
+
 }

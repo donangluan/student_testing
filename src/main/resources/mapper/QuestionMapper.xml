@@ -80,20 +80,21 @@
 
 
     <select id="findRandomQuestionsByTopic" resultType="org.example.student_testing.test.dto.QuestionDTO">
-        SELECT question_id AS questionId,
-               topic_id AS topicId,
-               content,
-               option_a AS optionA,
-               option_b AS optionB,
-               option_c AS optionC,
-               option_d AS optionD,
-               correct_option AS correctOption,
-               difficulty_id AS difficultyId,
-               created_by AS createdBy,
-               source
-        FROM questions
-        WHERE topic_id = #{topicId}
-        ORDER BY RANDOM()
+        SELECT   q.question_id,
+                         q.content,
+                         q.option_a,
+                         q.option_b,
+                         q.option_c,
+                         q.option_d,
+                         q.correct_option,
+                         q.difficulty_id,
+                         q.topic_id
+        FROM
+            questions q
+        WHERE
+            q.topic_id = #{topicId}
+        ORDER BY
+            RANDOM()
             LIMIT #{count}
     </select>
 

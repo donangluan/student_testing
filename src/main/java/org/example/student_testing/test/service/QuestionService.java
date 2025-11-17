@@ -16,8 +16,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory; // THÊM IMPORT SLF4J
 
@@ -320,5 +323,19 @@ public class QuestionService {
             }
         }
         return dtos;
+    }
+
+
+    public Map<Integer, QuestionDTO> findQuestionMapByIds(List<Integer> questionIds) {
+        if (questionIds == null || questionIds.isEmpty()) {
+            return Collections.emptyMap();
+        }
+
+        // Giả định QuestionMapper có hàm findQuestionsByIds trả về List<QuestionDTO>
+        List<QuestionDTO> questions = questionMapper.findQuestionsByIds(questionIds);
+
+        // Chuyển đổi List thành Map
+        return questions.stream()
+                .collect(Collectors.toMap(QuestionDTO::getQuestionId, q -> q));
     }
 }

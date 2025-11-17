@@ -3,6 +3,7 @@ package org.example.student_testing.test.mapper;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.example.student_testing.test.dto.*;
+import org.example.student_testing.test.entity.Question;
 
 
 import java.time.LocalDateTime;
@@ -46,5 +47,31 @@ public interface TestMapper {
     void insertConversation(@Param("testId") Integer testId,
                             @Param("studentUsername") String studentUsername,
                             @Param("conversationId") Integer conversationId);
+
+
+
+    void insertCriteria(TestCriteriaDTO dto);
+    List<TestCriteriaDTO> getCriteriaByTestId(Integer testId);
+
+
+    List<Question> findRandomQuestionsByCriteria(@Param("topicId") Integer topicId,
+                                                 @Param("difficultyId") Integer difficultyId,
+                                                 @Param("limit") Integer limit);
+
+
+    void insertTestQuestion_Dynamic(@Param("testId") Integer testId,
+                                    @Param("questionId") Integer questionId,
+                                    @Param("createdBy") String createdBy,
+                                    @Param("studentUsername") String studentUsername,
+                                    @Param("difficultyId") Integer difficultyId,
+                                    @Param("orderNo") Integer orderNo,
+                                    @Param("source") String source);
+
+
+    int countAssignedQuestionsForStudent(@Param("testId") Integer testId,
+                                         @Param("studentUsername") String studentUsername);
+
+
+    List<QuestionDTO> findQuestionsByTestId(Integer testId, String studentUsernameToView);
 
 }

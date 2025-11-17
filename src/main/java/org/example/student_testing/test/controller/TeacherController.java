@@ -79,19 +79,75 @@
             return "teacher/test/list";
         }
 
+        // TeacherController.java
+
+// ...
+
         @GetMapping("/detail/{testId}")
         public String showTestDetail(@PathVariable Integer testId,
                                      @AuthenticationPrincipal UserDetails userDetails,
+                                     @RequestParam(value = "viewStudent", required = false) String viewStudentUsername, // 🚨 THÊM PARAM NÀY
                                      Model model) {
-            List<QuestionDTO> questions = testQuestionMapper.findQuestionsByTestId(testId);
+
+            TestDTO test = testService.getTestById(testId);
+            if (test == null) {
+                return "redirect:/teacher/tests";
+            }
+
+            List<QuestionDTO> questions;
+            List<String> assignedStudents = testService.getAssignedStudents(testId);
+            String studentToView = null;
+
+            // Kiểm tra loại đề. Đề Dynamic và Unique đều gán câu hỏi riêng.
+            boolean isStudentSpecificTest = test.getTestType() != null &&
+                    (test.getTestType().equalsIgnoreCase("Dynamic") ||
+                            test.getTestType().equalsIgnoreCase("Unique"));
+
+            // Logic gán câu hỏi và xem đề:
+            if (isStudentSpecificTest && !assignedStudents.isEmpty()) {
+
+                // 1. Xác định học sinh cần xem đề: Ưu tiên param truyền vào (khi giáo viên chuyển đổi)
+                // Nếu không có param, chọn học sinh đầu tiên làm mặc định.
+                if (viewStudentUsername != null && assignedStudents.contains(viewStudentUsername)) {
+                    studentToView = viewStudentUsername;
+                } else {
+                    studentToView = assignedStudents.get(0); // Mặc định là học sinh đầu tiên
+                }
+
+                // 2. Lấy câu hỏi SỬ DỤNG BỘ LỌC TÊN HỌC SINH (Hàm Service đã được thêm)
+                // 🚨 ĐIỂM SỬA 1: GỌI HÀM SERVICE CHUNG HOẶC HÀM RIÊNG ĐƯỢC CHỨA TRONG SERVICE
+                // Nếu loadDynamicTestQuestions đã được sửa, ta tiếp tục dùng nó.
+                questions = testQuestionService.loadDynamicTestQuestions(testId, studentToView);
+
+                model.addAttribute("isStudentSpecificTest", true);
+                model.addAttribute("assignedStudents", assignedStudents); // Danh sách học sinh để chuyển đổi
+                model.addAttribute("studentToView", studentToView);     // Học sinh đang xem
+
+                System.out.printf("DEBUG VIEW: Đề %d (%s). Đã tải %d câu hỏi lọc theo học sinh %s.%n",
+                        testId, test.getTestType(), questions.size(), studentToView);
+
+            } else {
+                // Đề Mixed, AI, hoặc loại khác (dùng bộ câu hỏi chung)
+                // 🚨 ĐIỂM SỬA 2: SỬ DỤNG HÀM TẢI ĐỀ CHUNG MỚI (findFixedQuestionsByTestId)
+                // Thay thế: questions = testQuestionMapper.findQuestionsByTestId(testId);
+
+                // Giả định bạn có hàm findFixedQuestionsByTestId trong TestQuestionMapper (Đã hướng dẫn ở phần trước)
+                questions = testQuestionMapper.findFixedQuestionsByTestId(testId);
+                model.addAttribute("isStudentSpecificTest", false);
+
+                System.out.printf("DEBUG VIEW: Đề %d (%s). Đã tải %d câu hỏi chung.%n",
+                        testId, test.getTestType(), questions.size());
+            }
+
             Integer conversationId = testId * 1000 + 1;
 
-
             model.addAttribute("questions", questions);
-
+            model.addAttribute("test", test);
             model.addAttribute("conversationId", conversationId);
-
             model.addAttribute("testId", testId);
+
+            // ...
+
             return "teacher/test/detail";
         }
         @GetMapping("/assign")
@@ -440,6 +496,184 @@
         }
 
 
+        @GetMapping("/create-dynamic")
+        public String showDynamicTestForm(@AuthenticationPrincipal UserDetails userDetails, Model model) {
+
+
+            if (!model.containsAttribute("test")) {
+                TestDTO testDTO = new TestDTO();
+
+
+                if (testDTO.getCriteriaList().isEmpty()) {
+                    testDTO.getCriteriaList().add(new TestCriteriaDTO());
+                }
+
+                model.addAttribute("test", testDTO);
+            }
+            List<StudentDTO> students = studentService.getStudentsForTeacher(userDetails.getUsername());
+            model.addAttribute("allStudents", students);
+
+            model.addAttribute("allTopics", topicService.findAll());
+            model.addAttribute("allDifficulties", difficultyService.findAll());
+
+
+
+            return "teacher/test/create_dynamic_form";
+        }
+
+
+        @PostMapping("/create-dynamic")
+        public String createDynamicTest(
+                @ModelAttribute("test") TestDTO testDTO,
+                @RequestParam(value = "studentUsername", required = false) List<String> studentUsernames,
+                @AuthenticationPrincipal UserDetails userDetails,
+                RedirectAttributes redirectAttributes) {
+
+            // 1. Lấy danh sách criteria đã được bind tự động từ form
+            List<TestCriteriaDTO> criteriaListFromForm = testDTO.getCriteriaList();
+
+            // ... (BƯỚC 2 & 3: Lọc và Kiểm tra Tiêu chí - Giữ nguyên)
+            List<TestCriteriaDTO> finalCriteriaList = new ArrayList<>();
+            for (TestCriteriaDTO criteria : criteriaListFromForm) {
+                if (criteria.getTopicId() != null && criteria.getDifficultyId() != null &&
+                        criteria.getQuestionCount() != null && criteria.getQuestionCount() > 0) {
+                    finalCriteriaList.add(criteria);
+                }
+            }
+
+            if (finalCriteriaList.isEmpty()) {
+                redirectAttributes.addFlashAttribute("error", "Số lượng câu hỏi cần rút phải lớn hơn 0 hoặc tiêu chí chưa đầy đủ.");
+                redirectAttributes.addFlashAttribute("test", testDTO);
+                return "redirect:/teacher/tests/create-dynamic";
+            }
+
+            // ... (BƯỚC 4: Kiểm tra Học sinh - Giữ nguyên)
+            if (studentUsernames == null || studentUsernames.isEmpty()) {
+                redirectAttributes.addFlashAttribute("error", "Vui lòng chọn ít nhất một học sinh để gán đề.");
+                redirectAttributes.addFlashAttribute("test", testDTO);
+                return "redirect:/teacher/tests/create-dynamic";
+            }
+
+            // --- BƯỚC 5: Xử lý Service (Tạo đề và Gán) ---
+            try {
+                String createdBy = userDetails.getUsername();
+                testDTO.setCreatedBy(createdBy);
+
+                // ==========================================================
+                // 🚨 BƯỚC 5A: CHUYỂN ĐỔI CÂU HỎI AI (BỔ SUNG QUAN TRỌNG)
+                // Kích hoạt tất cả câu hỏi AI đã tạo liên quan đến các chủ đề được chọn
+                // thành Official Questions trong bảng 'question'.
+                // ==========================================================
+
+                Set<Integer> topicIds = finalCriteriaList.stream()
+                        .map(TestCriteriaDTO::getTopicId)
+                        .filter(Objects::nonNull)
+                        .collect(Collectors.toSet());
+
+                for (Integer topicId : topicIds) {
+                    // Lấy Course ID từ Topic ID
+                    Integer courseId = topicService.getCourseIdByTopicId(topicId);
+
+                    if (courseId != null) {
+                        // 1. Tìm tất cả câu hỏi AI cho Course này
+                        List<AiGeneratedQuestion> aiQuestions = aiGenerateQuestionService.findByCourseId(courseId);
+
+                        // 2. Chuyển đổi và lưu vào bảng 'question'
+                        aiGenerateQuestionService.convertAiQuestionsToOfficial(aiQuestions);
+                    }
+                }
+                // ==========================================================
+                // 🚨 KẾT THÚC BƯỚC 5A: ĐẢM BẢO DỮ LIỆU ĐÃ ĐỦ
+                // ==========================================================
+
+                // --- BƯỚC 5B: Tạo đề và lấy ID ---
+                Integer newTestId = testService.createDynamicTest(testDTO, finalCriteriaList); // Rút đề từ bảng 'question' đã đầy đủ
+
+                // Gán câu hỏi ngẫu nhiên và đề thi cho tất cả học sinh được chọn.
+                testService.assignQuestionsToStudents(
+                        newTestId,
+                        finalCriteriaList,
+                        studentUsernames,
+                        createdBy
+                );
+
+                redirectAttributes.addFlashAttribute("success",
+                        "Đã tạo đề thi động và gán cho " + studentUsernames.size() + " học sinh thành công.");
+                return "redirect:/teacher/tests";
+
+            } catch (Exception e) {
+                // Nếu có lỗi, chuyển hướng về form và giữ lại dữ liệu đã nhập
+                redirectAttributes.addFlashAttribute("error", "Lỗi trong quá trình tạo hoặc gán đề: " + e.getMessage());
+                redirectAttributes.addFlashAttribute("test", testDTO);
+                return "redirect:/teacher/tests/create-dynamic";
+            }
+        }
+
+
+        @PostMapping("/add-criteria")
+        public String addCriteriaRow(
+                @ModelAttribute("test") TestDTO testDTO,
+                @AuthenticationPrincipal UserDetails userDetails,
+                Model model) {
+
+            // Thêm một đối tượng rỗng vào danh sách hiện tại
+            testDTO.getCriteriaList().add(new TestCriteriaDTO());
+
+            // Đặt lại các thuộc tính vào Model để Thymeleaf render lại form
+            model.addAttribute("test", testDTO);
+            model.addAttribute("allTopics", topicService.findAll());
+            model.addAttribute("allDifficulties", difficultyService.findAll());
+            List<StudentDTO> students = studentService.getStudentsForTeacher(userDetails.getUsername());
+            model.addAttribute("allStudents", students);
+
+            // Cần forward (trả về tên view) thay vì redirect để giữ ModelAttributes
+            return "teacher/test/create_dynamic_form";
+        }
+
+        @PostMapping("/remove-criteria")
+        public String removeCriteriaRow(
+                @RequestParam("removeIndex") Integer index, // Nhận chỉ mục cần xóa
+                @ModelAttribute("test") TestDTO testDTO,RedirectAttributes redirectAttributes,
+                @AuthenticationPrincipal UserDetails userDetails,
+
+                Model model) {
+// Chỉ xóa nếu danh sách có nhiều hơn 1 phần tử
+            List<TestCriteriaDTO> criteriaList = testDTO.getCriteriaList();
+
+            // Lấy danh sách học sinh (cần cho cả hai nhánh if/else)
+            List<StudentDTO> students = studentService.getStudentsForTeacher(userDetails.getUsername());
+
+
+            if (criteriaList.size() > 1 && index != null && index >= 0 && index < criteriaList.size()) {
+                criteriaList.remove(index.intValue());
+
+                // Đặt lại các thuộc tính vào Model để Thymeleaf render lại form
+                model.addAttribute("test", testDTO);
+                model.addAttribute("allTopics", topicService.findAll());
+                model.addAttribute("allDifficulties", difficultyService.findAll());
+
+                // 🚨 BỔ SUNG: Phải thêm danh sách học sinh
+                model.addAttribute("allStudents", students);
+
+                return "teacher/test/create_dynamic_form";
+            } else if (criteriaList.size() == 1) {
+                // Nếu cố gắng xóa dòng cuối cùng, redirect với thông báo lỗi
+                redirectAttributes.addFlashAttribute("error", "Phải có ít nhất một tiêu chí câu hỏi.");
+                // Khi redirect, phải truyền lại testDTO để giữ lại dữ liệu form
+                redirectAttributes.addFlashAttribute("test", testDTO);
+
+                // 🚨 KHI REDIRECT, studentService.getStudentsForTeacher() phải được chạy lại trong showDynamicTestForm
+                return "redirect:/teacher/tests/create-dynamic";
+            }
+
+            // Trường hợp lỗi khác, mặc định trả về view
+            model.addAttribute("test", testDTO);
+            model.addAttribute("allTopics", topicService.findAll());
+            model.addAttribute("allDifficulties", difficultyService.findAll());
+            model.addAttribute("allStudents", students);
+
+            return "teacher/test/create_dynamic_form";
+        }
 
 
     }

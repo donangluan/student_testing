@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>📝 Tạo Đề Thi Động (Dynamic Test)</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <style>
+        .student-list-container {
+            max-height: 250px;
+            overflow-y: auto;
+            border: 1px solid #ccc;
+            padding: 10px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body class="container mt-5">
+
+<h2 class="mb-4"> Tạo Đề Thi Động (Dynamic Test)</h2>
+
+<div th:if="${error}" class="alert alert-danger" role="alert">
+    <span th:text="${error}"></span>
+</div>
+<div th:if="${success}" class="alert alert-success" role="alert">
+    <span th:text="${success}"></span>
+</div>
+
+<form th:action="@{/teacher/tests/create-dynamic}" method="post" th:object="${test}" id="dynamicTestForm">
+
+    <div class="card mb-4">
+        <div class="card-header bg-primary text-white">Thông tin Bài kiểm tra</div>
+        <div class="card-body">
+            <div class="mb-3">
+                <label for="testName" class="form-label">Tên Bài kiểm tra:</label>
+                <input type="text" th:field="*{testName}" id="testName" class="form-control" required/>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
+            Cấu hình Tiêu chí rút câu hỏi
+
+            <button type="button" class="btn btn-sm btn-light" id="addCriteriaButton">
+                <i class="fas fa-plus"></i> Thêm Tiêu chí
+            </button>
+        </div>
+
+        <div class="card-body">
+            <table class="table table-bordered" id="criteriaTable">
+                <tbody>
+                <tr th:each="criteria, i : ${test.criteriaList}">
+                    <td>
+                        <select class="form-select" th:field="*{criteriaList[__${i.index}__].topicId}" required>
+                            <option value="">Chọn Chủ đề</option>
+                            <option th:each="topic : ${allTopics}"
+                                    th:value="${topic.topicId}"
+                                    th:text="${topic.topicName}">
+                            </option>
+                        </select>
+                    </td>
+                    <td>
+                        <select class="form-select" th:field="*{criteriaList[__${i.index}__].difficultyId}" required>
+                            <option value="">Chọn Độ khó</option>
+                            <option th:each="diff : ${allDifficulties}"
+                                    th:value="${diff.difficultyId}"
+                                    th:text="${diff.description}">
+                            </option>
+                        </select>
+                    </td>
+                    <td>
+                        <input type="number" th:field="*{criteriaList[__${i.index}__].questionCount}"
+                               class="form-control" min="1" required/>
+                    </td>
+                    <td>
+                        <button type="button" class="btn btn-danger btn-sm remove-criteria-button"
+                                th:data-index="${i.index}"
+                                th:disabled="${test.criteriaList.size() <= 1}">
+                            <i class="fas fa-trash"></i> Xóa
+                        </button>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header bg-success text-white">
+            Gán Bài kiểm tra cho Học sinh
+        </div>
+        <div class="card-body">
+            <div th:if="${allStudents == null or allStudents.isEmpty()}" class="alert alert-warning">
+                Không tìm thấy học sinh nào để gán đề.
+            </div>
+            <div th:unless="${allStudents == null or allStudents.isEmpty()}">
+                <label class="form-label d-block">Chọn Học sinh:</label>
+                <div class="student-list-container">
+                    <div class="form-check" th:each="student : ${allStudents}">
+                        <input class="form-check-input student-checkbox" type="checkbox" name="studentUsername"
+                               th:value="${student.username}" th:id="${'student_' + student.username}"
+                               onchange="validateCheckboxes()">
+                        <label class="form-check-label" th:for="${'student_' + student.username}">
+                            <span th:text="${student.fullName}"></span> (<span th:text="${student.username}"></span>)
+                        </label>
+                    </div>
+                </div>
+                <div class="mt-2 text-danger" id="studentError" style="display:none;">Vui lòng chọn ít nhất một học sinh.</div>
+            </div>
+        </div>
+    </div>
+
+    <button type="submit" class="btn btn-success" id="submitButton">
+        <i class="fas fa-check"></i> Tạo và Gán Đề Thi
+    </button>
+    <a th:href="@{/teacher/tests}" class="btn btn-secondary"><i class="fas fa-times"></i> Hủy</a>
+</form>
+
+<script>
+    // Hàm này đảm bảo ít nhất một checkbox được chọn khi submit
+    function validateCheckboxes() {
+        const checkboxes = document.querySelectorAll('input[name="studentUsername"]');
+        let isChecked = Array.from(checkboxes).some(checkbox => checkbox.checked);
+        const submitButton = document.getElementById('submitButton');
+        const studentError = document.getElementById('studentError');
+
+        if (isChecked) {
+            submitButton.removeAttribute('disabled');
+            studentError.style.display = 'none';
+            // Bỏ required cho các checkbox để browser không báo lỗi
+            checkboxes.forEach(cb => cb.removeAttribute('required'));
+        } else {
+            submitButton.setAttribute('disabled', 'disabled');
+            studentError.style.display = 'block';
+            // Thêm required vào checkbox đầu tiên để kích hoạt JS validation
+            if (checkboxes.length > 0) {
+                checkboxes[0].setAttribute('required', 'required');
+            }
+        }
+        return isChecked;
+    }
+
+    // Xử lý logic Thêm/Xóa Tiêu chí bằng JavaScript
+    document.getElementById('addCriteriaButton').addEventListener('click', function(event) {
+        event.preventDefault(); // Ngăn chặn form submit mặc định
+
+        // 1. Thay đổi action của form thành /add-criteria
+        const form = document.getElementById('dynamicTestForm');
+        form.action = '[[@{/teacher/tests/add-criteria}]]';
+        form.method = 'POST'; // Đảm bảo method là POST
+
+        // 2. Submit form
+        form.submit();
+    });
+
+    // Xử lý sự kiện Xóa Tiêu chí
+    document.querySelectorAll('.remove-criteria-button').forEach(button => {
+        button.addEventListener('click', function(event) {
+            event.preventDefault(); // Ngăn chặn form submit mặc định
+
+            const indexToRemove = this.getAttribute('data-index');
+
+            // 1. Tạo input ẩn để chứa index cần xóa
+            const hiddenInput = document.createElement('input');
+            hiddenInput.type = 'hidden';
+            hiddenInput.name = 'removeIndex';
+            hiddenInput.value = indexToRemove;
+
+            const form = document.getElementById('dynamicTestForm');
+            form.appendChild(hiddenInput); // Thêm input ẩn vào form
+
+            // 2. Thay đổi action của form thành /remove-criteria
+            form.action = '[[@{/teacher/tests/remove-criteria}]]';
+            form.method = 'POST';
+
+            // 3. Submit form
+            form.submit();
+        });
+    });
+
+
+    // Gắn sự kiện validate khi form được load lần đầu
+    document.addEventListener('DOMContentLoaded', validateCheckboxes);
+
+    // Ngăn chặn submit form nếu không có học sinh nào được chọn (fallback)
+    document.getElementById('dynamicTestForm').addEventListener('submit', function(event) {
+        if (!validateCheckboxes()) {
+            event.preventDefault();
+        }
+    });
+
+</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>

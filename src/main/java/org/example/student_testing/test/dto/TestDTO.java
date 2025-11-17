@@ -3,6 +3,8 @@ package org.example.student_testing.test.dto;
 import lombok.Data;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 public class TestDTO {
@@ -33,8 +35,23 @@ public class TestDTO {
 
     private LocalDateTime endTime;
 
+    private Boolean isDynamic = false;
+
 
     private Integer maxAttempts;
+
+
+    private List<TestCriteriaDTO> criteriaList = new ArrayList<>();
+
+
+    public List<TestCriteriaDTO> getCriteriaList() {
+        return criteriaList;
+    }
+
+
+    public void setCriteriaList(List<TestCriteriaDTO> criteriaList) {
+        this.criteriaList = criteriaList;
+    }
 
 
 }

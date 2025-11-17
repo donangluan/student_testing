@@ -3,22 +3,25 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
+<mapper namespace="org.example.student_testing.test.mapper.TestQuestionMapper">
 
-
-    <mapper namespace="org.example.student_testing.test.mapper.TestQuestionMapper">
-    <insert id="insertTestQuestion" >
-        INSERT INTO test_questions (test_id, question_id, student_username, difficulty_id, order_no,source)
-        VALUES (#{testId}, #{questionId}, #{studentUsername}, #{difficultyId}, #{orderNo},#{source})
+    <insert id="insertQuestionForFixedTest">
+        INSERT INTO test_questions (test_id, question_id, difficulty_id, order_no, source)
+        VALUES (#{testId}, #{questionId}, #{difficultyId}, #{orderNo}, #{source})
     </insert>
 
+    <insert id="insertQuestionForStudent">
+        INSERT INTO test_questions (test_id, question_id, student_username, difficulty_id, order_no, source)
+        VALUES (#{testId}, #{questionId}, #{studentUsername}, #{difficultyId}, #{orderNo}, #{source})
+    </insert>
 
-    <select id="countByQuestionId" resultType="int">
-        SELECT COUNT(*) FROM test_questions WHERE question_id = #{questionId}
-    </select>
+    <select id="findFixedQuestionsByTestId"
+            resultType="org.example.student_testing.test.dto.QuestionDTO">
 
-    <select id="findQuestionsByTestId" resultType="org.example.student_testing.test.dto.QuestionDTO">
+        -- SỬ DỤNG DISTINCT TRÊN QUESTION_ID VÀ SỬ DỤNG MIN/MAX CHO ORDER_NO
         SELECT
-            tq.question_id AS questionId,
+            MIN(tq.order_no) AS orderNo,
+            q.question_id AS questionId,
             q.content,
             q.option_a AS optionA,
             q.option_b AS optionB,
@@ -28,33 +31,77 @@
             q.difficulty_id AS difficultyId,
             q.topic_id AS topicId,
             t.topic_name AS topicName,
-            tq.order_no AS orderNo,
-            tq.source
-        FROM test_questions tq
-                 JOIN questions q ON tq.question_id = q.question_id
-                 JOIN topics t ON q.topic_id = t.topic_id
-        WHERE tq.test_id = #{testId}
-        ORDER BY tq.order_no
+            q.source
+        FROM
+            test_questions tq
+                JOIN
+            questions q ON tq.question_id = q.question_id
+                JOIN
+            topics t ON q.topic_id = t.topic_id
+        WHERE
+            tq.test_id = #{testId}
+        GROUP BY
+            q.question_id, q.content, q.option_a, q.option_b, q.option_c, q.option_d,
+            q.correct_option, q.difficulty_id, q.topic_id, t.topic_name, q.source
+        ORDER BY
+            orderNo
     </select>
 
+    <select id="findDynamicQuestionsByTestIdAndStudent"
+            resultType="org.example.student_testing.test.dto.QuestionDTO">
+        SELECT
+            tq.question_id AS questionId,
+            tq.difficulty_id AS difficultyId,
+            tq.order_no AS orderNo,
+            tq.source,
+            q.topic_id AS topicId,
+            t.topic_name AS topicName,
 
+            -- LOGIC GỘP CÂU HỎI TAY VÀ AI: CONTENT
+            CASE WHEN tq.source = 'ai' THEN ai.question_content ELSE q.content END AS content,
+            CASE WHEN tq.source = 'ai' THEN ai.correct_answer ELSE q.correct_option END AS correctOption,
 
-    <insert id="insertTestQuestionForTest">
-        INSERT INTO test_question (test_id, question_id, assigned_by, difficulty_id, order_no, source)
-        VALUES (#{testId}, #{questionId}, #{assignedBy}, #{difficultyId}, #{orderNo}, #{source})
-    </insert>
+            -- OPTIONS (Chỉ lấy cho câu hỏi thủ công)
+            CASE WHEN tq.source = 'manual' THEN q.option_a ELSE NULL END AS optionA,
+            CASE WHEN tq.source = 'manual' THEN q.option_b ELSE NULL END AS optionB,
+            CASE WHEN tq.source = 'manual' THEN q.option_c ELSE NULL END AS optionC,
+            CASE WHEN tq.source = 'manual' THEN q.option_d ELSE NULL END AS optionD
 
-    <insert id="insertTestQuestionForStudent">
-        INSERT INTO test_question (test_id, question_id, student_username, difficulty_id, order_no, source)
-        VALUES (#{testId}, #{questionId}, #{studentUsername}, #{difficultyId}, #{orderNo}, #{source})
-    </insert>
+        FROM
+            test_questions tq
+                LEFT JOIN questions q ON tq.source = 'manual' AND tq.question_id = q.question_id
+                LEFT JOIN ai_generated_questions ai ON tq.source = 'ai' AND tq.question_id = ai.id
+                LEFT JOIN topics t ON q.topic_id = t.topic_id
+        WHERE
+            tq.test_id = #{testId}
+          AND tq.student_username = #{studentUsername}
+        ORDER BY
+            tq.order_no ASC
+    </select>
 
     <select id="countQuestionsInTest" resultType="int">
-        SELECT COUNT(*) FROM test_question WHERE test_id = #{testId}
+        SELECT COUNT(*) FROM test_questions WHERE test_id = #{testId}
     </select>
 
     <select id="findMaxOrderNoByTestId" resultType="int">
         SELECT COALESCE(MAX(order_no), 0) FROM test_questions WHERE test_id = #{testId}
     </select>
 
-    </mapper>
+    <select id="countByQuestionId" resultType="int">
+        SELECT COUNT(*) FROM test_questions WHERE question_id = #{questionId}
+    </select>
+
+    <select id="findQuestionsByTestId"
+            resultType="org.example.student_testing.test.dto.QuestionDTO">
+        SELECT
+            tq.question_id AS questionId,
+            tq.difficulty_id AS difficultyId,
+            tq.order_no AS orderNo,
+            tq.source
+        FROM test_questions tq
+        WHERE tq.test_id = #{testId} AND tq.student_username IS NULL
+        ORDER BY tq.order_no ASC
+    </select>
+
+
+</mapper>

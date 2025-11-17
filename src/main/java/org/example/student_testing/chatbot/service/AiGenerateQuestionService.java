@@ -203,24 +203,46 @@ public class AiGenerateQuestionService {
     public List<Integer> findAllIds() {
         return aiGeneratedQuestionMapper.findAllIds();
     }
+// AiGenerateQuestionService.java (Dòng ~300)
+
+// ...
+// AiGenerateQuestionService.java (khoảng dòng 300)
 
     @Transactional
     public void convertAiQuestionsToOfficial(List<AiGeneratedQuestion> aiQuestions) {
         for (AiGeneratedQuestion aiQ : aiQuestions) {
 
-            if (aiQ.getSource() == null || aiQ.getSource().trim().isEmpty()) {
-                aiQ.setSource("ai");
-            }
-
-            System.out.printf(" ID = %d | source = %s | content = %s%n",
-                    aiQ.getId(), aiQ.getSource(), aiQ.getQuestionContent());
-
+            // ... (Logic kiểm tra tồn tại và bỏ qua nếu cần) ...
             Integer existingId = questionMapper.findIdByContent(aiQ.getQuestionContent());
             if (existingId != null) {
-                System.out.printf(" Bỏ qua câu hỏi AI ID = %d vì đã tồn tại trong bảng questions (ID = %d)%n", aiQ.getId(), existingId);
+                // ... (log)
                 continue;
             }
 
+            // 1. Lấy Topic ID
+            Integer topicId = aiQ.getTopicId();
+            String topicName = aiQ.getTopic();
+
+            System.out.printf("DEBUG GÁN: Đang xử lý AI Q ID=%d. Topic Name gốc: '%s'%n", aiQ.getId(), topicName);
+            if (topicId == null && aiQ.getTopic() != null) {
+                topicId = topicService.getIdByName(aiQ.getTopic());
+            }
+            if (topicId == null) {
+                System.err.printf(" LỖI DỮ LIỆU: Bỏ qua câu hỏi AI ID = %d. Không tìm thấy Topic ID cho tên: %s%n", aiQ.getId(), aiQ.getTopic());
+                continue;
+            }
+
+            // 2. Chuyển đổi Độ khó sang tiếng Việt và lấy ID
+            String vietnameseDifficulty = mapDifficultyToVietnamese(aiQ.getDifficulty());
+            Integer difficultyId = difficultyService.getIdByName(vietnameseDifficulty);
+
+            if (difficultyId == null) {
+                System.err.printf(" LỖI DỮ LIỆU: Bỏ qua câu hỏi AI ID = %d. Không tìm thấy Difficulty ID cho tên: %s (Tiếng Việt: %s)%n",
+                        aiQ.getId(), aiQ.getDifficulty(), vietnameseDifficulty);
+                continue;
+            }
+
+            // 3. Chuẩn bị đối tượng QuestionDTO
             QuestionDTO q = new QuestionDTO();
             q.setContent(aiQ.getQuestionContent());
             q.setOptionA(aiQ.getOptionA());
@@ -228,16 +250,27 @@ public class AiGenerateQuestionService {
             q.setOptionC(aiQ.getOptionC());
             q.setOptionD(aiQ.getOptionD());
             q.setCorrectOption(aiQ.getCorrectAnswer());
-            q.setDifficultyId(difficultyService.getIdByName(aiQ.getDifficulty()));
-            q.setTopicId(aiQ.getTopicId());
-            q.setCreatedBy(aiQ.getCreatedBy());
-            q.setSource(aiQ.getSource());
 
+            // GÁN ID ĐÃ KIỂM TRA
+            q.setDifficultyId(difficultyId);
+            q.setTopicId(topicId);
+
+            q.setCreatedBy(aiQ.getCreatedBy());
+            q.setSource(aiQ.getSource() != null ? aiQ.getSource() : "ai");
+
+            // 4. INSERT và Gán Official ID
             questionMapper.insert(q);
-            System.out.printf(" Đã insert câu hỏi AI ID = %d vào bảng questions%n", aiQ.getId());
+
+            // ... (Logic update official question ID) ...
+            if (q.getQuestionId() != null) {
+                aiQ.setOfficialQuestionId(q.getQuestionId());
+                aiGeneratedQuestionMapper.updateOfficialQuestionId(aiQ.getId(), q.getQuestionId());
+            }
+
+            System.out.printf(" ✅ ĐÃ INSERT THÀNH CÔNG: Câu hỏi AI ID = %d vào bảng questions (Official ID = %d) với Topic ID=%d, Difficulty ID=%d%n",
+                    aiQ.getId(), q.getQuestionId(), topicId, difficultyId);
         }
     }
-
 
     public List<AiGeneratedQuestion> getAiQuestionsByTestId(Integer topicId) {
         return aiGeneratedQuestionMapper.findByTopicId(topicId);

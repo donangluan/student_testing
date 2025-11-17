@@ -43,4 +43,6 @@ public class QuestionDTO {
     private Integer orderNo;
     private String source;
     private LocalDateTime createdAt;
+
+    private String description;
 }

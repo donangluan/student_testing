@@ -3,7 +3,10 @@ package org.example.student_testing.test.service;
 import lombok.RequiredArgsConstructor;
 import org.example.student_testing.chatbot.service.AiGenerateQuestionService;
 import org.example.student_testing.test.dto.QuestionDTO;
+import org.example.student_testing.test.dto.TestDTO;
+import org.example.student_testing.test.entity.Test;
 import org.example.student_testing.test.mapper.QuestionMapper;
+import org.example.student_testing.test.mapper.TestMapper;
 import org.example.student_testing.test.mapper.TestQuestionMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,11 +23,46 @@ public class TestQuestionService {
     private final TestQuestionMapper testQuestionMapper;
     private final QuestionMapper questionMapper;
     private final AiGenerateQuestionService aiGenerateQuestionService;
+    private final TestMapper testMapper;
+
+
+
 
 
     private Set<Integer> getOfficialAiQuestionIdSet() {
         return new HashSet<>(aiGenerateQuestionService.findAllOfficialIds());
     }
+
+
+    public List<QuestionDTO> loadQuestionsByTestIdAndStudent(
+            Integer testId, String studentUsername) {
+
+        // 1. Lấy thông tin bài test
+        TestDTO testInfo = testMapper.findTestById(testId);
+
+        if (testInfo == null) {
+            return List.of(); // Trả về danh sách rỗng nếu không tìm thấy test
+        }
+
+        String testType = testInfo.getTestType();
+
+        // 2. Logic phân biệt loại đề
+        if ("Unique".equalsIgnoreCase(testType)) {
+            // Trường hợp 1: Đề Dynamic/Unique
+            // Đây là nơi Đề 93 và 111 của bạn được lưu
+            System.out.println("DEBUG LOAD: Tải đề Dynamic ID " + testId + " cho học sinh: " + studentUsername);
+            return testQuestionMapper.findDynamicQuestionsByTestIdAndStudent(testId, studentUsername);
+
+        } else {
+            // Trường hợp 2: Đề Fixed/Mixed (Questions Chung)
+            // Đây là nơi log trước đó của bạn bị gọi nhầm khi xem Đề 111
+            System.out.println("DEBUG LOAD: Tải đề Chung ID " + testId + " (Fixed/Mixed)");
+
+            // Nếu là đề Mixed, nó có thể cần gộp cả 2 phần, nhưng ta ưu tiên tải phần chung trước
+            return testQuestionMapper.findFixedQuestionsByTestId(testId);
+        }
+    }
+
 
 
 
@@ -37,7 +75,7 @@ public class TestQuestionService {
             if (question == null) continue;
             Integer difficultyId = question.getDifficultyId();
             if (difficultyId == null) continue;
-            testQuestionMapper.insertTestQuestion(
+            testQuestionMapper.insertQuestionForStudent(
                     testId, questionId, studentUsername, difficultyId, order++, source
             );
         }
@@ -49,7 +87,7 @@ public class TestQuestionService {
                                      Integer difficultyId,
                                      Integer orderNo,
                                      String source) {
-        testQuestionMapper.insertTestQuestion(testId, questionId, studentUsername, difficultyId, orderNo, source);
+        testQuestionMapper.insertQuestionForStudent(testId, questionId, studentUsername, difficultyId, orderNo, source);
     }
 
 
@@ -74,7 +112,7 @@ public class TestQuestionService {
                 continue;
             }
 
-            testQuestionMapper.insertTestQuestionForTest(
+            testQuestionMapper.insertQuestionForFixedTest(
                     testId,
                     question.getQuestionId(),
                     question.getDifficultyId(),
@@ -120,7 +158,7 @@ public class TestQuestionService {
             }
 
 
-            testQuestionMapper.insertTestQuestion(
+            testQuestionMapper.insertQuestionForStudent(
                     testId,
                     qId,
                     assignedBy,
@@ -130,4 +168,21 @@ public class TestQuestionService {
             );
         }
     }
+
+    public List<QuestionDTO> loadDynamicTestQuestions(Integer testId, String studentUsername) {
+
+        System.out.printf("DEBUG LOAD: Tải đề Dynamic ID %d cho học sinh: %s%n", testId, studentUsername);
+
+        // 🚨 QUAN TRỌNG: Sử dụng hàm Mapper mới
+        List<QuestionDTO> questions = testQuestionMapper.findDynamicQuestionsByTestIdAndStudent(testId, studentUsername);
+
+        if (questions.isEmpty()) {
+            System.err.printf("CẢNH BÁO LOAD: Không tìm thấy câu hỏi nào cho đề %d của học sinh %s. (Có thể chưa gán hoặc chưa có data).%n",
+                    testId, studentUsername);
+        }
+
+        return questions;
+    }
+
+
 }
