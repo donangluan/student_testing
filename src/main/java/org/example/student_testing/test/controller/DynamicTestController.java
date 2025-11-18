@@ -34,7 +34,7 @@ public class DynamicTestController {
 
 
 
-
+    private static final int DEFAULT_DURATION_SECONDS = 30 * 60;
 
 
 
@@ -50,8 +50,13 @@ public class DynamicTestController {
             return "test/dynamic/finish";
         }
 
+        if (!"Dynamic".equalsIgnoreCase(testType) && topicId == null) {
+            model.addAttribute("error", "Lỗi tham số: Cần topicId để bắt đầu bài kiểm tra loại " + testType + ". Vui lòng kiểm tra lại liên kết.");
+            return "test/dynamic/finish";
+        }
+
         int currentDifficulty = 2;
-        Question question = "Mixed".equalsIgnoreCase(testType)
+        Question question = "Dynamic".equalsIgnoreCase(testType)
                 ? service.getNextQuestionMixedByDifficulty(currentDifficulty, studentUsername, testId)
                 : service.getNextQuestion(currentDifficulty, studentUsername, testId, topicId);
 
@@ -72,11 +77,18 @@ public class DynamicTestController {
         model.addAttribute("options", List.of("A", "B", "C", "D"));
         model.addAttribute("answeredCount", answeredCount);
         model.addAttribute("totalQuestions", totalQuestions);
+        model.addAttribute("timeRemainingSeconds", DEFAULT_DURATION_SECONDS);
         return "test/dynamic/do-test";
     }
 
     @PostMapping("/submit-test")
-    public String submit(@ModelAttribute DynamicAnswerDTO dto, Model model) {
+    public String submit(@ModelAttribute DynamicAnswerDTO dto,
+                         @RequestParam Integer timeRemainingSeconds,Model model) {
+
+        if (!"Dynamic".equalsIgnoreCase(dto.getTestType()) && dto.getTopicId() == null) {
+            model.addAttribute("error", "Lỗi tham số: Không thể tiếp tục bài kiểm tra do thiếu ID Chủ đề (topicId) trong dữ liệu submit.");
+            return "test/dynamic/finish";
+        }
         service.saveAnswer(dto);
 
         boolean correct = service.checkAnswer(dto.getQuestionId(), dto.getSelectedOption());
@@ -84,7 +96,7 @@ public class DynamicTestController {
 
         boolean finished = service.isFinished(dto.getTestId(), dto.getStudentUsername());
 
-        Question next = "Mixed".equalsIgnoreCase(dto.getTestType())
+        Question next = "Dynamic".equalsIgnoreCase(dto.getTestType())
                 ? service.getNextQuestionMixedByDifficulty(nextDifficulty, dto.getStudentUsername(), dto.getTestId())
                 : service.getNextQuestion(nextDifficulty, dto.getStudentUsername(), dto.getTestId(), dto.getTopicId());
 
@@ -99,6 +111,9 @@ public class DynamicTestController {
         int answeredCount = service.getAnsweredCount(dto.getTestId(), dto.getStudentUsername());
         int totalQuestions = service.getRequiredQuestionCount(dto.getTestId(), dto.getTestType());
 
+        if (timeRemainingSeconds <= 0) {
+            finished = true;
+        }
 
         model.addAttribute("question", next);
         model.addAttribute("testId", dto.getTestId());
@@ -109,6 +124,8 @@ public class DynamicTestController {
         model.addAttribute("options", List.of("A", "B", "C", "D"));
         model.addAttribute("answeredCount", answeredCount);
         model.addAttribute("totalQuestions", totalQuestions);
+        // Thay thế model.addAttribute("duration", 30);
+        model.addAttribute("timeRemainingSeconds", timeRemainingSeconds);
         return "test/dynamic/do-test";
     }
 
@@ -172,6 +189,9 @@ public class DynamicTestController {
         model.addAttribute("studentUsername", studentUsername);
         model.addAttribute("testType", "dynamic");
         model.addAttribute("topicId", currentQuestion.getTopicId());
+
+        // Thay thế model.addAttribute("duration", 30);
+        model.addAttribute("timeRemainingSeconds", DEFAULT_DURATION_SECONDS);
 
         return "test/dynamic/do-test";
     }

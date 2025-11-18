@@ -117,15 +117,22 @@ public class TestService {
             if (qId == null) continue;
 
 
+            Integer topicId = q.getTopicId();
+            if (topicId == null) {
+                System.err.println("CẢNH BÁO: Question ID " + qId + " thiếu Topic ID. Bỏ qua.");
+                continue;
+            }
+
             String source = aiQuestionIds.contains(qId) ? "ai" : "manual";
 
 
             testQuestionMapper.insertQuestionForStudent(
                     test.getTestId(),
                     qId,
-                    createdBy, // Dùng createdBy làm student_username để người tạo có thể xem đề
+                    createdBy,
 
                     q.getDifficultyId(),
+                    topicId,
                     order++,
                     source
             );
@@ -169,7 +176,7 @@ public class TestService {
 
         Set<Integer> aiQuestionIds = getAiQuestionIdSet();
 
-        // KHẮC PHỤC LỖI TRÙNG LẶP: Dùng Set để theo dõi Question ID đã được chọn
+
         Set<Integer> uniqueQuestionIds = new HashSet<>();
 
         int questionOrder = 1;
@@ -187,26 +194,28 @@ public class TestService {
                 continue;
             }
 
-            //allQuestions.addAll(questionDTOs); // Bỏ allQuestions không cần thiết
 
 
             for (QuestionDTO q : questionDTOs) {
                 Integer qId = q.getQuestionId();
                 if (qId == null) continue;
 
-                // KIỂM TRA TRÙNG LẶP TRÊN TẬP HỢP TỔNG
+
                 if (!uniqueQuestionIds.add(qId)) {
                     System.out.println("CẢNH BÁO: Câu hỏi ID " + qId + " đã bị trùng khi rút. Bỏ qua.");
-                    continue; // Bỏ qua câu hỏi này nếu nó đã được thêm từ một Topic khác
+                    continue;
                 }
+
+
 
                 String source = aiQuestionIds.contains(qId) ? "ai" : "manual";
 
-                // SỬA: Dùng insertQuestionForFixedTest vì đây là đề Mixed/Chung
+
                 testQuestionMapper.insertQuestionForFixedTest(
                         testId,
                         qId,
                         q.getDifficultyId(),
+                        q.getTopicId(),
                         questionOrder++,
                         source
                 );
@@ -249,7 +258,7 @@ public class TestService {
     public void assignTestToStudent(Integer testId, String studentUsername) {
         TestDTO existingTest = testMapper.findTestById(testId);
         if (existingTest == null) {
-            // Ném ngoại lệ để Controller bắt và hiển thị lỗi.
+
             throw new IllegalArgumentException("Lỗi gán: Bài kiểm tra ID " + testId + " không tồn tại.");
         }
 
@@ -285,7 +294,7 @@ public class TestService {
 
         int order = 1;
 
-        // THÊM: Lấy Difficulty ID để chèn đầy đủ thông tin
+
         Map<Integer, QuestionDTO> questionMap = questionService.findQuestionMapByIds(questionIds);
         List<Integer> aiIds = aiGenerateQuestionService.findAllIds();
 
@@ -295,11 +304,11 @@ public class TestService {
 
             String source = aiIds.contains(qId) ? "ai" : "manual";
 
-            // SỬA: Thay thế testMapper.insertTestQuestion bằng hàm chuẩn hóa
             testQuestionMapper.insertQuestionForFixedTest(
                     test.getTestId(),
                     qId,
-                    q.getDifficultyId(), // Lấy Difficulty ID
+                    q.getDifficultyId(),
+                    q.getTopicId(),
                     order++,
                     source
             );
@@ -334,12 +343,11 @@ public class TestService {
         TestDTO test = testMapper.findTestById(testId);
         if (test == null) throw new RuntimeException("Không tìm thấy đề kiểm tra");
 
-        // String assignedBy = test.getCreatedBy(); // Không cần thiết cho đề Fixed
+
         int order = testQuestionMapper.countQuestionsInTest(testId) + 1;
 
         List<Integer> aiIds = aiGenerateQuestionService.findAllIds();
 
-        // THÊM: Lấy Difficulty ID
         Map<Integer, QuestionDTO> questionMap = questionService.findQuestionMapByIds(questionIds);
 
         for (Integer qId : questionIds) {
@@ -348,11 +356,11 @@ public class TestService {
 
             String source = aiIds.contains(qId) ? "ai" : "manual";
 
-            // SỬA: Truyền Difficulty ID thực tế thay vì null
             testQuestionMapper.insertQuestionForFixedTest(
                     testId,
                     qId,
-                    q.getDifficultyId(), // SỬA: Lấy Difficulty ID từ QDTO
+                    q.getDifficultyId(),
+                    q.getTopicId(),
                     order++,
                     source
             );
@@ -419,7 +427,7 @@ public class TestService {
     @Transactional
     public Integer createDynamicTest(TestDTO test, List<TestCriteriaDTO> criteriaList) {
 
-
+        test.setTestType("Dynamic");
         test.setIsDynamic(true);
 
         if (test.getCreatedAt() == null) {
@@ -454,7 +462,7 @@ public class TestService {
     @Transactional
     public void generateStudentTestQuestions(Integer testId, String studentUsername, String createdBy) {
 
-        // Logic chống trùng lặp: Nếu đã gán câu hỏi (Dynamic) thì bỏ qua
+
         if (testMapper.countAssignedQuestionsForStudent(testId, studentUsername) > 0) {
             return;
         }
@@ -470,7 +478,7 @@ public class TestService {
     }
 
 
-    // Thêm phương thức mới vào TestService
+
 
     public void assignQuestionsToStudents(Integer testId, List<TestCriteriaDTO> criteriaList, List<String> studentUsernames, String createdBy) {
 
@@ -482,28 +490,20 @@ public class TestService {
         if (testQuestionMapper.countQuestionsInTest(testId) == 0) {
             System.out.println("DEBUG: Tạo câu hỏi lần đầu cho đề thi chung/fixed ID " + testId);
 
-            // Gọi hàm TẠO CÂU HỎI. Ta truyền studentUsername là null hoặc dummy vì nó là đề Fixed,
-            // nhưng hàm vẫn cần nó để thỏa mãn signature.
-            // Dùng một studentUsername có thật để đảm bảo transaction không bị lỗi.
+
             String dummyStudent = studentUsernames.stream().findFirst().orElse(null);
             if (dummyStudent != null) {
-                // Chúng ta cần một hàm chỉ tạo câu hỏi và không tạo TestAssignment.
-                // Tạm thời, dùng generateAndAssignTestQuestions nhưng phải đảm bảo nó không tạo Assignment.
-                // Hoặc, tạo một hàm mới chỉ INSERT câu hỏi.
 
-                // TỐT NHẤT: Tạo hàm mới chỉ tạo câu hỏi
                 generateFixedTestQuestions(testId, createdBy, criteriaList);
             }
         }
-        // ----------------------------------------------------
 
-        // --- BƯỚC 2: GÁN BÀI THI CHO TỪNG HỌC SINH ---
         Set<String> uniqueStudents = new HashSet<>(studentUsernames);
 
         for (String studentUsername : uniqueStudents) {
             if (studentUsername == null || studentUsername.isBlank()) continue;
 
-            // CHỈ GỌI insertTestAssignment (GÁN ĐỀ)
+
             try {
                 TestAssignmentDTO ta = new TestAssignmentDTO();
                 ta.setTestId(testId);
@@ -511,19 +511,19 @@ public class TestService {
                 ta.setAssignedAt(LocalDateTime.now());
                 testMapper.insertTestAssignment(ta);
             } catch (Exception e) {
-                // Xử lý nếu việc gán bị lỗi (vd: đã gán trước đó)
+
                 System.err.println("CẢNH BÁO: Không thể gán bài thi " + testId + " cho " + studentUsername + ". Lỗi: " + e.getMessage());
-                // KHÔNG ném ngoại lệ Runtime ở đây để không Rollback toàn bộ list
+
             }
         }
     }
 
 
-// Trong TestService.java
+
 @Transactional(propagation = Propagation.REQUIRES_NEW)
     public synchronized void generateAndAssignTestQuestions(Integer testId, String studentUsername, String createdBy, List<TestCriteriaDTO> criteriaList) {
 
-        // Logic chống lặp được giữ nguyên ở đây, dựa vào count > 0 để bảo vệ
+
         int count = testMapper.countAssignedQuestionsForStudent(testId, studentUsername);
         if (count > 0) {
             System.out.printf("DEBUG BẢO VỆ: Đã tìm thấy %d câu hỏi được gán cho %s trong Test ID %d. BỎ QUA GÁN LẶP LẠI.%n", count, studentUsername, testId);
@@ -531,7 +531,7 @@ public class TestService {
         }
 
 
-    List<Question> allSelectedQuestions = new ArrayList<>(); // <--- [SỬA ĐỔI #1] THÊM: Khởi tạo List để lưu tất cả câu hỏi, chuẩn bị cho việc xáo trộn.
+    List<Question> allSelectedQuestions = new ArrayList<>();
     Set<Integer> selectedQuestionIds = new HashSet<>();
         Set<Integer> aiQuestionIds = getAiQuestionIdSet();
 
@@ -548,15 +548,14 @@ public class TestService {
                     " | DiffID=" + criteria.getDifficultyId() +
                     " | Count=" + criteria.getQuestionCount());
 
-            // CHỈNH SỬA QUAN TRỌNG: Rút số lượng gấp đôi để bù đắp cho các câu hỏi bị trùng lặp
-            // nếu chúng đã được chọn từ criteria trước.
+
             List<Question> randomQuestions = testMapper.findRandomQuestionsByCriteria(
                     criteria.getTopicId(),
                     criteria.getDifficultyId(),
-                    criteria.getQuestionCount() * 3 // Rút dư
+                    criteria.getQuestionCount() * 3
             );
 
-            // Bộ đếm số câu hỏi đã gán thành công cho tiêu chí này (sau khi lọc trùng lặp)
+
             int assignedCountForCriteria = 0;
 
             if (randomQuestions.size() < criteria.getQuestionCount()) {
@@ -572,8 +571,7 @@ public class TestService {
                 Integer qId = q.getQuestionId();
                 if (qId == null) continue;
 
-                // 1. NGĂN CHẶN CHÈN VƯỢT QUÁ SỐ LƯỢNG YÊU CẦU CHO CRITERIA NÀY
-                // Kiểm tra số lượng TRƯỚC khi cố gắng chèn.
+
                 boolean isUniqueGlobally = selectedQuestionIds.add(qId);
 
                 if (!isUniqueGlobally) {
@@ -581,20 +579,19 @@ public class TestService {
                     continue;
                 }
 
-                // KIỂM TRA 2: NGĂN CHẶN CHÈN VƯỢT QUÁ SỐ LƯỢNG YÊU CẦU CHO CRITERIA NÀY
-                // Sau khi xác nhận là câu hỏi duy nhất (isUniqueGlobally == true)
+
                 if (assignedCountForCriteria >= criteria.getQuestionCount()) {
-                    // Nếu đã đủ số lượng, DỪNG vòng lặp cho criteria này và đi sang criteria tiếp theo.
+
                     break;
                 }
 
-                // Nếu là duy nhất VÀ chưa đủ số lượng, thì tiến hành chèn
+
                 allSelectedQuestions.add(q);
 
-                assignedCountForCriteria++; // Chỉ tăng count khi INSERT thành công
+                assignedCountForCriteria++;
             }
 
-            // Ghi log cảnh báo nếu không gán đủ (do trùng lặp đã bị lọc)
+
             if (assignedCountForCriteria != criteria.getQuestionCount()) {
                 System.err.printf("LỖI CẢNH BÁO DỮ LIỆU: Chỉ gán được %d/%d câu hỏi cho T%d/D%d. LỖI DỮ LIỆU/TRÙNG LẶP CAO!%n",
                         assignedCountForCriteria, criteria.getQuestionCount(), criteria.getTopicId(), criteria.getDifficultyId());
@@ -604,19 +601,26 @@ public class TestService {
     Collections.shuffle(allSelectedQuestions);
     System.out.printf("DEBUG RANDOM: Đã đảo lộn thứ tự %d câu hỏi cho %s.%n", allSelectedQuestions.size(), studentUsername);
 
-    // Chèn câu hỏi vào bảng test_questions_student theo thứ tự đã xáo trộn
+
     int orderNo = 1;
 
     for (Question q : allSelectedQuestions) {
         String source = (q.getQuestionId() != null && aiQuestionIds.contains(q.getQuestionId())) ? "ai" : "manual";
 
-        // SỬ DỤNG insertQuestionForStudent vì đây là đề động
+
+        Integer topicId = q.getTopicId();
+        if (topicId == null) {
+            System.err.println("CẢNH BÁO: Question ID " + q.getQuestionId() + " thiếu Topic ID. Bỏ qua.");
+            continue;
+        }
+
         testQuestionMapper.insertQuestionForStudent(
                 testId,
                 q.getQuestionId(),
                 studentUsername,
                 q.getDifficultyId(),
-                orderNo++, // Thứ tự mới (đã random)
+                topicId,
+                orderNo++,
                 source
         );
     }
@@ -627,15 +631,14 @@ public class TestService {
         System.err.printf("LỖI GÁN CUỐI CÙNG: Tổng câu hỏi được chèn thực tế (%d) KHÔNG KHỚP với số câu hỏi duy nhất đã lọc (%d) cho Test ID %d. Lỗi giao dịch nghiêm trọng!%n",
                 assignedCount, expectedCount, testId);
 
-        // Nếu không chèn được câu hỏi nào (assignedCount = 0), đây là nguyên nhân gốc của lỗi Rollback
+
         if (assignedCount == 0 && expectedCount > 0) {
             throw new RuntimeException("GÁN ĐỀ THI THẤT BẠI: Đã chọn câu hỏi nhưng không chèn được vào CSDL. Cần kiểm tra Mapper XML hoặc lỗi SQL.");
         }
     }
 
 
-        // Tạo bản ghi gán bài thi (TestAssignment)
-    // Tạo bản ghi gán bài thi (TestAssignment) - BƯỚC THƯỜNG GÂY LỖI ROLLBACK
+
     try {
         TestAssignmentDTO ta = new TestAssignmentDTO();
         ta.setTestId(testId);
@@ -643,7 +646,7 @@ public class TestService {
         ta.setAssignedAt(LocalDateTime.now());
         testMapper.insertTestAssignment(ta);
     } catch (Exception e) {
-        // Ném ngoại lệ Runtime để Spring biết cần phải Rollback (hủy tất cả INSERT đã làm)
+
         System.err.println("LỖI CHÈN TEST ASSIGNMENT: Thất bại khi chèn vào bảng test_assignments. Lỗi: " + e.getMessage());
         throw new RuntimeException("Lỗi nghiêm trọng khi hoàn tất gán đề thi: " + e.getMessage(), e);
     }
@@ -654,38 +657,36 @@ public class TestService {
 
     public List<QuestionDTO> getQuestionsForTestView(Integer testId, String studentUsernameToView) {
 
-        // SỬA: Dùng logic phân biệt đề Dynamic và Fixed/Mixed từ TQMapper
+
         TestDTO test = testMapper.findTestById(testId);
 
         if (test != null && test.getIsDynamic() != null && test.getIsDynamic()) {
-            // Đề Dynamic (hoặc Unique): Cần studentUsernameToView
+
             if (studentUsernameToView != null && !studentUsernameToView.isBlank()) {
                 return testQuestionMapper.findDynamicQuestionsByTestIdAndStudent(testId, studentUsernameToView);
             } else {
-                // Giáo viên xem đề Dynamic: trả về rỗng nếu không có studentUsername
+
                 return Collections.emptyList();
             }
         } else {
-            // Đề Fixed/Mixed/AI: Dùng đề chung
-            return testQuestionMapper.findFixedQuestionsByTestId(testId); // SỬA: Dùng hàm Fixed/Chung
+
+            return testQuestionMapper.findFixedQuestionsByTestId(testId);
         }
     }
 
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public synchronized void generateFixedTestQuestions(Integer testId, String createdBy, List<TestCriteriaDTO> criteriaList) {
-        // Hàm này tương tự generateAndAssignTestQuestions nhưng KHÔNG GÁN (insertTestAssignment)
 
-        // Logic chống lặp (đã có ở generateAndAssignTestQuestions, nhưng ở đây cần kiểm tra lại)
         if (testQuestionMapper.countQuestionsInTest(testId) > 0) {
             System.out.printf("DEBUG BẢO VỆ: Đề thi Fixed ID %d đã có câu hỏi. BỎ QUA TẠO LẠI.%n", testId);
             return;
         }
-// START: SAO CHÉP TỪ generateAndAssignTestQuestions
+
         int orderNo = 1;
         Set<Integer> aiQuestionIds = getAiQuestionIdSet();
         Set<Integer> selectedQuestionIds = new HashSet<>();
-        int totalQuestionsExpected = 0; // (Optional: Giữ lại để debug)
+        int totalQuestionsExpected = 0;
 
         for (TestCriteriaDTO criteria : criteriaList) {
             totalQuestionsExpected += criteria.getQuestionCount();
@@ -700,7 +701,7 @@ public class TestService {
 
             int assignedCountForCriteria = 0;
 
-            // Log lỗi thiếu dữ liệu
+
             if (randomQuestions.size() < criteria.getQuestionCount()) {
                 System.err.printf("LỖI CẢNH BÁO DỮ LIỆU: Rút được %d/%d câu hỏi cho T%d/D%d. KHÔNG ĐỦ CÂU HỎI TRONG CSDL!%n",
                         randomQuestions.size(), criteria.getQuestionCount(), criteria.getTopicId(), criteria.getDifficultyId());
@@ -730,6 +731,7 @@ public class TestService {
                         testId,
                         q.getQuestionId(),
                         q.getDifficultyId(),
+                        q.getTopicId(),
                         orderNo++,
                         source
                 );
@@ -743,14 +745,14 @@ public class TestService {
             }
         }
 
-        // KIỂM TRA CUỐI CÙNG (CÓ THỂ DÙNG LẠI TỪ generateAndAssignTestQuestions)
+
         int assignedCount = testQuestionMapper.countQuestionsInTest(testId);
         int expectedCount = selectedQuestionIds.size();
         if (assignedCount != expectedCount) {
             System.err.printf("LỖI GÁN CUỐI CÙNG (FIXED): Tổng câu hỏi được chèn thực tế (%d) KHÔNG KHỚP với số câu hỏi duy nhất đã lọc (%d) cho Test ID %d.%n",
                     assignedCount, expectedCount, testId);
             if (assignedCount == 0 && expectedCount > 0) {
-                // Ném ngoại lệ nếu không chèn được câu hỏi nào.
+
                 throw new RuntimeException("TẠO ĐỀ FIXED THẤT BẠI: Đã chọn câu hỏi nhưng không chèn được vào CSDL. Kiểm tra Mapper XML.");
             }
         }

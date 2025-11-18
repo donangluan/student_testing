@@ -7,15 +7,16 @@
 </head>
 <body>
 <div class="container mt-5">
-    <p>Câu số: <span th:text="${answeredCount + 1}"></span> / <span th:text="${totalQuestions}"></span></p>
+
 
     <h2 class="mb-4 text-center">Làm bài kiểm tra động</h2>
     <div class="alert alert-warning text-center">
-        ⏳ Thời gian còn lại: <span id="countdown" class="fw-bold text-danger">--:--</span>
+         Thời gian còn lại: <span id="countdown" class="fw-bold text-danger">--:--</span>
     </div>
 
 
-    <form th:action="@{/student/dynamic/submit-test}" method="post">
+
+    <form th:action="@{/student/dynamic/submit-test}" method="post" id="submitForm">
         <input type="hidden" name="testId" th:value="${testId}" />
         <input type="hidden" name="studentUsername" th:value="${studentUsername}" />
         <input type="hidden" name="questionId" th:value="${question.questionId}" />
@@ -25,17 +26,18 @@
 
 
         <div class="mb-4">
-            <p class="fw-bold" th:text="${question.content}">Nội dung câu hỏi</p>
+
+            <p class="fw-bold" th:utext="${question.content}">Nội dung câu hỏi</p>
 
             <div th:each="opt : ${options}">
                 <div class="form-check">
                     <input class="form-check-input" type="radio" name="selectedOption" th:value="${opt}" th:id="${opt}" required />
                     <label class="form-check-label" th:for="${opt}">
                         <span th:switch="${opt}">
-                            <span th:case="'A'" th:text="'A. ' + ${question.optionA}">A</span>
-                            <span th:case="'B'" th:text="'B. ' + ${question.optionB}">B</span>
-                            <span th:case="'C'" th:text="'C. ' + ${question.optionC}">C</span>
-                            <span th:case="'D'" th:text="'D. ' + ${question.optionD}">D</span>
+                            <span th:case="'A'" th:utext="'A. ' + ${question.optionA}">A</span>
+                            <span th:case="'B'" th:utext="'B. ' + ${question.optionB}">B</span>
+                            <span th:case="'C'" th:utext="'C. ' + ${question.optionC}">C</span>
+                            <span th:case="'D'" th:utext="'D. ' + ${question.optionD}">D</span>
                         </span>
                     </label>
                 </div>
@@ -49,6 +51,7 @@
 </div>
 
 <script>
+
     const duration = /*[[${duration}]]*/ 30;
     let remaining = duration * 60;
 
@@ -58,7 +61,8 @@
         if (remaining <= 0) {
             clearInterval(timer);
             countdownEl.innerText = "00:00";
-            document.getElementById("submitForm").submit(); /
+
+            document.getElementById("submitForm").submit();
         } else {
             const minutes = Math.floor(remaining / 60);
             const seconds = remaining % 60;

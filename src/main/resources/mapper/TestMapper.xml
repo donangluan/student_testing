@@ -59,7 +59,7 @@
                t.start_time AS startTime,
                t.end_time AS endTime,
                t.max_attempts AS maxAttempts,
-
+               t.is_dynamic AS isDynamic,
                tp.topic_name AS topicName,
                c.course_name AS courseName
         FROM tests t
@@ -72,15 +72,17 @@
 
 
     <select id="findTestsByType" resultType="org.example.student_testing.test.dto.TestDTO">
-        SELECT test_id AS testId,
-               test_name AS testName,
-               test_type AS testType,
-               created_by AS createdBy,
-               created_at AS createdAt,
-               topic_id AS topicId
-        FROM tests
-        WHERE test_type = #{type}
-        ORDER BY created_at DESC
+        SELECT t.test_id AS testId,
+        t.test_name AS testName,
+        t.test_type AS testType,
+        t.created_by AS createdBy,
+        t.created_at AS createdAt,
+        t.topic_id AS topicId,
+        tp.topic_name AS topicName
+        FROM tests t
+        LEFT JOIN topics tp ON t.topic_id = tp.topic_id
+        WHERE t.test_type = #{type}
+        ORDER BY t.created_at DESC
     </select>
 
     <select id="countAllTests" resultType="int">
@@ -89,9 +91,25 @@
 
 
     <select id="findTestsAssignedToStudent" resultType="org.example.student_testing.test.dto.TestDTO">
-        SELECT t.* FROM tests t
-                            JOIN test_assignments  ta ON ta.test_id = t.test_id
+        SELECT t.test_id AS testId,
+        t.test_name AS testName,
+        t.test_type AS testType,
+        t.created_by AS createdBy,
+        t.created_at AS createdAt,
+        t.topic_id AS topicId,
+        t.duration_minutes AS durationMinutes,
+        t.is_published AS isPublished,
+        t.start_time AS startTime,
+        t.end_time AS endTime,
+        t.is_dynamic AS isDynamic,
+        t.max_attempts AS maxAttempts,
+
+        tp.topic_name AS topicName <!-- Cột topicName được thêm vào -->
+        FROM tests t
+        JOIN test_assignments ta ON ta.test_id = t.test_id
+        LEFT JOIN topics tp ON t.topic_id = tp.topic_id <!-- JOIN với bảng topics -->
         WHERE ta.student_username = #{studentUsername}
+        ORDER BY t.created_at DESC
     </select>
 
     <select id="findResultsByStudent" resultType="org.example.student_testing.test.dto.TestResultDTO">

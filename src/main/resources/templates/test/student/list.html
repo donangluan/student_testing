@@ -15,12 +15,25 @@
     </form>
 </div>
 
+<div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show mt-3" role="alert">
+    <i class="fas fa-check-circle"></i>
+    <span th:text="${successMessage}">Thông báo thành công sẽ hiển thị ở đây.</span>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+
+<div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show mt-3" role="alert">
+    <i class="fas fa-exclamation-triangle"></i>
+    <span th:text="${errorMessage}">Thông báo lỗi sẽ hiển thị ở đây.</span>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+
 <table class="table table-bordered table-hover">
     <thead class="table-light">
     <tr>
         <th>ID</th>
         <th>Tên bài kiểm tra</th>
         <th>Loại</th>
+
         <th>Thao tác</th>
     </tr>
     </thead>
@@ -29,39 +42,35 @@
         <td th:text="${test.testId}">1</td>
         <td th:text="${test.testName}">Bài kiểm tra mẫu</td>
         <td th:text="${test.testType}">Unique</td>
+
         <td>
 
             <div th:if="${!testResultMap[test.testId]}">
 
+                <!-- 1. Luồng Cố định (Fixed Test) - Được hiển thị cho tất cả các loại test -->
                 <a th:href="@{'/student/do/' + ${test.testId}}"
                    class="btn btn-primary btn-sm me-2">
-                    Làm bài
+                    Làm bài (Cố định)
                 </a>
 
-
-                <a th:if="${test.topicId != null}"
+                <!-- 2. Luồng Dynamic/Adaptive Test -->
+                <!-- CHỈ hiển thị nếu testType là 'Dynamic' (theo yêu cầu của bạn) -->
+                <a th:if="${#strings.equals(test.testType, 'Dynamic')}"
                    th:href="@{'/student/dynamic/do-test?testId=' + ${test.testId} +
                      '&studentUsername=' + ${studentUsername} +
                      '&testType=' + ${test.testType} +
-                     '&topicId=' + ${test.topicId}}"
+                     ${test.topicId != null ? '&topicId=' + test.topicId : ''}
+                     }"
                    class="btn btn-warning btn-sm me-2">
-                    Làm bài động
+                    Làm bài động (Adaptive)
                 </a>
 
-
-                <a th:if="${test.topicId == null and #strings.equals(test.testType, 'Mixed')}"
-                   th:href="@{'/student/dynamic/do-test?testId=' + ${test.testId} +
-                     '&studentUsername=' + ${studentUsername} +
-                     '&testType=Mixed'}"
-                   class="btn btn-warning btn-sm">
-                    Làm bài động
-                </a>
             </div>
 
             <div th:if="${testResultMap[test.testId]}">
                 <span class="text-success fw-bold me-2">Đã hoàn thành</span>
                 <a th:href="@{'/results/detail/' + ${test.resultId}}" class="btn btn-sm btn-info">
-                     Xem chi tiết
+                    Xem chi tiết
                 </a>
             </div>
 

@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.example.student_testing.test.mapper.TestSessionMapper">
+    <resultMap id="SessionResult" type="org.example.student_testing.test.dto.TestSessionDTO">
+        <result property="testId" column="test_id" />
+        <result property="studentUsername" column="student_username" />
+        <result property="timeRemainingSeconds" column="time_remaining_seconds" />
+        <result property="currentDifficulty" column=" current_difficulty" />
+        <result property="topicId" column="topic_id" />
+        <result property="lastQuestionId" column="last_question_id" />
+        <result property="answersJson" column="answers_json" />
+
+    </resultMap>
+
+    <select id="findSession" resultMap="SessionResult">
+        select * from test_sessions
+        where test_id = #{testId} AND student_username = #{studentUsername}
+    </select>
+
+    <insert id="insertSession">
+        INSERT INTO test_sessions (
+            test_id, student_username, time_remaining_seconds,
+            current_difficulty, topic_id, last_question_id, updated_at, answers_json
+        )
+        VALUES (
+                   #{testId}, #{studentUsername}, #{timeRemainingSeconds},
+                   #{currentDifficulty}, #{topicId}, #{lastQuestionId}, CURRENT_TIMESTAMP, #{answersJson}
+               )
+            ON CONFLICT (test_id, student_username) DO UPDATE
+                                                           SET
+                                                               time_remaining_seconds = EXCLUDED.time_remaining_seconds,
+                                                           answers_json = EXCLUDED.answers_json,
+                                                           updated_at = CURRENT_TIMESTAMP
+    </insert>
+
+    <update id="updateSession">
+        update test_sessions
+        set time_remaining_seconds = ${timeRemainingSeconds},
+            current_difficulty = #{currentDifficulty},
+            topic_id = ${topicId},
+            last_question_id = #{lastQuestionId},
+            update_at = CURRENT_TIMESTAMP
+
+        where test_id = ${testId} AND student_username = ${studentUsername}
+    </update>
+
+
+    <delete id="deleteSession">
+        delete from test_sessions
+        where test_id = #{testId}
+          AND student_username = #{studentUsername}
+    </delete>
+</mapper>

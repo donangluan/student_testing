@@ -74,53 +74,18 @@ public class TestQuestionService {
             QuestionDTO question = questionMapper.findById(questionId);
             if (question == null) continue;
             Integer difficultyId = question.getDifficultyId();
+            Integer topicId = question.getTopicId();
+
             if (difficultyId == null) continue;
             testQuestionMapper.insertQuestionForStudent(
-                    testId, questionId, studentUsername, difficultyId, order++, source
+                    testId, questionId, studentUsername, difficultyId,topicId, order++, source
             );
         }
     }
 
-    public void assignSingleQuestion(Integer testId,
-                                     Integer questionId,
-                                     String studentUsername,
-                                     Integer difficultyId,
-                                     Integer orderNo,
-                                     String source) {
-        testQuestionMapper.insertQuestionForStudent(testId, questionId, studentUsername, difficultyId, orderNo, source);
-    }
 
 
-    @Transactional
-    public void assignQuestionsToTest(Integer testId, List<Integer> questionIds) {
 
-        List<QuestionDTO> questions = questionMapper.findAllByIds(questionIds);
-
-
-        Set<Integer> officialAiQuestionIds = getOfficialAiQuestionIdSet();
-
-        Integer currentMaxOrder = testQuestionMapper.findMaxOrderNoByTestId(testId);
-        int order = (currentMaxOrder != null) ? currentMaxOrder + 1 : 1;
-
-        for (QuestionDTO question : questions) {
-            if (question == null) continue;
-
-            String source = officialAiQuestionIds.contains(question.getQuestionId()) ? "ai" : "manual";
-
-            if (question.getDifficultyId() == null) {
-                System.err.println("CẢNH BÁO: Question ID " + question.getQuestionId() + " thiếu Difficulty ID. Bỏ qua.");
-                continue;
-            }
-
-            testQuestionMapper.insertQuestionForFixedTest(
-                    testId,
-                    question.getQuestionId(),
-                    question.getDifficultyId(),
-                    order++,
-                    source
-            );
-        }
-    }
 
 
     @Transactional
@@ -152,6 +117,7 @@ public class TestQuestionService {
 
 
             Integer difficultyId = question.getDifficultyId();
+            Integer topicId = question.getTopicId();
             if (difficultyId == null) {
                 System.err.println("CẢNH BÁO: Question ID " + qId + " thiếu Difficulty ID. Bỏ qua.");
                 continue;
@@ -163,6 +129,7 @@ public class TestQuestionService {
                     qId,
                     assignedBy,
                     difficultyId,
+                    topicId,
                     order++,
                     source
             );

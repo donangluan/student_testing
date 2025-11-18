@@ -75,11 +75,11 @@ public class SecurityConfig {
 
                 .authorizeHttpRequests(auth -> auth
 
-                        .requestMatchers("/login", "/register/**", "/css/**", "/js/**").permitAll()
+                        .requestMatchers("/login", "/register/**", "/css/**", "/js/**", "/access-denied").permitAll()
 
 
 
-                        .requestMatchers("/student/**").hasAnyRole("TEACHER", "ADMIN","STUDENT")
+                        .requestMatchers("/student/**").hasAnyAuthority("ROLE_TEACHER", "ROLE_ADMIN", "ROLE_STUDENT")
 
                         .requestMatchers("/teacher/**").hasRole("TEACHER")
 

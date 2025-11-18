@@ -6,13 +6,13 @@
 <mapper namespace="org.example.student_testing.test.mapper.TestQuestionMapper">
 
     <insert id="insertQuestionForFixedTest">
-        INSERT INTO test_questions (test_id, question_id, difficulty_id, order_no, source)
-        VALUES (#{testId}, #{questionId}, #{difficultyId}, #{orderNo}, #{source})
+        INSERT INTO test_questions (test_id, question_id, difficulty_id, topic_id,order_no, source)
+        VALUES (#{testId}, #{questionId}, #{difficultyId},#{topicId}, #{orderNo}, #{source})
     </insert>
 
     <insert id="insertQuestionForStudent">
-        INSERT INTO test_questions (test_id, question_id, student_username, difficulty_id, order_no, source)
-        VALUES (#{testId}, #{questionId}, #{studentUsername}, #{difficultyId}, #{orderNo}, #{source})
+        INSERT INTO test_questions (test_id, question_id, student_username, difficulty_id,topic_id, order_no, source)
+        VALUES (#{testId}, #{questionId}, #{studentUsername}, #{difficultyId} ,#{topicId} , #{orderNo}, #{source})
     </insert>
 
     <select id="findFixedQuestionsByTestId"
