@@ -7,6 +7,9 @@
 </head>
 <body class="container mt-5">
 <h2 class="mb-4">Chi tiết đề kiểm tra</h2>
+<div id="live-alerts"
+     style="position: fixed; top: 10px; right: 10px; z-index: 1050; width: 350px;">
+</div>
 
 <table class="table table-bordered table-striped table-hover">
     <thead class="table-light">
@@ -38,5 +41,85 @@
     </tr>
     </tbody>
 </table>
+
+
+<script th:src="@{/js/sockjs.min.js}"></script>
+<script th:src="@{/js/stomp.min.js}"></script>
+
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    var testId = /*[[${testId}]]*/ 0;
+    var stompClient = null;
+
+    function connectProctor() {
+        var socket = new SockJS('/ws-proctor');
+        stompClient = Stomp.over(socket);
+        stompClient.debug = null;
+
+        stompClient.connect({}, function (frame) {
+            console.log('🟢 [GIÁO VIÊN] Đang giám sát Test ID: ' + testId);
+
+
+            stompClient.subscribe('/topic/test/' + testId, function (alert) {
+                var alertData = JSON.parse(alert.body);
+                showAlert(alertData);
+            });
+        }, function(error) {
+            console.log('🔴 Lỗi kết nối giám sát: ' + error);
+        });
+    }
+
+    function showAlert(data) {
+
+        var alertBox = document.createElement("div");
+
+
+        var alertClass = "alert-danger";
+        var icon = "🚨";
+        var title = "GIAN LẬN!";
+
+        if (data.violationType === 'WINDOW_BLUR') {
+            alertClass = "alert-warning";
+            icon = "⚠️";
+            title = "CẢNH BÁO";
+        }
+
+        alertBox.className = `alert ${alertClass} alert-dismissible fade show shadow-lg border-2`;
+        alertBox.style.marginBottom = "10px";
+        alertBox.innerHTML = `
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <strong>${icon} ${title}</strong><br>
+                    <strong>Học sinh:</strong> <span class="fs-5 text-uppercase fw-bold text-dark">${data.studentUsername}</span><br>
+                    <strong>Lỗi:</strong> ${data.violationType}<br>
+                    <small class="text-muted">Thời gian: ${data.time}</small><br>
+                    <i>"${data.message}"</i>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        `;
+
+
+        document.getElementById("live-alerts").prepend(alertBox);
+
+
+        setTimeout(function() {
+
+            alertBox.classList.remove('show');
+            setTimeout(() => alertBox.remove(), 500);
+        }, 10000);
+
+
+        try {
+
+        } catch(e) {}
+    }
+
+
+    connectProctor();
+    /*]]>*/
+</script>
+
+
 </body>
 </html>

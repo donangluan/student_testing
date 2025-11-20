@@ -82,7 +82,6 @@
 
 
 
-
         @GetMapping("/detail/{testId}")
         public String showTestDetail(@PathVariable Integer testId,
                                      @AuthenticationPrincipal UserDetails userDetails,
@@ -94,40 +93,34 @@
                 return "redirect:/teacher/tests";
             }
 
-            List<QuestionDTO> questions;
             List<String> assignedStudents = testService.getAssignedStudents(testId);
-            String studentToView = null;
+            String studentToView = viewStudentUsername; // Mặc định là student được yêu cầu xem
 
 
-            boolean isStudentSpecificTest = test.getTestType() != null &&
+            boolean isDynamicOrUnique = test.getTestType() != null &&
                     (test.getTestType().equalsIgnoreCase("Dynamic") ||
                             test.getTestType().equalsIgnoreCase("Unique"));
 
+            // Nếu là đề động/Unique VÀ chưa có học sinh nào được chỉ định để xem,
+            // chúng ta sẽ chọn học sinh đầu tiên để hiển thị mẫu.
+            if (isDynamicOrUnique && studentToView == null && !assignedStudents.isEmpty()) {
+                studentToView = assignedStudents.get(0);
+            }
 
-            if (isStudentSpecificTest && !assignedStudents.isEmpty()) {
+            // *** LOGIC MỚI: Gọi hàm Service đã sửa ***
+            List<QuestionDTO> questions = testService.getQuestionsForTestView(testId, studentToView);
+            // ****************************************
 
-
-                if (viewStudentUsername != null && assignedStudents.contains(viewStudentUsername)) {
-                    studentToView = viewStudentUsername;
-                } else {
-                    studentToView = assignedStudents.get(0);
-                }
-
-
-                questions = testQuestionService.loadDynamicTestQuestions(testId, studentToView);
-
+            // Bổ sung thông tin DEBUG và Model Attribute cho view
+            if (isDynamicOrUnique) {
                 model.addAttribute("isStudentSpecificTest", true);
                 model.addAttribute("assignedStudents", assignedStudents);
                 model.addAttribute("studentToView", studentToView);
 
                 System.out.printf("DEBUG VIEW: Đề %d (%s). Đã tải %d câu hỏi lọc theo học sinh %s.%n",
-                        testId, test.getTestType(), questions.size(), studentToView);
-
+                        testId, test.getTestType(), questions.size(), studentToView != null ? studentToView : "N/A");
             } else {
-
-                questions = testQuestionMapper.findFixedQuestionsByTestId(testId);
                 model.addAttribute("isStudentSpecificTest", false);
-
                 System.out.printf("DEBUG VIEW: Đề %d (%s). Đã tải %d câu hỏi chung.%n",
                         testId, test.getTestType(), questions.size());
             }
@@ -138,8 +131,6 @@
             model.addAttribute("test", test);
             model.addAttribute("conversationId", conversationId);
             model.addAttribute("testId", testId);
-
-
 
             return "teacher/test/detail";
         }

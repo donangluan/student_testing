@@ -2,12 +2,13 @@ package org.example.student_testing.test.dto;
 
 import lombok.Data;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 @Data
-public class TestDTO {
+public class TestDTO  implements Serializable {
 
 
     private Integer testId;

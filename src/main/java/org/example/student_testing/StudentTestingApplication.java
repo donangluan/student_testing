@@ -3,6 +3,7 @@ package org.example.student_testing;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cache.annotation.EnableCaching;
 
 @SpringBootApplication
 @MapperScan(basePackages = {
@@ -10,6 +11,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
         "org.example.student_testing.test.mapper",
         "org.example.student_testing.chatbot.mapper"
 })
+@EnableCaching
 public class StudentTestingApplication {
 
     public static void main(String[] args) {

@@ -72,12 +72,19 @@
 
 </form>
 
-<script src="https://kit.fontawesome.com/your-font-awesome-kit.js" crossorigin="anonymous"></script>
+
+
+<script th:src="@{/js/sockjs.min.js}"></script>
+<script th:src="@{/js/stomp.min.js}"></script>
 
 <script th:inline="javascript">
     /*<![CDATA[*/
+
+    console.log("=== SCRIPT BLOCK STARTED ===");
     const testId = /*[[${testId}]]*/ 0;
     let remaining = /*[[${initialTimeSeconds}]]*/ 1800;
+
+    const currentUsername = /*[[${#authentication.name}]]*/ 'unknown_student';
 
     const countdownEl = document.getElementById("countdown");
     const submitForm = document.getElementById("submitForm");
@@ -94,9 +101,7 @@
 
     let timer;
 
-    // -----------------------------------------------------
-    // LOGIC BỘ ĐẾM NGƯỢC
-    // -----------------------------------------------------
+
     function startTimer() {
         if (remaining <= 0) {
             countdownEl.innerText = "00:00";
@@ -125,27 +130,25 @@
 
     startTimer();
 
-    // -----------------------------------------------------
-    // LOGIC TẠM DỪNG (SỬ DỤNG JAVASCRIPT THUẦN)
-    // -----------------------------------------------------
+
     pauseButton.addEventListener('click', function() {
         clearInterval(timer);
         pauseButton.disabled = true;
         statusMessageEl.innerText = "Đang lưu và tạm dừng...";
 
-        // 1. Lấy dữ liệu từ form chính
+
         const formData = new FormData(submitForm);
 
-        // 2. Xóa tất cả các input cũ trong form phụ
+
         pauseForm.querySelectorAll('input[name^="q_"]').forEach(input => input.remove());
 
-        // Lấy thông tin CSRF từ thẻ meta
+
         const pauseRemainingTimeInput = document.getElementById('pauseRemainingTimeInput');
         if (pauseRemainingTimeInput) {
-            pauseRemainingTimeInput.value = remaining; // Biến JS 'remaining' chứa thời gian còn lại
+            pauseRemainingTimeInput.value = remaining;
         }
 
-        // 2. CHỈ SAO CHÉP CÁC TRƯỜNG ĐÁP ÁN (q_...)
+
         for (const [key, value] of formData.entries()) {
             if (key.startsWith('q_')) {
                 const input = document.createElement('input');
@@ -156,20 +159,65 @@
             }
         }
 
-        // 3. SUBMIT form phụ
+
         pauseForm.submit();
     });
 
-    // -----------------------------------------------------
-    // XỬ LÝ NỘP BÀI (Giữ nguyên)
-    // -----------------------------------------------------
+
     submitForm.addEventListener('submit', function() {
         if (timer) {
-            clearInterval(timer); // Đảm bảo dừng timer khi nộp bài
+            clearInterval(timer);
         }
     });
 
-    /*]]>*/
+
+    // =============================================================
+    // TÍNH NĂNG GIÁM SÁT THI (WEBSOCKET) - MỚI THÊM
+    // =============================================================
+
+    var stompClient = null;
+
+    function connectProctor(){
+        var socket = new SockJS('/ws-proctor');
+
+        stompClient = Stomp.over(socket);
+        stompClient.debug = null;
+
+        stompClient.connect({},function(frame) {
+            console.log('[Giám sát] đã kết nối hệ thống.');
+        },function(error){
+            console.log('[Giám sát] lỗi kết nối' +error);
+        })
+    }
+
+    function reportViolation(type, msg){
+        // CHỈ LÀM NHIỆM VỤ GỬI TIN NHẮN!
+        if(stompClient && stompClient.connected){
+            stompClient.send("/app/report-violation",{},JSON.stringify({
+                'studentUsername': currentUsername,
+                'testId': testId,
+                'violationType': type,
+                'message': msg,
+                'time' : new Date().toLocaleTimeString('vi-VN')
+            }));
+            console.log("⚠ Đã gửi báo cáo vi phạm: "+type);
+        } else {
+            console.log("❌ Lỗi: Kết nối giám sát chưa sẵn sàng, không thể gửi vi phạm: " + type);
+        }
+    }
+    connectProctor();
+
+    document.addEventListener("visibilitychange", function(){
+        if(document.hidden){
+            reportViolation("TAB_SWITCH","Học sinh đã chuyển tab hoặc ẩn trình duyệt.");
+        }
+    });
+
+
+
+
+
+
 </script>
 </body>
 </html>

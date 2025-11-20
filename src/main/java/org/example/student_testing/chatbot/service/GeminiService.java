@@ -2,6 +2,8 @@ package org.example.student_testing.chatbot.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.retry.annotation.Retry;
 import jakarta.annotation.PostConstruct;
 import org.example.student_testing.chatbot.dto.AnswerExplanationRequestDTO;
 import org.example.student_testing.chatbot.entity.AiGeneratedQuestion;
@@ -9,6 +11,7 @@ import org.example.student_testing.chatbot.exception.AiServiceException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -33,11 +36,14 @@ public class GeminiService {
 
     private final ObjectMapper mapper = new ObjectMapper();
 
-
+    @Retry(name = "geminiRetry")
+    @CircuitBreaker(name = "geminiCB", fallbackMethod = "fallbackGenerateContent")
     public String chat(String prompt, List<String> history) {
         String fullPrompt = prompt;
 
-        logger.info("Sending prompt to Gemini. Prompt: " + fullPrompt.length());
+
+
+        logger.info(">>> [GEMINI API CALL] Sending prompt to Gemini. Prompt length: " + fullPrompt.length());
 
         Map<String, Object> requestBody = Map.of(
                 "contents", List.of(
@@ -78,6 +84,30 @@ public class GeminiService {
 
             throw new AiServiceException("Lỗi khi gọi dịch vụ AI. Vui lòng kiểm tra API key hoặc dịch vụ có bị quá tải.", e);
         }
+    }
+
+
+    public String fallbackGenerateContent(String prompt, List<String> history, Exception e) {
+        logger.error(">>> [GEMINI FALLBACK] Dịch vụ AI đang bị lỗi. Trả về phản hồi mặc định.");
+
+        // Trả về một JSON hợp lệ nhưng là phản hồi lỗi
+        return """
+        {
+          "error": "Dịch vụ AI hiện không khả dụng. Vui lòng thử lại sau.",
+          "questions": [
+            {
+              "content": "Không thể tạo câu hỏi. Dịch vụ AI bị quá tải hoặc không khả dụng.",
+              "optionA": "Không thể tạo",
+              "optionB": "Không thể tạo",
+              "optionC": "Không thể tạo",
+              "optionD": "Không thể tạo",
+              "correctAnswer": "A",
+              "difficulty": "EASY",
+              "topic": "Lỗi AI"
+            }
+          ]
+        }
+        """;
     }
 
 

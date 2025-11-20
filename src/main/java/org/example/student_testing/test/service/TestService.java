@@ -11,6 +11,8 @@ import org.example.student_testing.test.mapper.TestMapper;
 import org.example.student_testing.test.mapper.TestQuestionMapper;
 import org.example.student_testing.test.mapper.TestResultMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -70,6 +72,7 @@ public class TestService {
     }
 
     @Transactional
+    @CacheEvict(value = "student-tests", allEntries = true)
     public void generateUniqueTest(UniqueTestRequest request, String createdBy) {
 
         TestDTO test = new TestDTO();
@@ -156,6 +159,7 @@ public class TestService {
     }
 
     @Transactional
+    @CacheEvict(value = "student-tests", allEntries = true)
     public void createMixedTopicTest(MixedTopicTestDTO dto, List<String> studentUsernames) {
         if (dto.getTopicDistribution() == null || dto.getTopicDistribution().isEmpty()) {
             throw new IllegalArgumentException("Phân phối chủ đề không được để trống.");
@@ -245,16 +249,16 @@ public class TestService {
         return testMapper.countAllTests();
     }
 
-
+    @Cacheable(value = "student-tests", key = "#studentUsername")
     public List<TestDTO> findTestsForStudent(String studentUsername) {
-
+        System.out.println(">>> [DB CALL] Đang lấy danh sách bài thi cho sinh viên: " + studentUsername);
         return testMapper.findTestsAssignedToStudent(studentUsername);
     }
 
     public List<TestResultDTO> getResultsForStudent(String studentUsername) {
         return testMapper.findResultsByStudent(studentUsername);
     }
-
+    @CacheEvict(value = "student-tests", key = "#studentUsername")
     public void assignTestToStudent(Integer testId, String studentUsername) {
         TestDTO existingTest = testMapper.findTestById(testId);
         if (existingTest == null) {
@@ -268,14 +272,15 @@ public class TestService {
         ta.setAssignedAt(LocalDateTime.now());
         testMapper.insertTestAssignment(ta);
     }
-
+    @Cacheable(value = "tests", key = "#testId")
     public TestDTO getTestById(Integer testId) {
+        System.out.println(">>> [DB CALL] Đang lấy chi tiết Test ID: " + testId);
 
         return testMapper.findTestById(testId);
     }
 
 
-
+    @CacheEvict(value = "student-tests", allEntries = true)
     public void createAiTest(String testName, String topic, List<Integer> questionIds,
                              List<String> studentUsernames, String teacherUsername) {
 
@@ -338,7 +343,7 @@ public class TestService {
 
 
 
-
+    @CacheEvict(value = "student-tests", allEntries = true)
     public void assignQuestionsToTest(Integer testId, List<Integer> questionIds) {
         TestDTO test = testMapper.findTestById(testId);
         if (test == null) throw new RuntimeException("Không tìm thấy đề kiểm tra");
@@ -459,23 +464,7 @@ public class TestService {
     }
 
 
-    @Transactional
-    public void generateStudentTestQuestions(Integer testId, String studentUsername, String createdBy) {
 
-
-        if (testMapper.countAssignedQuestionsForStudent(testId, studentUsername) > 0) {
-            return;
-        }
-
-
-        List<TestCriteriaDTO> criteriaList = testMapper.getCriteriaByTestId(testId);
-        if (criteriaList.isEmpty()) {
-            throw new RuntimeException("Lỗi cấu hình: Đề thi ID " + testId + " là đề động nhưng thiếu cấu hình tiêu chí.");
-        }
-
-
-        generateAndAssignTestQuestions(testId, studentUsername, createdBy, criteriaList);
-    }
 
 
 
@@ -660,16 +649,35 @@ public class TestService {
 
         TestDTO test = testMapper.findTestById(testId);
 
+        // 1. Kiểm tra nếu là đề thi Động (Dynamic)
         if (test != null && test.getIsDynamic() != null && test.getIsDynamic()) {
 
+            // 1a. Trường hợp Học sinh xem đề của chính mình
             if (studentUsernameToView != null && !studentUsernameToView.isBlank()) {
+                System.out.println("DEBUG VIEW: Đề Động (Học sinh). Lấy câu hỏi gán riêng cho: " + studentUsernameToView);
                 return testQuestionMapper.findDynamicQuestionsByTestIdAndStudent(testId, studentUsernameToView);
-            } else {
-
-                return Collections.emptyList();
             }
-        } else {
 
+            // 1b. Trường hợp Giáo viên xem chi tiết đề (studentUsernameToView là null/rỗng)
+            else {
+                // Lấy danh sách học sinh đã được gán đề từ TestMapper
+                List<String> assignedStudents = testMapper.getAssignedStudents(testId);
+
+                if (!assignedStudents.isEmpty()) {
+                    String sampleStudent = assignedStudents.get(0); // Lấy học sinh đầu tiên làm mẫu
+                    System.out.println("DEBUG VIEW: Đề Động (Giáo viên). Hiển thị câu hỏi gán cho học sinh mẫu: " + sampleStudent);
+                    // Dùng hàm Mapper lấy câu hỏi đã gán cho học sinh mẫu
+                    return testQuestionMapper.findDynamicQuestionsByTestIdAndStudent(testId, sampleStudent);
+                } else {
+                    // Nếu chưa có học sinh nào được gán
+                    System.err.println("CẢNH BÁO VIEW: Đề Động. Chưa có học sinh nào được gán để lấy mẫu câu hỏi.");
+                    return Collections.emptyList();
+                }
+            }
+        }
+
+        // 2. Trường hợp Đề thi Cố định (Fixed/Mixed/AI)
+        else {
             return testQuestionMapper.findFixedQuestionsByTestId(testId);
         }
     }
@@ -757,6 +765,9 @@ public class TestService {
             }
         }
     }
+
+
+
 
 
 }
