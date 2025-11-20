@@ -122,32 +122,30 @@ public class AiGenerateQuestionService {
             System.out.println(" Đã lưu: " + q.getQuestionContent() + " → ID: " + q.getId());
             if (q.getId() != null) {
 
-                // BẮT ĐẦU PHẦN BỔ SUNG LƯU VÀO BẢNG CHÍNH (questions)
 
-                // 2. CHUẨN BỊ QuestionDTO
                 QuestionDTO qDTO = new QuestionDTO();
                 qDTO.setContent(q.getQuestionContent());
 
-                // Đảm bảo OptionsMap đã được gán trước đó
+
                 qDTO.setOptionA(q.getOptionsMap().get("A"));
                 qDTO.setOptionB(q.getOptionsMap().get("B"));
                 qDTO.setOptionC(q.getOptionsMap().get("C"));
                 qDTO.setOptionD(q.getOptionsMap().get("D"));
                 qDTO.setCorrectOption(q.getCorrectAnswer());
-                qDTO.setDifficultyId(difficultyId); // Sử dụng ID số đã tìm
+                qDTO.setDifficultyId(difficultyId);
                 qDTO.setTopicId(q.getTopicId());
                 qDTO.setCreatedBy(username);
-                qDTO.setSource("ai"); // Source luôn là 'ai'
+                qDTO.setSource("ai");
 
-                // 3. INSERT VÀO BẢNG questions (Cần useGeneratedKeys="true" trong Mapper XML)
+
                 questionMapper.insert(qDTO);
 
-                // 4. LẤY ID TỰ ĐỘNG SINH VÀ GÁN VÀO ENTITY AI
+
                 if (qDTO.getQuestionId() != null) {
-                    // Giả định AiGeneratedQuestion đã có field 'officialQuestionId'
+
                     Integer officialId = qDTO.getQuestionId();
 
-                    // 2. Gán ID vào Entity trong bộ nhớ
+
                     q.setOfficialQuestionId(officialId);
 
                     aiGeneratedQuestionMapper.updateOfficialQuestionId(q.getId(), officialId);
@@ -203,23 +201,20 @@ public class AiGenerateQuestionService {
     public List<Integer> findAllIds() {
         return aiGeneratedQuestionMapper.findAllIds();
     }
-// AiGenerateQuestionService.java (Dòng ~300)
 
-// ...
-// AiGenerateQuestionService.java (khoảng dòng 300)
 
     @Transactional
     public void convertAiQuestionsToOfficial(List<AiGeneratedQuestion> aiQuestions) {
         for (AiGeneratedQuestion aiQ : aiQuestions) {
 
-            // ... (Logic kiểm tra tồn tại và bỏ qua nếu cần) ...
+
             Integer existingId = questionMapper.findIdByContent(aiQ.getQuestionContent());
             if (existingId != null) {
-                // ... (log)
+
                 continue;
             }
 
-            // 1. Lấy Topic ID
+
             Integer topicId = aiQ.getTopicId();
             String topicName = aiQ.getTopic();
 
@@ -232,7 +227,6 @@ public class AiGenerateQuestionService {
                 continue;
             }
 
-            // 2. Chuyển đổi Độ khó sang tiếng Việt và lấy ID
             String vietnameseDifficulty = mapDifficultyToVietnamese(aiQ.getDifficulty());
             Integer difficultyId = difficultyService.getIdByName(vietnameseDifficulty);
 
@@ -242,7 +236,7 @@ public class AiGenerateQuestionService {
                 continue;
             }
 
-            // 3. Chuẩn bị đối tượng QuestionDTO
+
             QuestionDTO q = new QuestionDTO();
             q.setContent(aiQ.getQuestionContent());
             q.setOptionA(aiQ.getOptionA());
@@ -251,23 +245,23 @@ public class AiGenerateQuestionService {
             q.setOptionD(aiQ.getOptionD());
             q.setCorrectOption(aiQ.getCorrectAnswer());
 
-            // GÁN ID ĐÃ KIỂM TRA
+
             q.setDifficultyId(difficultyId);
             q.setTopicId(topicId);
 
             q.setCreatedBy(aiQ.getCreatedBy());
             q.setSource(aiQ.getSource() != null ? aiQ.getSource() : "ai");
 
-            // 4. INSERT và Gán Official ID
+
             questionMapper.insert(q);
 
-            // ... (Logic update official question ID) ...
+
             if (q.getQuestionId() != null) {
                 aiQ.setOfficialQuestionId(q.getQuestionId());
                 aiGeneratedQuestionMapper.updateOfficialQuestionId(aiQ.getId(), q.getQuestionId());
             }
 
-            System.out.printf(" ✅ ĐÃ INSERT THÀNH CÔNG: Câu hỏi AI ID = %d vào bảng questions (Official ID = %d) với Topic ID=%d, Difficulty ID=%d%n",
+            System.out.printf("  ĐÃ INSERT THÀNH CÔNG: Câu hỏi AI ID = %d vào bảng questions (Official ID = %d) với Topic ID=%d, Difficulty ID=%d%n",
                     aiQ.getId(), q.getQuestionId(), topicId, difficultyId);
         }
     }
@@ -282,7 +276,7 @@ public class AiGenerateQuestionService {
             case "easy" -> "Dễ";
             case "medium" -> "Trung bình";
             case "hard" -> "Khó";
-            default -> englishDifficulty; // Trả về nguyên gốc nếu không khớp
+            default -> englishDifficulty;
         };
     }
 

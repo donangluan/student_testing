@@ -37,28 +37,26 @@ public class TestQuestionService {
     public List<QuestionDTO> loadQuestionsByTestIdAndStudent(
             Integer testId, String studentUsername) {
 
-        // 1. Lấy thông tin bài test
+
         TestDTO testInfo = testMapper.findTestById(testId);
 
         if (testInfo == null) {
-            return List.of(); // Trả về danh sách rỗng nếu không tìm thấy test
+            return List.of();
         }
 
         String testType = testInfo.getTestType();
 
-        // 2. Logic phân biệt loại đề
+
         if ("Unique".equalsIgnoreCase(testType)) {
-            // Trường hợp 1: Đề Dynamic/Unique
-            // Đây là nơi Đề 93 và 111 của bạn được lưu
+
             System.out.println("DEBUG LOAD: Tải đề Dynamic ID " + testId + " cho học sinh: " + studentUsername);
             return testQuestionMapper.findDynamicQuestionsByTestIdAndStudent(testId, studentUsername);
 
         } else {
-            // Trường hợp 2: Đề Fixed/Mixed (Questions Chung)
-            // Đây là nơi log trước đó của bạn bị gọi nhầm khi xem Đề 111
+
             System.out.println("DEBUG LOAD: Tải đề Chung ID " + testId + " (Fixed/Mixed)");
 
-            // Nếu là đề Mixed, nó có thể cần gộp cả 2 phần, nhưng ta ưu tiên tải phần chung trước
+
             return testQuestionMapper.findFixedQuestionsByTestId(testId);
         }
     }
@@ -144,7 +142,8 @@ public class TestQuestionService {
         List<QuestionDTO> questions = testQuestionMapper.findDynamicQuestionsByTestIdAndStudent(testId, studentUsername);
 
         if (questions.isEmpty()) {
-            System.err.printf("CẢNH BÁO LOAD: Không tìm thấy câu hỏi nào cho đề %d của học sinh %s. (Có thể chưa gán hoặc chưa có data).%n",
+            System.err.printf("CẢNH BÁO LOAD: Không tìm thấy câu hỏi nào cho đề %d của học sinh %s. " +
+                            "(Có thể chưa gán hoặc chưa có data).%n",
                     testId, studentUsername);
         }
 

@@ -44,7 +44,8 @@ public class ClassService {
             classMapper.delete(classId);
         } catch (Exception e) {
 
-            throw new RuntimeException("Không thể xóa Lớp học ID " + classId + " vì có dữ liệu liên quan (Học sinh/Bài thi) đang tham chiếu.", e);
+            throw new RuntimeException("Không thể xóa Lớp học ID " + classId + "" +
+                    " vì có dữ liệu liên quan (Học sinh/Bài thi) đang tham chiếu.", e);
         }
     }
 }

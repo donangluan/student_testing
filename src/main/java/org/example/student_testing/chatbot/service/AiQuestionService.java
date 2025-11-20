@@ -18,15 +18,7 @@ public class AiQuestionService {
     @Autowired
     private GeminiService geminiService;
 
-    /**
-     * Gọi AI để sinh câu hỏi theo yêu cầu giáo viên, lưu vào DB và trả về danh sách.
-     *
-     * @param teacherId ID của giáo viên tạo câu hỏi
-     * @param topic Chủ đề (ví dụ: "Đạo hàm")
-     * @param difficulty Độ khó ("Easy", "Medium", "Hard")
-     * @param quantity Số lượng câu hỏi cần tạo
-     * @return Danh sách câu hỏi đã lưu vào DB
-     */
+
     public List<AiGeneratedQuestion> generate(Integer teacherId, String topic, String difficulty, int quantity) {
 
         String prompt = String.format("""
@@ -79,22 +71,12 @@ public class AiQuestionService {
         return questions;
     }
 
-    /**
-     * Lấy danh sách câu hỏi AI đã tạo theo giáo viên.
-     *
-     * @param teacherId ID giáo viên
-     * @return Danh sách câu hỏi
-     */
+
     public List<AiGeneratedQuestion> getByTeacher(Integer teacherId) {
         return aiGeneratedQuestionMapper.getByTeacherId(teacherId);
     }
 
-    /**
-     * Cập nhật trạng thái câu hỏi (ví dụ: ACCEPTED, REJECTED).
-     *
-     * @param questionId ID câu hỏi
-     * @param status Trạng thái mới
-     */
+
     public void updateStatus(Integer questionId, String status) {
         aiGeneratedQuestionMapper.updateStatus(questionId, status);
     }

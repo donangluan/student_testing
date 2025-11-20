@@ -33,12 +33,12 @@
         <td th:text="${#temporals.format(test.createdAt, 'dd/MM/yyyy HH:mm')}">08/10/2025 15:30</td>
         <td>
             <a th:href="@{'/tests/detail/' + ${test.testId}}" class="btn btn-outline-info btn-sm"> Xem chi tiết</a>
-            <!-- Nếu là bài kiểm tra theo chủ đề -->
+
             <a th:if="${test.testType == 'Unique'}"
                th:href="@{'/student/dynamic/do-test'(testId=${test.testId}, studentUsername='hs001', topicId=${test.topicId}, testType=${test.testType})}"
                class="btn btn-outline-warning btn-sm">Làm kiểm tra động</a>
 
-            <!-- Nếu là bài kiểm tra nhiều chủ đề -->
+
             <a th:if="${test.testType == 'Mixed'}"
                th:href="@{'/student/dynamic/do-test'(testId=${test.testId}, studentUsername='hs001', testType=${test.testType})}"
                class="btn btn-outline-warning btn-sm">Làm kiểm tra động</a>

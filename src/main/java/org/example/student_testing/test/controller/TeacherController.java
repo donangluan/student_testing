@@ -94,24 +94,20 @@
             }
 
             List<String> assignedStudents = testService.getAssignedStudents(testId);
-            String studentToView = viewStudentUsername; // Mặc định là student được yêu cầu xem
+            String studentToView = viewStudentUsername;
 
 
             boolean isDynamicOrUnique = test.getTestType() != null &&
                     (test.getTestType().equalsIgnoreCase("Dynamic") ||
                             test.getTestType().equalsIgnoreCase("Unique"));
 
-            // Nếu là đề động/Unique VÀ chưa có học sinh nào được chỉ định để xem,
-            // chúng ta sẽ chọn học sinh đầu tiên để hiển thị mẫu.
+
             if (isDynamicOrUnique && studentToView == null && !assignedStudents.isEmpty()) {
                 studentToView = assignedStudents.get(0);
             }
 
-            // *** LOGIC MỚI: Gọi hàm Service đã sửa ***
-            List<QuestionDTO> questions = testService.getQuestionsForTestView(testId, studentToView);
-            // ****************************************
 
-            // Bổ sung thông tin DEBUG và Model Attribute cho view
+            List<QuestionDTO> questions = testService.getQuestionsForTestView(testId, studentToView);
             if (isDynamicOrUnique) {
                 model.addAttribute("isStudentSpecificTest", true);
                 model.addAttribute("assignedStudents", assignedStudents);
@@ -150,7 +146,7 @@
             List<QuestionDTO> manualQuestions = questionService.findByCourseAndTopic(courseName, topicName);
             for (QuestionDTO q : manualQuestions) {
                 q.setSource("manual");
-                System.out.println("📋 Thủ công: ID = " + q.getQuestionId() + " → source = " + q.getSource());
+                System.out.println("Thủ công: ID = " + q.getQuestionId() + " → source = " + q.getSource());
             }
 
 
@@ -219,7 +215,8 @@
 
             model.addAttribute("courses", teacherService.getAllCourses());
             model.addAttribute("selectedCourseIds", selectedCourseIds);
-            model.addAttribute("groupedTopics", selectedCourseIds == null ? null : teacherService.getGroupedTopics(selectedCourseIds));
+            model.addAttribute("groupedTopics",
+                    selectedCourseIds == null ? null : teacherService.getGroupedTopics(selectedCourseIds));
             model.addAttribute("students", teacherService.getStudents(userDetails.getUsername()));
             model.addAttribute("mixedTestDTO", new MixedTopicTestDTO());
             return "teacher/test/create-mixed";
@@ -266,11 +263,13 @@
             );
 
             if (selectedQuestions.size() < request.getNumberOfQuestions()) {
-                model.addAttribute("warning", "️ Chỉ có " + selectedQuestions.size() + " câu hỏi phù hợp với yêu cầu.");
+                model.addAttribute("warning", "️ Chỉ có "
+                        + selectedQuestions.size() + " câu hỏi phù hợp với yêu cầu.");
                 model.addAttribute("request", request);
                 model.addAttribute("topics", topicService.findAll());
                 model.addAttribute("difficultyLevels", difficultyService.findAll());
-                model.addAttribute("students", studentService.getStudentsForTeacher(userDetails.getUsername()));
+                model.addAttribute("students",
+                        studentService.getStudentsForTeacher(userDetails.getUsername()));
                 return "teacher/test/generate";
             }
             testService.generateUniqueTest(request,userDetails.getUsername());
@@ -288,7 +287,8 @@
             model.addAttribute("courses", courses);
             model.addAttribute("topics", topics);
             model.addAttribute("selectedCourseId", courseId);
-            model.addAttribute("students", studentService.getStudentsForTeacher(userDetails.getUsername()));
+            model.addAttribute("students",
+                    studentService.getStudentsForTeacher(userDetails.getUsername()));
             model.addAttribute("request", new UniqueTestRequest());
 
             return "teacher/test/generate";
@@ -372,7 +372,8 @@
                     (List<AiGeneratedQuestion>) session.getAttribute("previewQuestions");
 
             if (previewQuestions == null || previewQuestions.isEmpty()) {
-                redirectAttributes.addFlashAttribute("error", "Không có câu hỏi AI nào để lưu.");
+                redirectAttributes.addFlashAttribute("error",
+                        "Không có câu hỏi AI nào để lưu.");
                 return "redirect:/teacher/tests/generate-ai-form";
             }
 
@@ -384,7 +385,8 @@
                     .collect(Collectors.toList());
 
             if (selectedIndexes.isEmpty()) {
-                redirectAttributes.addFlashAttribute("error", "Bạn chưa chọn câu hỏi nào để lưu.");
+                redirectAttributes.addFlashAttribute("error",
+                        "Bạn chưa chọn câu hỏi nào để lưu.");
                 return "redirect:/teacher/tests/generate-ai-form";
             }
 
@@ -399,7 +401,8 @@
             for (int index : selectedIndexes) {
                 String key = String.valueOf(index);
                 contents.put(key, formData.getOrDefault("contents[" + key + "]", ""));
-                corrects.put(key, extractAnswerLetter(formData.getOrDefault("corrects[" + key + "]", "")));
+                corrects.put(key,
+                        extractAnswerLetter(formData.getOrDefault("corrects[" + key + "]", "")));
                 answersA.put(key, formData.getOrDefault("answers[" + key + "][A]", ""));
                 answersB.put(key, formData.getOrDefault("answers[" + key + "][B]", ""));
                 answersC.put(key, formData.getOrDefault("answers[" + key + "][C]", ""));
@@ -445,8 +448,10 @@
 
 
         @PostMapping("/discard-ai-question")
-        public String discardAiQuestion(@RequestParam Integer index, HttpSession session, RedirectAttributes redirectAttributes) {
-            List<AiGeneratedQuestion> questions = (List<AiGeneratedQuestion>) session.getAttribute("previewQuestions");
+        public String discardAiQuestion(@RequestParam Integer index, HttpSession session,
+                                        RedirectAttributes redirectAttributes) {
+            List<AiGeneratedQuestion> questions =
+                    (List<AiGeneratedQuestion>) session.getAttribute("previewQuestions");
             if (questions != null && index >= 0 && index < questions.size()) {
                 questions.remove((int) index);
                 session.setAttribute("previewQuestions", questions);
@@ -458,7 +463,8 @@
 
         @GetMapping("/review-ai")
         public String showReviewPage(HttpSession session, Model model) {
-            List<AiGeneratedQuestion> questions = (List<AiGeneratedQuestion>) session.getAttribute("previewQuestions");
+            List<AiGeneratedQuestion> questions =
+                    (List<AiGeneratedQuestion>) session.getAttribute("previewQuestions");
             model.addAttribute("questions", questions);
             model.addAttribute("topic", questions.isEmpty() ? "" : questions.get(0).getTopic());
             model.addAttribute("difficulty", questions.isEmpty() ? "" : questions.get(0).getDifficulty());
@@ -526,13 +532,15 @@
             }
 
             if (finalCriteriaList.isEmpty()) {
-                redirectAttributes.addFlashAttribute("error", "Số lượng câu hỏi cần rút phải lớn hơn 0 hoặc tiêu chí chưa đầy đủ.");
+                redirectAttributes.addFlashAttribute("error",
+                        "Số lượng câu hỏi cần rút phải lớn hơn 0 hoặc tiêu chí chưa đầy đủ.");
                 redirectAttributes.addFlashAttribute("test", testDTO);
                 return "redirect:/teacher/tests/create-dynamic";
             }
 
             if (studentUsernames == null || studentUsernames.isEmpty()) {
-                redirectAttributes.addFlashAttribute("error", "Vui lòng chọn ít nhất một học sinh để gán đề.");
+                redirectAttributes.addFlashAttribute("error",
+                        "Vui lòng chọn ít nhất một học sinh để gán đề.");
                 redirectAttributes.addFlashAttribute("test", testDTO);
                 return "redirect:/teacher/tests/create-dynamic";
             }
@@ -573,12 +581,14 @@
                 );
 
                 redirectAttributes.addFlashAttribute("success",
-                        "Đã tạo đề thi động và gán cho " + studentUsernames.size() + " học sinh thành công.");
+                        "Đã tạo đề thi động và gán cho " +
+                                studentUsernames.size() + " học sinh thành công.");
                 return "redirect:/teacher/tests";
 
             } catch (Exception e) {
 
-                redirectAttributes.addFlashAttribute("error", "Lỗi trong quá trình tạo hoặc gán đề: " + e.getMessage());
+                redirectAttributes.addFlashAttribute("error",
+                        "Lỗi trong quá trình tạo hoặc gán đề: " + e.getMessage());
                 redirectAttributes.addFlashAttribute("test", testDTO);
                 return "redirect:/teacher/tests/create-dynamic";
             }
@@ -632,7 +642,8 @@
                 return "teacher/test/create_dynamic_form";
             } else if (criteriaList.size() == 1) {
 
-                redirectAttributes.addFlashAttribute("error", "Phải có ít nhất một tiêu chí câu hỏi.");
+                redirectAttributes.addFlashAttribute("error",
+                        "Phải có ít nhất một tiêu chí câu hỏi.");
 
                 redirectAttributes.addFlashAttribute("test", testDTO);
 

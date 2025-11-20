@@ -105,7 +105,7 @@ public class UserService {
 
 
     public List<UserDTO> getAllUsers() {
-        return userMapper.findAllUsers(); // hoặc lấy tất cả nếu có thêm hàm
+        return userMapper.findAllUsers();
     }
 
 
@@ -114,7 +114,7 @@ public class UserService {
             user.setPassword(passwordEncoder.encode(user.getPassword()));
             userMapper.insertUser(user);
 
-            String roleName = "ROLE_" + user.getRoleCode().toUpperCase(); // ví dụ: ROLE_ADMIN
+            String roleName = "ROLE_" + user.getRoleCode().toUpperCase();
             userMapper.insertUserRole(user.getUsername(), roleName);
         }
     }

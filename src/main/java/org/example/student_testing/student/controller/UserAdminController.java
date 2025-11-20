@@ -61,11 +61,13 @@ public class UserAdminController {
     public String lockUser(@PathVariable String username, RedirectAttributes redirectAttributes) {
         try {
             userService.lockUser(username);
-            redirectAttributes.addFlashAttribute("successMessage", "Đã KHÓA tài khoản: " + username + ".");
+            redirectAttributes.addFlashAttribute("successMessage",
+                    "Đã KHÓA tài khoản: " + username + ".");
         } catch (IllegalArgumentException e) {
             redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Lỗi hệ thống khi khóa tài khoản: " + username);
+            redirectAttributes.addFlashAttribute("errorMessage",
+                    "Lỗi hệ thống khi khóa tài khoản: " + username);
         }
         return "redirect:/admin/users";
     }
@@ -75,9 +77,11 @@ public class UserAdminController {
     public String unlockUser(@PathVariable String username, RedirectAttributes redirectAttributes) {
         try {
             userService.unlockUser(username);
-            redirectAttributes.addFlashAttribute("successMessage", "Đã MỞ KHÓA tài khoản: " + username + ".");
+            redirectAttributes.addFlashAttribute("successMessage",
+                    "Đã MỞ KHÓA tài khoản: " + username + ".");
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Lỗi hệ thống khi mở khóa tài khoản: " + username);
+            redirectAttributes.addFlashAttribute("errorMessage",
+                    "Lỗi hệ thống khi mở khóa tài khoản: " + username);
         }
         return "redirect:/admin/users";
     }

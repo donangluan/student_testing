@@ -22,6 +22,6 @@ public class AdminTestViewController {
     public String viewSubmissions(@PathVariable Integer testId, Model model) {
         List<SubmissionViewDTO> submissions = adminTestViewService.getSubmissionsWithAnswers(testId);
         model.addAttribute("submissions", submissions);
-        return "admin/results"; // Thymeleaf view
+        return "admin/results";
     }
 }

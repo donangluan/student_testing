@@ -57,7 +57,7 @@
 </div>
 <a href="/teacher/tests/generate" class="btn btn-primary mb-3">Tạo bài kiểm tra mới</a>
 <a href="/teacher/tests/create-mixed" class="btn btn-outline-success mb-3 ms-2">Tạo bài kiểm tra nhiều chủ đề</a>
-<!-- NÚT MỚI: TẠO BÀI KIỂM TRA ĐỘNG -->
+
 <a href="/teacher/tests/create-dynamic" class="btn btn-warning mb-3 ms-2">Tạo bài kiểm tra động</a>
 
 <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
@@ -80,7 +80,7 @@
     <tr th:each="test : ${tests}">
         <td th:text="${test.testId}">1</td>
         <td th:text="${test.testName}">Bài kiểm tra mẫu</td>
-        <!-- Cập nhật hiển thị loại đề thi (Thêm 'Động' nếu cần) -->
+
         <td th:text="${test.testType == 'Mixed' ? 'Nhiều chủ đề' : (test.testType == 'Dynamic' ? 'Động' : 'Một chủ đề')}">Loại</td>
         <td th:text="${test.createdBy}">gv001</td>
         <td th:text="${#temporals.format(test.createdAt, 'dd/MM/yyyy HH:mm')}">08/10/2025 15:30</td>

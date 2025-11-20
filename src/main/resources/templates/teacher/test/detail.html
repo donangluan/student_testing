@@ -42,6 +42,39 @@
     </tbody>
 </table>
 
+<div class="card my-4 shadow">
+    <div class="card-header bg-danger text-white"> Gửi Cảnh báo Chủ động</div>
+    <div class="card-body">
+
+        <div class="mb-3">
+            <label class="form-label fw-bold">Chọn Học sinh nhận cảnh báo (có thể chọn nhiều):</label>
+            <div id="studentCheckboxes" class="border p-2 rounded bg-light">
+
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="selectAllStudents" onclick="toggleAllCheckboxes(this)">
+                    <label class="form-check-label fw-bold text-primary" for="selectAllStudents">
+                        Gửi đến TẤT CẢ học sinh đang thi
+                    </label>
+                </div>
+                <hr class="my-1">
+
+                <div th:each="username : ${assignedStudents}" class="form-check">
+                    <input class="form-check-input student-target" type="checkbox"
+                           th:id="${'student_' + username}"
+                           th:value="${username}"
+                           name="targetUsername">
+                    <label class="form-check-label" th:for="${'student_' + username}" th:text="${username}"></label>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="input-group">
+            <input type="text" id="warningMessageInput" class="form-control" placeholder="Nhập nội dung cảnh báo...">
+            <button class="btn btn-danger" onclick="sendWarningMessage()">Gửi Cảnh báo</button>
+        </div>
+    </div>
+</div>
 
 <script th:src="@{/js/sockjs.min.js}"></script>
 <script th:src="@{/js/stomp.min.js}"></script>
@@ -118,6 +151,38 @@
 
     connectProctor();
     /*]]>*/
+
+
+    function sendWarningMessage(){
+        var msgInput = document.getElementById("warningMessageInput");
+        var message = msgInput.value.trim();
+
+        var targetUsernames = Array.from(document.querySelectorAll('.student-target:checked'))
+            .map(cb => cb.value);
+
+        if(message && stompClient && stompClient.connected){
+            var warningData = {
+                'testId': testId,
+                'message': message,
+                'sender': 'TEACHER',
+                'targetUsernames': targetUsernames
+            };
+            stompClient.send("/app/send-warning",{},JSON.stringify(warningData));
+            console.log(`Tin nhắn cảnh báo đã được gửi đến: ${targetUsernames.join(', ')}`);
+            document.getElementById("warningMessageInput").value = '';
+            msgInput='';
+        }else{
+            console.log("Lỗi: Không thể gửi tin nhắn. Vui lòng kiểm tra kết nối");
+        }
+    }
+
+    function toggleAllCheckboxes(source) {
+        let checkboxes = document.querySelectorAll('.student-target');
+        for (let i = 0; i < checkboxes.length; i++) {
+            checkboxes[i].checked = source.checked;
+        }
+    }
+
 </script>
 
 

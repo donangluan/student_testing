@@ -16,10 +16,7 @@ public class CourseService {
     @Autowired
     private CourseMapper courseMapper;
 
-    /***
-     *
-     * @return
-     */
+
     public List<CourseDTO> getAllCourse() {
         return courseMapper.findAll().
                 stream()

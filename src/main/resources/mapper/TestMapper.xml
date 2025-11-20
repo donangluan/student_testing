@@ -13,7 +13,7 @@
             created_at,
             topic_id,
             duration_minutes,
-            is_published,     start_time        )
+            is_published,     start_time  ,end_time      )
         VALUES (
                    #{testName},
                    #{testType},
@@ -21,7 +21,7 @@
                    current_timestamp,
                    #{topicId},
                    #{durationMinutes},
-                   #{isPublished},   #{startTime}      )
+                   #{isPublished},   #{startTime} ,#{endTime}     )
     </insert>
 
 
@@ -104,10 +104,10 @@
         t.is_dynamic AS isDynamic,
         t.max_attempts AS maxAttempts,
 
-        tp.topic_name AS topicName <!-- Cột topicName được thêm vào -->
+        tp.topic_name AS topicName
         FROM tests t
         JOIN test_assignments ta ON ta.test_id = t.test_id
-        LEFT JOIN topics tp ON t.topic_id = tp.topic_id <!-- JOIN với bảng topics -->
+        LEFT JOIN topics tp ON t.topic_id = tp.topic_id
         WHERE ta.student_username = #{studentUsername}
         ORDER BY t.created_at DESC
     </select>
@@ -191,7 +191,7 @@
 
 
 
-    <!-- Tìm conversationId -->
+
     <select id="findConversationId" resultType="int">
         SELECT conversation_id
         FROM test_conversations
@@ -200,7 +200,6 @@
             LIMIT 1
     </select>
 
-    <!-- Tạo mới conversationId -->
     <insert id="insertConversation">
         INSERT INTO test_conversations(test_id, student_username, conversation_id)
         VALUES(#{testId}, #{studentUsername}, #{conversationId})
@@ -240,6 +239,19 @@
         FROM test_questions
         WHERE test_id = #{testId}
           AND student_username = #{studentUsername}
+    </select>
+
+
+
+    <select id="findExpiredTestIds" resultType="java.lang.Integer">
+        SELECT
+            t.test_id
+        FROM
+            tests t
+        WHERE
+            t.end_time IS NOT NULL
+          AND t.end_time &lt; #{currentTime}
+          AND t.is_published = TRUE
     </select>
 
 </mapper>

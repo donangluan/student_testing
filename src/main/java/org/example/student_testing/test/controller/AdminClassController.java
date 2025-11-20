@@ -42,7 +42,7 @@ public class AdminClassController {
 
     private void addTeachersToModel (Model model) {
         List<TeacherProfile> teachers = teacherProfileService.getAllTeachersForDropdown();
-        model.addAttribute("teachers", teachers); // Đặt tên là "teachers"
+        model.addAttribute("teachers", teachers);
     }
 
 
@@ -55,8 +55,8 @@ public class AdminClassController {
         List<ClassDTO> classes = classService.getAllClasses();
 
 
-        log.info("📢 Đang tải {} lớp học.", classes.size());
-        log.info("📢 Danh sách Lớp học được gửi đến View:");
+        log.info(" Đang tải {} lớp học.", classes.size());
+        log.info(" Danh sách Lớp học được gửi đến View:");
 
 
         for (ClassDTO classDTO : classes) {
@@ -101,7 +101,8 @@ public class AdminClassController {
         String action = (classDTO.getClassId() == null) ? "Thêm mới" : "Cập nhật";
         classService.saveClass(classDTO);
 
-        redirectAttributes.addFlashAttribute("successMessage", "✅ " + action + " Lớp học thành công!");
+        redirectAttributes.addFlashAttribute("successMessage",
+                "" + action + " Lớp học thành công!");
         return "redirect:/admin/classes";
     }
 
@@ -110,10 +111,10 @@ public class AdminClassController {
     public String deleteClass(@PathVariable("id") Integer id, RedirectAttributes redirectAttributes) {
         try {
             classService.deleteClass(id);
-            redirectAttributes.addFlashAttribute("successMessage", "🗑 Xóa Lớp học thành công!");
+            redirectAttributes.addFlashAttribute("successMessage", " Xóa Lớp học thành công!");
         } catch (RuntimeException e) {
 
-            redirectAttributes.addFlashAttribute("errorMessage", "❌ " + e.getMessage());
+            redirectAttributes.addFlashAttribute("errorMessage", " " + e.getMessage());
         }
         return "redirect:/admin/classes";
     }

@@ -2,6 +2,7 @@ package org.example.student_testing.test.dto;
 
 import lombok.Data;
 
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -13,6 +14,9 @@ public class MixedTopicTestDTO {
     private String createdBy;
     private List<Integer> selectedCourseIds;
     private Map<Integer, Integer> topicDistribution = new HashMap<>();
+
+    private LocalDateTime startTime;
+    private LocalDateTime endTime;
 
 }
 

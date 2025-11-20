@@ -2,6 +2,7 @@ package org.example.student_testing.test.dto;
 
 import lombok.Data;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
@@ -15,4 +16,7 @@ public class UniqueTestRequest {
     private String createdBy;
     private Integer durationMinutes;
     private String testType;
+
+    private LocalDateTime startTime; // Bổ sung
+    private LocalDateTime endTime;
 }

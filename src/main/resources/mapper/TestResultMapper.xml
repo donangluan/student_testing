@@ -49,14 +49,14 @@
     </select>
 
 
-    <!-- Kiểm tra đã nộp bài chưa -->
+
     <select id="hasSubmitted" resultType="boolean">
         SELECT COUNT(*) > 0
         FROM test_results
         WHERE test_id = #{testId} AND student_username = #{username}
     </select>
 
-    <!-- Lấy resultId của bài đã nộp -->
+
     <select id="findResultId" resultType="int">
         SELECT id
         FROM test_results

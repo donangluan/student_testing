@@ -4,14 +4,14 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="org.example.student_testing.chatbot.mapper.ChatMessageMapper">
-    <!-- Thêm tin nhắn mới -->
+
     <insert id="insertMessage" parameterType="org.example.student_testing.chatbot.dto.ChatMessageDTO">
         INSERT INTO chat_messages (conversation_id, role, content, metadata, created_at)
         VALUES (#{conversationId}, #{role}, #{content},CAST(#{metadata} AS jsonb)
                , NOW())
     </insert>
 
-    <!-- Lấy danh sách tin nhắn theo hội thoại -->
+
     <select id="findByConversationId" resultType="org.example.student_testing.chatbot.entity.ChatMessage">
         SELECT * FROM chat_messages
         WHERE conversation_id = #{conversationId}

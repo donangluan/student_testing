@@ -23,6 +23,7 @@
     <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
     <input type="hidden" name="testId" th:value="${testId}" />
     <input type="hidden" name="remainingTimeSeconds" id="remainingTimeSecondsInput" value="" />
+    <input type="hidden" id="testEndTimeHidden" th:value="${#temporals.format(testEndTime, 'yyyy-MM-dd HH:mm:ss')}"/>
 
     <div th:each="q, stat : ${questions}" class="mb-4 border p-3 rounded shadow-sm">
         <h5 th:text="${(stat.index + 1) + '. ' + q.content}">Câu hỏi</h5>
@@ -80,9 +81,10 @@
 <script th:inline="javascript">
     /*<![CDATA[*/
 
-    console.log("=== SCRIPT BLOCK STARTED ===");
+
     const testId = /*[[${testId}]]*/ 0;
     let remaining = /*[[${initialTimeSeconds}]]*/ 1800;
+    const testEndTimeString = /*[[${#temporals.format(testEndTime, 'yyyy-MM-dd HH:mm:ss')}]]*/ '';
 
     const currentUsername = /*[[${#authentication.name}]]*/ 'unknown_student';
 
@@ -102,10 +104,20 @@
     let timer;
 
 
+
     function startTimer() {
+
+
+        let deadlineDate = null;
+        if (testEndTimeString) {
+
+            deadlineDate = new Date(testEndTimeString.replace(' ', 'T'));
+        }
+
+
         if (remaining <= 0) {
             countdownEl.innerText = "00:00";
-            alert("Thời gian làm bài đã hết. Bài kiểm tra sẽ tự động được nộp.");
+            alert("Thời gian làm bài đã hết hoặc bài kiểm tra đã quá hạn nộp tuyệt đối. Bài kiểm tra sẽ tự động được nộp.");
             remainingTimeSecondsInput.value = 0;
             submitForm.submit();
             return;
@@ -114,6 +126,20 @@
         countdownEl.innerText = formatTime(remaining);
 
         timer = setInterval(() => {
+
+            if (deadlineDate) {
+                const now = new Date();
+                if (now.getTime() >= deadlineDate.getTime()) {
+
+                    clearInterval(timer);
+                    countdownEl.innerText = "00:00";
+                    alert("ĐÃ HẾT THỜI HẠN NỘP BÀI TUYỆT ĐỐI! Bài kiểm tra sẽ tự động được nộp.");
+                    remainingTimeSecondsInput.value = 0;
+                    submitForm.submit();
+                    return;
+                }
+            }
+
             if (remaining <= 0) {
                 clearInterval(timer);
                 countdownEl.innerText = "00:00";
@@ -125,6 +151,8 @@
                 countdownEl.innerText = formatTime(remaining);
                 remainingTimeSecondsInput.value = remaining;
             }
+            // -----------------------------------------------------------------
+
         }, 1000);
     }
 
@@ -171,9 +199,7 @@
     });
 
 
-    // =============================================================
-    // TÍNH NĂNG GIÁM SÁT THI (WEBSOCKET) - MỚI THÊM
-    // =============================================================
+
 
     var stompClient = null;
 
@@ -185,13 +211,29 @@
 
         stompClient.connect({},function(frame) {
             console.log('[Giám sát] đã kết nối hệ thống.');
+
+            stompClient.subscribe('/topic/test/'+testId,function (message){
+                var data = JSON.parse(message.body);
+                if(data.sender === 'TEACHER'){
+
+                    const targets = data.targetUsernames;
+                    if (targets && targets.includes(currentUsername)) {
+                        showTeacherWarning(data);
+                    } else {
+                        console.log(`[Cảnh báo GV] Đã bỏ qua, không phải dành cho ${currentUsername}. Targets: ${targets ? targets.join(', ') : 'None'}`);
+                    }
+                }else{
+
+                }
+            })
+
         },function(error){
             console.log('[Giám sát] lỗi kết nối' +error);
         })
     }
 
     function reportViolation(type, msg){
-        // CHỈ LÀM NHIỆM VỤ GỬI TIN NHẮN!
+
         if(stompClient && stompClient.connected){
             stompClient.send("/app/report-violation",{},JSON.stringify({
                 'studentUsername': currentUsername,
@@ -200,9 +242,9 @@
                 'message': msg,
                 'time' : new Date().toLocaleTimeString('vi-VN')
             }));
-            console.log("⚠ Đã gửi báo cáo vi phạm: "+type);
+            console.log(" Đã gửi báo cáo vi phạm: "+type);
         } else {
-            console.log("❌ Lỗi: Kết nối giám sát chưa sẵn sàng, không thể gửi vi phạm: " + type);
+            console.log(" Lỗi: Kết nối giám sát chưa sẵn sàng, không thể gửi vi phạm: " + type);
         }
     }
     connectProctor();
@@ -212,6 +254,31 @@
             reportViolation("TAB_SWITCH","Học sinh đã chuyển tab hoặc ẩn trình duyệt.");
         }
     });
+
+    function showTeacherWarning (data){
+        const warningDiv = document.createElement('div');
+        warningDiv.className= 'alert alert-danger alert-dismissible fade show fixed-top mx-auto mt-3 shadow-lg';
+        warningDiv.style.maxWidth='600px';
+        warningDiv.style.zIndex = '9999';
+        warningDiv.style.left = '0';
+        warningDiv.style.right = '0';
+        warningDiv.style.textAlign = 'center';
+
+        warningDiv.innerHTML= `
+            <strong>Cảnh báo từ giáo viên </strong>
+            <p class="mb-0 fs-5">${data.message}</p>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"
+            aria-label="Close"
+            ></button>
+        `;
+        document.body.prepend(warningDiv);
+        setTimeout(() => {
+            const bsAlert = new bootstrap.Alert(warningDiv);
+            bsAlert.dispose();
+        },10);
+
+        console.log(`[Cảnh báo GV: ] ${data.message}`);
+    }
 
 
 

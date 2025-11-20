@@ -15,19 +15,13 @@ public class ChatMessageService {
     @Autowired
     private ChatMessageMapper chatMessageMapper;
 
-    /**
-     * Lấy danh sách tin nhắn theo conversationId và chuyển sang DTO để hiển thị.
-     * @param conversationId ID phiên hội thoại
-     * @return Danh sách tin nhắn dạng DTO
-     */
+
     public List<ChatMessageDTO> getMessagesByConversationId(Integer conversationId) {
         List<ChatMessage> entities = chatMessageMapper.findByConversationId(conversationId);
         return entities.stream().map(this::toDTO).collect(Collectors.toList());
     }
 
-    /**
-     * Chuyển từ Entity sang DTO để dùng trong giao diện.
-     */
+
     private ChatMessageDTO toDTO(ChatMessage entity) {
         ChatMessageDTO dto = new ChatMessageDTO();
         dto.setId(entity.getId());

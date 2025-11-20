@@ -4,7 +4,7 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="org.example.student_testing.student.mapper.CourseMapper">
-    <!-- Lấy toàn bộ danh sách khóa học -->
+
     <select id="findAll" resultType="org.example.student_testing.student.entity.Course">
         SELECT course_id AS courseId,
                course_name AS courseName,
@@ -14,7 +14,7 @@
         FROM courses
     </select>
 
-    <!-- Lấy thông tin khóa học theo ID -->
+
     <select id="findByCourseId" parameterType="int" resultType="org.example.student_testing.student.entity.Course">
         SELECT course_id AS courseId,
                course_name AS courseName,
@@ -25,13 +25,13 @@
         WHERE course_id = #{courseId}
     </select>
 
-    <!-- Tạo mới khóa học -->
+
     <insert id="create" parameterType="org.example.student_testing.student.entity.Course">
         INSERT INTO courses (course_name, teacher_id, created_at, updated_at)
         VALUES (#{courseName}, #{teacherId}, NOW(), NOW())
     </insert>
 
-    <!-- Cập nhật thông tin khóa học -->
+
     <update id="update" parameterType="org.example.student_testing.student.entity.Course">
         UPDATE courses
         SET course_name = #{courseName},
@@ -40,13 +40,13 @@
         WHERE course_id = #{courseId}
     </update>
 
-    <!-- Xóa khóa học -->
+
     <delete id="delete" parameterType="int">
         DELETE FROM courses
         WHERE course_id = #{courseId}
     </delete>
 
-    <!-- Lấy tên khóa học theo ID -->
+
     <select id="findCourseNameById" parameterType="int" resultType="String">
         SELECT course_name FROM courses WHERE course_id = #{courseId}
     </select>

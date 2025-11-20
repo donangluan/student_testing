@@ -33,4 +33,16 @@
         VALUES (#{testId}, #{studentUsername}, #{submittedAt}, #{totalAnswered}, #{correctCount}, #{score}, #{graded})
     </insert>
 
+    <select id="findStudentsAssignedButNotSubmitted" resultType="java.lang.String">
+        SELECT
+            ta.student_username
+        FROM
+            test_assignments ta
+                LEFT JOIN
+            test_results tr ON ta.test_id = tr.test_id AND ta.student_username = tr.student_username
+        WHERE
+            ta.test_id = #{testId}
+          AND tr.result_id IS NULL
+    </select>
+
 </mapper>

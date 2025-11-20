@@ -26,7 +26,6 @@ public class TestSessionService {
     @Transactional
     public void saveOrUpdateSession(TestSessionDTO sessionDTO) {
         try {
-            // Chuyển đổi Map sang JSON String trước khi lưu vào DB
             if (sessionDTO.getAnswersMap() != null) {
                 String answersJson = objectMapper.writeValueAsString(sessionDTO.getAnswersMap());
                 sessionDTO.setAnswersJson(answersJson);
@@ -34,7 +33,7 @@ public class TestSessionService {
                 sessionDTO.setAnswersJson(null);
             }
 
-            // Sử dụng một phương thức thống nhất (vì bạn dùng UPSERT)
+
             testSessionMapper.insertSession(sessionDTO);
 
         } catch (JsonProcessingException e) {
@@ -42,14 +41,12 @@ public class TestSessionService {
         }
     }
 
-    // -----------------------------------------------------------------
-    // 2. CHUYỂN ĐỔI KHI ĐỌC (GET)
-    // -----------------------------------------------------------------
+
     public Optional<TestSessionDTO> getSession(Integer testId, String studentUsername) {
         TestSessionDTO sessionDTO = testSessionMapper.findSession(testId, studentUsername);
 
         if (sessionDTO != null) {
-            // Chuyển đổi JSON String sang Map sau khi đọc từ DB
+
             String answersJson = sessionDTO.getAnswersJson();
             if (answersJson != null && !answersJson.isEmpty()) {
                 try {
@@ -57,9 +54,9 @@ public class TestSessionService {
                             answersJson,
                             new TypeReference<Map<Integer, String>>() {}
                     );
-                    sessionDTO.setAnswersMap(answersMap); // Thiết lập lại Map cho DTO
+                    sessionDTO.setAnswersMap(answersMap);
                 } catch (JsonProcessingException e) {
-                    // Nếu lỗi khi parse JSON, coi như Map trống
+
                     System.err.println("Error parsing answers JSON for session: " + e.getMessage());
                     sessionDTO.setAnswersMap(new HashMap<>());
                 }

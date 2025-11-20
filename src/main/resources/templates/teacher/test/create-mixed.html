@@ -32,6 +32,15 @@
     </div>
 
     <div class="mb-3">
+        <label for="startTimeMixed" class="form-label">⏰ Thời gian Bắt đầu (Mở đề):</label>
+        <input type="datetime-local" class="form-control" id="startTimeMixed" name="startTime" required/>
+    </div>
+    <div class="mb-3">
+        <label for="endTimeMixed" class="form-label">🔒 Thời gian Kết thúc (Khóa đề):</label>
+        <input type="datetime-local" class="form-control" id="endTimeMixed" name="endTime" required/>
+    </div>
+
+    <div class="mb-3">
         <label class="form-label">Phân phối câu hỏi theo chủ đề:</label>
         <div th:each="entry : ${groupedTopics}">
             <h5 class="mt-3 mb-2 text-primary" th:text="${entry.key.courseName}"></h5>

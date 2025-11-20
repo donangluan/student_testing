@@ -51,7 +51,9 @@ public class DynamicTestController {
         }
 
         if (!"Dynamic".equalsIgnoreCase(testType) && topicId == null) {
-            model.addAttribute("error", "Lỗi tham số: Cần topicId để bắt đầu bài kiểm tra loại " + testType + ". Vui lòng kiểm tra lại liên kết.");
+            model.addAttribute("error",
+                    "Lỗi tham số: Cần topicId để bắt đầu bài kiểm tra loại "
+                            + testType + ". Vui lòng kiểm tra lại liên kết.");
             return "test/dynamic/finish";
         }
 
@@ -86,7 +88,9 @@ public class DynamicTestController {
                          @RequestParam Integer timeRemainingSeconds,Model model) {
 
         if (!"Dynamic".equalsIgnoreCase(dto.getTestType()) && dto.getTopicId() == null) {
-            model.addAttribute("error", "Lỗi tham số: Không thể tiếp tục bài kiểm tra do thiếu ID Chủ đề (topicId) trong dữ liệu submit.");
+            model.addAttribute("error",
+                    "Lỗi tham số:" +
+                            " Không thể tiếp tục bài kiểm tra do thiếu ID Chủ đề (topicId) trong dữ liệu submit.");
             return "test/dynamic/finish";
         }
         service.saveAnswer(dto);
@@ -124,7 +128,7 @@ public class DynamicTestController {
         model.addAttribute("options", List.of("A", "B", "C", "D"));
         model.addAttribute("answeredCount", answeredCount);
         model.addAttribute("totalQuestions", totalQuestions);
-        // Thay thế model.addAttribute("duration", 30);
+
         model.addAttribute("timeRemainingSeconds", timeRemainingSeconds);
         return "test/dynamic/do-test";
     }
@@ -190,7 +194,7 @@ public class DynamicTestController {
         model.addAttribute("testType", "dynamic");
         model.addAttribute("topicId", currentQuestion.getTopicId());
 
-        // Thay thế model.addAttribute("duration", 30);
+
         model.addAttribute("timeRemainingSeconds", DEFAULT_DURATION_SECONDS);
 
         return "test/dynamic/do-test";

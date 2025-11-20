@@ -89,7 +89,9 @@ public class StudentDashboardController {
         List<QuestionDTO> practiceQuestions = practiceService.generatePersonalizedPractice(username);
 
         if (practiceQuestions.isEmpty()) {
-            model.addAttribute("errorMessage", "Hệ thống chưa có đủ dữ liệu để tạo bài luyện tập cá nhân hóa. Vui lòng làm bài thi trước.");
+            model.addAttribute("errorMessage",
+                    "Hệ thống chưa có đủ dữ liệu để tạo bài luyện tập cá nhân hóa. " +
+                            "Vui lòng làm bài thi trước.");
             return "student/error_page";
         }
 
@@ -112,7 +114,8 @@ public class StudentDashboardController {
         Map<Integer, String> studentAnswers = processPracticeForm(request);
 
         if (studentAnswers.isEmpty()) {
-            model.addAttribute("errorMessage", "Không nhận được đáp án nào. Vui lòng thử lại.");
+            model.addAttribute("errorMessage",
+                    "Không nhận được đáp án nào. Vui lòng thử lại.");
             return "student/error_page";
         }
 
@@ -129,7 +132,6 @@ public class StudentDashboardController {
     }
 
 
-    // --- 4. HIỂN THỊ LỊCH SỬ LÀM BÀI ---
     @GetMapping("/history")
     public String showTestHistory(Model model, Principal principal) {
         String username = principal.getName();
@@ -140,7 +142,7 @@ public class StudentDashboardController {
         return "student/test_history";
     }
 
-    // --- 5. HIỂN THỊ CHI TIẾT BÀI THI ---
+
     @GetMapping("/history/details/{testId}")
     public String showTestDetails(
             @PathVariable Integer testId,

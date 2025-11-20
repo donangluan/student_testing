@@ -66,7 +66,8 @@ public class QuestionService {
 
                         aiData.setOptionsMap(optionsMap);
                     } catch (Exception e) {
-                        logger.error("Lỗi phân tích JSON Options từ string cho câu hỏi AI ID: {}", q.getQuestionId(), e);
+                        logger.error("Lỗi phân tích JSON Options từ string cho câu hỏi AI ID: {}",
+                                q.getQuestionId(), e);
 
                         return;
                     }
@@ -236,7 +237,8 @@ public class QuestionService {
                             new TypeReference<Map<String, String>>() {}
                     );
                 } catch (Exception e) {
-                    logger.error("Lỗi phân tích JSON Options khi hiển thị preview cho câu hỏi AI ID: {}", ai.getId(), e);
+                    logger.error("Lỗi phân tích JSON Options khi hiển thị" +
+                            " preview cho câu hỏi AI ID: {}", ai.getId(), e);
                 }
             }
 
@@ -288,25 +290,24 @@ public class QuestionService {
 
     public List<QuestionDTO> convertAiQuestionsToDTO(List<AiGeneratedQuestion> aiQuestions) {
         List<QuestionDTO> dtos = new ArrayList<>();
-        // Giả định ObjectMapper đã được inject/khởi tạo
+
         ObjectMapper mapper = new ObjectMapper();
 
         for (AiGeneratedQuestion ai : aiQuestions) {
             try {
-                // Logic xử lý JSON Options phức tạp (giống như logic cũ trong Controller)
+
                 Map<String, String> optionsMap = ai.getOptionsMap();
                 if (optionsMap == null && ai.getOptions() != null) {
                     optionsMap = mapper.readValue(ai.getOptions(), Map.class);
                 }
 
-                // Chuyển đổi sang DTO
+
                 QuestionDTO q = new QuestionDTO();
                 q.setContent(ai.getQuestionContent());
                 q.setCorrectOption(ai.getCorrectAnswer());
                 q.setTopicName(ai.getTopic());
                 q.setSource("ai");
 
-                // Chuyển đổi độ khó (Dùng Service/logic chuẩn hóa)
                 Integer diffId = difficultyService.convertDifficultyToId(ai.getDifficulty());
                 q.setDifficultyId(diffId);
 
@@ -318,7 +319,7 @@ public class QuestionService {
                 }
                 dtos.add(q);
             } catch (Exception e) {
-                // Bỏ qua câu hỏi lỗi và ghi log
+
                 System.err.println("Lỗi chuyển đổi câu hỏi AI: " + e.getMessage());
             }
         }
@@ -331,10 +332,10 @@ public class QuestionService {
             return Collections.emptyMap();
         }
 
-        // Giả định QuestionMapper có hàm findQuestionsByIds trả về List<QuestionDTO>
+
         List<QuestionDTO> questions = questionMapper.findQuestionsByIds(questionIds);
 
-        // Chuyển đổi List thành Map
+
         return questions.stream()
                 .collect(Collectors.toMap(QuestionDTO::getQuestionId, q -> q));
     }

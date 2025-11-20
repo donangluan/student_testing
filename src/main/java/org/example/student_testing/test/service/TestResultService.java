@@ -57,7 +57,8 @@ public class TestResultService {
         return "D";
     }
 
-    public List<TestResultDTO> filter(Integer testId, String studentUsername, Double minScore, Double maxScore, String rankCode) {
+    public List<TestResultDTO> filter(Integer testId, String studentUsername,
+                                      Double minScore, Double maxScore, String rankCode) {
         return testResultMapper.filter(testId, studentUsername, minScore, maxScore, rankCode);
     }
 
@@ -164,7 +165,8 @@ public class TestResultService {
 
         List<TopicScoreDTO> weakTopics = topicScores.stream()
                 .filter(ts -> ts.getAverageScore() < WEAK_TOPIC_THRESHOLD)
-                .sorted((ts1, ts2) -> Double.compare(ts1.getAverageScore(), ts2.getAverageScore()))
+                .sorted((ts1, ts2) ->
+                        Double.compare(ts1.getAverageScore(), ts2.getAverageScore()))
                 .collect(Collectors.toList());
 
         return weakTopics;

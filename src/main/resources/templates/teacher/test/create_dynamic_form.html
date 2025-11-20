@@ -38,6 +38,15 @@
         </div>
     </div>
 
+    <div class="mb-3">
+        <label for="startTime" class="form-label">⏰ Thời gian Bắt đầu (Mở đề):</label>
+        <input type="datetime-local" th:field="*{startTime}" id="startTime" class="form-control" required/>
+    </div>
+    <div class="mb-3">
+        <label for="endTime" class="form-label">🔒 Thời gian Kết thúc (Khóa đề):</label>
+        <input type="datetime-local" th:field="*{endTime}" id="endTime" class="form-control" required/>
+    </div>
+
     <div class="card mb-4">
         <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
             Cấu hình Tiêu chí rút câu hỏi
@@ -118,7 +127,7 @@
 </form>
 
 <script>
-    // Hàm này đảm bảo ít nhất một checkbox được chọn khi submit
+
     function validateCheckboxes() {
         const checkboxes = document.querySelectorAll('input[name="studentUsername"]');
         let isChecked = Array.from(checkboxes).some(checkbox => checkbox.checked);
@@ -128,12 +137,12 @@
         if (isChecked) {
             submitButton.removeAttribute('disabled');
             studentError.style.display = 'none';
-            // Bỏ required cho các checkbox để browser không báo lỗi
+
             checkboxes.forEach(cb => cb.removeAttribute('required'));
         } else {
             submitButton.setAttribute('disabled', 'disabled');
             studentError.style.display = 'block';
-            // Thêm required vào checkbox đầu tiên để kích hoạt JS validation
+
             if (checkboxes.length > 0) {
                 checkboxes[0].setAttribute('required', 'required');
             }
@@ -141,49 +150,48 @@
         return isChecked;
     }
 
-    // Xử lý logic Thêm/Xóa Tiêu chí bằng JavaScript
-    document.getElementById('addCriteriaButton').addEventListener('click', function(event) {
-        event.preventDefault(); // Ngăn chặn form submit mặc định
 
-        // 1. Thay đổi action của form thành /add-criteria
+    document.getElementById('addCriteriaButton').addEventListener('click', function(event) {
+        event.preventDefault();
+
+
         const form = document.getElementById('dynamicTestForm');
         form.action = '[[@{/teacher/tests/add-criteria}]]';
-        form.method = 'POST'; // Đảm bảo method là POST
+        form.method = 'POST';
 
-        // 2. Submit form
+
         form.submit();
     });
 
-    // Xử lý sự kiện Xóa Tiêu chí
+
     document.querySelectorAll('.remove-criteria-button').forEach(button => {
         button.addEventListener('click', function(event) {
-            event.preventDefault(); // Ngăn chặn form submit mặc định
+            event.preventDefault();
 
             const indexToRemove = this.getAttribute('data-index');
 
-            // 1. Tạo input ẩn để chứa index cần xóa
+
             const hiddenInput = document.createElement('input');
             hiddenInput.type = 'hidden';
             hiddenInput.name = 'removeIndex';
             hiddenInput.value = indexToRemove;
 
             const form = document.getElementById('dynamicTestForm');
-            form.appendChild(hiddenInput); // Thêm input ẩn vào form
+            form.appendChild(hiddenInput);
 
-            // 2. Thay đổi action của form thành /remove-criteria
+
             form.action = '[[@{/teacher/tests/remove-criteria}]]';
             form.method = 'POST';
 
-            // 3. Submit form
+
             form.submit();
         });
     });
 
 
-    // Gắn sự kiện validate khi form được load lần đầu
     document.addEventListener('DOMContentLoaded', validateCheckboxes);
 
-    // Ngăn chặn submit form nếu không có học sinh nào được chọn (fallback)
+
     document.getElementById('dynamicTestForm').addEventListener('submit', function(event) {
         if (!validateCheckboxes()) {
             event.preventDefault();

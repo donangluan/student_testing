@@ -102,7 +102,8 @@ public class QuestionController {
         if (deleted) {
             redirectAttributes.addFlashAttribute("successMessage", "Xóa câu hỏi thành công!");
         } else {
-            redirectAttributes.addFlashAttribute("errorMessage", " Câu hỏi đang được sử dụng trong đề thi, không thể xóa!");
+            redirectAttributes.addFlashAttribute("errorMessage",
+                    " Câu hỏi đang được sử dụng trong đề thi, không thể xóa!");
         }
         return "redirect:/questions";
     }

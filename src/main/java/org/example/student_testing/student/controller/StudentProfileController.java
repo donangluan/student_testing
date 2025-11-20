@@ -39,10 +39,12 @@ public class StudentProfileController {
 
         boolean isOwner = currentUsername.equals(targetUsername);
         boolean isAuthorizedRole = authentication.getAuthorities().stream()
-                .anyMatch(auth -> auth.getAuthority().equals("ROLE_ADMIN") || auth.getAuthority().equals("ROLE_TEACHER"));
+                .anyMatch(auth ->
+                        auth.getAuthority().equals("ROLE_ADMIN") || auth.getAuthority().equals("ROLE_TEACHER"));
 
         if (!isOwner && !isAuthorizedRole) {
-            model.addAttribute("errorMessage", "Bạn không được phép xem hồ sơ của người dùng này.");
+            model.addAttribute("errorMessage",
+                    "Bạn không được phép xem hồ sơ của người dùng này.");
             return "student/studentprofile-view";
         }
 
@@ -50,7 +52,8 @@ public class StudentProfileController {
         StudentProfile profile = studentProfileService.findStudentProfileByUsername(targetUsername);
 
         if (profile == null) {
-            model.addAttribute("errorMessage", "Không tìm thấy hồ sơ cá nhân cho người dùng: " + targetUsername);
+            model.addAttribute("errorMessage",
+                    "Không tìm thấy hồ sơ cá nhân cho người dùng: " + targetUsername);
             return "student/studentprofile-view";
         }
 
@@ -65,31 +68,7 @@ public class StudentProfileController {
         return "redirect:/student/profile/view/" + authentication.getName();
     }
 
-//
-//    @PreAuthorize("hasAnyRole('STUDENT', 'TEACHER', 'ADMIN')")
-//    @GetMapping("/view/{studentId}")
-//    public String viewStudentProfile(@PathVariable("studentId") String studentId, Model model,
-//                                     Authentication authentication) {
-//        String currentUsername = authentication.getName();
-//        boolean isStudent = authentication.getAuthorities().stream()
-//                .anyMatch(auth -> auth.getAuthority().equals("ROLE_STUDENT"));
-//
-//
-//        StudentProfile profile = studentProfileService.getStudentProfileById(studentId);
-//
-//        if (profile == null) {
-//            model.addAttribute("errorMessage", " Không tìm thấy hồ sơ học viên.");
-//            return "student/studentprofile-view";
-//        }
-//
-//        if (isStudent && !profile.getUsername().equals(currentUsername)) {
-//            model.addAttribute("errorMessage", " Bạn không được phép xem hồ sơ của người khác.");
-//            return "student/studentprofile-view";
-//        }
-//
-//        model.addAttribute("profile", profile);
-//        return "student/studentprofile-view";
-//    }
+
 
 
 
@@ -122,7 +101,8 @@ public class StudentProfileController {
 
 
         if (!profile.getUsername().equals(authentication.getName())) {
-            model.addAttribute("errorMessage", "Lỗi bảo mật: Không thể lưu hồ sơ cho người dùng khác.");
+            model.addAttribute("errorMessage",
+                    "Lỗi bảo mật: Không thể lưu hồ sơ cho người dùng khác.");
             return "student/studentprofile-form";
         }
 
@@ -148,23 +128,28 @@ public class StudentProfileController {
         String username = authentication.getName();
 
         if(file.isEmpty()){
-            redirectAttributes.addFlashAttribute("errorMessage", "Vui lòng chọn một tập tin ảnh để tải lên");
+            redirectAttributes.addFlashAttribute("errorMessage",
+                    "Vui lòng chọn một tập tin ảnh để tải lên");
             return "redirect:/student/profile/";
         }
 
 
         try {
             if(file.getContentType() == null || !file.getContentType().startsWith("image/")){
-            redirectAttributes.addFlashAttribute("errorMessage", "Định dạng file không hợp lệ. Vui lòng chọn ảnh ");
+            redirectAttributes.addFlashAttribute("errorMessage",
+                    "Định dạng file không hợp lệ. Vui lòng chọn ảnh ");
                 return "redirect:/student/profile/";
             }
 
             studentProfileService.uploadAvatar(username,file);
-            redirectAttributes.addFlashAttribute("successMessage", "Ảnh đại diện đã được cập nhật thành công!");
+            redirectAttributes.addFlashAttribute("successMessage",
+                    "Ảnh đại diện đã được cập nhật thành công!");
         }catch (IOException e){
-            redirectAttributes.addFlashAttribute("errorMessage","Lỗi I/O khi lưu ảnh: " + e.getMessage());
+            redirectAttributes.addFlashAttribute("errorMessage",
+                    "Lỗi I/O khi lưu ảnh: " + e.getMessage());
         }catch (Exception e){
-            redirectAttributes.addFlashAttribute("errorMessage", "Lỗi hệ thống khi cập nhật ảnh: " + e.getMessage());
+            redirectAttributes.addFlashAttribute("errorMessage",
+                    "Lỗi hệ thống khi cập nhật ảnh: " + e.getMessage());
         }
         return "redirect:/student/profile/";
         }

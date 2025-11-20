@@ -67,7 +67,7 @@ public class AnswerExplanationService {
 
     public String findAnswerLabel(QuestionDTO q, String selectedOption) {
         if ("A".equalsIgnoreCase(selectedOption)) {
-            // CẦN KIỂM TRA NULL TRƯỚC KHI GỌI .trim()
+
             String optionA = q.getOptionA();
             return optionA != null ? optionA.trim() : "";
         }

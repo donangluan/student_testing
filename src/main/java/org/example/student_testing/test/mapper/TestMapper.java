@@ -74,4 +74,9 @@ public interface TestMapper {
 
     List<QuestionDTO> findQuestionsByTestId(Integer testId, String studentUsernameToView);
 
+    List<Integer> findExpiredTestIds(LocalDateTime currentTime);
+
+
+    List<String> findStudentsAssignedButNotSubmitted(@Param("testId") Integer testId);
+
 }

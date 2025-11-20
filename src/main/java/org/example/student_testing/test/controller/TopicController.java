@@ -22,7 +22,7 @@ public class TopicController {
 
 
     private void addCoursesToModel(Model model) {
-        // Giả định CourseService.findAll() trả về List<CourseDTO> (có courseId và name)
+
         List<CourseDTO> courses = courseService.getAllCourse();
         model.addAttribute("courses", courses);
     }

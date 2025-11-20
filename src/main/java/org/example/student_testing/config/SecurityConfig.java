@@ -71,7 +71,11 @@ public class SecurityConfig {
                         .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
                 )
 
+                .sessionManagement(session -> session
+                                .maximumSessions(100)
+                                .maxSessionsPreventsLogin(false)
 
+                )
 
                 .authorizeHttpRequests(auth -> auth
 

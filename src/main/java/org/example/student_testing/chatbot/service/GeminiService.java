@@ -90,7 +90,7 @@ public class GeminiService {
     public String fallbackGenerateContent(String prompt, List<String> history, Exception e) {
         logger.error(">>> [GEMINI FALLBACK] Dịch vụ AI đang bị lỗi. Trả về phản hồi mặc định.");
 
-        // Trả về một JSON hợp lệ nhưng là phản hồi lỗi
+
         return """
         {
           "error": "Dịch vụ AI hiện không khả dụng. Vui lòng thử lại sau.",
