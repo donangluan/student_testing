@@ -25,7 +25,7 @@ public interface UserMapper {
     boolean existsByUsername(@Param("username") String username);
 
 
-    void insertUserRole(@Param("username") String username, @Param("roleId") String  role);
+    void insertUserRole(@Param("username") String username, @Param("roleId") Integer role);
 
     List<UserDTO> findUsersByRole(@Param("role") String role);
 

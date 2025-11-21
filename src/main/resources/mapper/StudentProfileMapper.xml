@@ -28,8 +28,8 @@
     </select>
 
     <insert id="insertStudentProfile" parameterType="org.example.student_testing.student.entity.StudentProfile">
-        insert into student_profile(student_id, address, phone, avatar_url, school_name,class_name,created_at,updated_at,username)
-        values (#{studentId},#{address},#{phone},#{avatarUrl},#{schoolName},#{className},current_time,current_time,#{username})
+        insert into student_profile(student_id, address, phone, avatar_url, school_name,class_name, username)
+        values (#{studentId},#{address},#{phone},#{avatarUrl},#{schoolName},#{className},#{username})
     </insert>
 
     <update id="updateStudentProfile" parameterType="org.example.student_testing.student.entity.StudentProfile">

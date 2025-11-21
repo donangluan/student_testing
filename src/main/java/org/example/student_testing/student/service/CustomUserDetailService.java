@@ -11,6 +11,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -25,7 +26,8 @@ public  class CustomUserDetailService implements UserDetailsService {
         User user = userMapper.findByUsername(username);
         if(user == null)throw new UsernameNotFoundException("User not found");
 
-        List<String> roles = userMapper.getRolesByUsername(username);
+        List<String> roles = new ArrayList<>();
+        roles.add("STUDENT");
         List<GrantedAuthority> authorities = roles.stream()
                 .map(role -> new SimpleGrantedAuthority("ROLE_" + role))
                 .collect(Collectors.toList());

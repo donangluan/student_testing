@@ -103,7 +103,7 @@ public class SecurityConfig {
         .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
         .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/swing/rest/api/auth/login").permitAll()
+                .requestMatchers("/swing/rest/api/auth/**").permitAll()
                 .anyRequest().authenticated());
         return http.build();
     }

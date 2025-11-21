@@ -42,9 +42,9 @@ public class AuthRESTController {
             Authentication auth = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(userLoginDTO.getUsername(), userLoginDTO.getPassword()));
             UserDetails userDetails = (UserDetails) auth.getPrincipal();
-            return ResponseEntity.ok(jwtUtil.generateToken(userDetails));
+            return ResponseEntity.ok("token: "+ jwtUtil.generateToken(userDetails));
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("User or password not match");
         }
     }
 
@@ -74,10 +74,11 @@ public class AuthRESTController {
             return ResponseEntity.badRequest().body(error);
         }
         if (!otpService.verifyOtp(userDTO.getEmail(), otp)) {
-           return ResponseEntity.ok("otp not match");
+           return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("otp not match");
         }
         userService.register(userDTO);
         otpService.clearOtp(userDTO.getEmail());
         return ResponseEntity.ok("register successfully");
     }
+ 
 }
