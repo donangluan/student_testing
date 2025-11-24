@@ -133,4 +133,16 @@ public class StudentService {
         return studentMapper.findByUsernames(usernames);
     }
 
+
+    public String getEmailByUsername(String username) {
+
+        return studentMapper.findEmailByUsername(username);
+    }
+
+
+    public String getFullNameByUsername(String username) {
+
+        return studentMapper.findFullNameByUsername(username);
+    }
+
 }

@@ -11,7 +11,7 @@ public class AiGeneratedQuestion {
     private Integer id;
     private Integer teacherId;
 
-    private String questionContent;
+    private String content;
 
     private String options;
 

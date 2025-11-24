@@ -68,23 +68,26 @@
             })
             .then(data => {
                 const container = document.getElementById("result");
-                if (!Array.isArray(data) || data.length === 0) {
+
+                const questions = data.questions || data;
+
+                if (!Array.isArray(questions) || questions.length === 0) {
                     container.innerHTML = "<p class='error'> Không có câu hỏi nào được tạo.</p>";
                     return;
                 }
 
                 container.innerHTML = "<h2> Kết quả:</h2>";
-                data.forEach((q, i) => {
+                questions.forEach((q, i) => {
                     container.innerHTML += `
                 <div class="question">
-                    <strong>Câu ${i + 1}:</strong> ${q.questionContent}<br>
+                    <strong>Câu ${i + 1}:</strong> ${q.content}<br>
                     <em>Chủ đề:</em> ${q.topic} | <em>Độ khó:</em> ${q.difficulty}<br>
                     <em>Đáp án đúng:</em> ${q.correctAnswer}<br>
                     <ul>
-                        <li>A. ${q.optionsMap?.A || ""}</li>
-                        <li>B. ${q.optionsMap?.B || ""}</li>
-                        <li>C. ${q.optionsMap?.C || ""}</li>
-                        <li>D. ${q.optionsMap?.D || ""}</li>
+                        <li>A. ${q.optionA || ""}</li>
+                        <li>B. ${q.optionB || ""}</li>
+                        <li>C. ${q.optionC || ""}</li>
+                        <li>D. ${q.optionD || ""}</li>
                     </ul>
                 </div>
             `;

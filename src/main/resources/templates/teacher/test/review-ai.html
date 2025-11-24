@@ -42,7 +42,7 @@
                     <label class="form-label">Nội dung câu hỏi:</label>
                     <textarea class="form-control" rows="3"
                               th:name="'contents[' + ${stat.index} + ']'"
-                              th:text="${q.questionContent}"></textarea>
+                              th:text="${q.content}"></textarea>
                 </div>
 
 
@@ -78,10 +78,12 @@
                     <label class="form-label">Đáp án đúng:</label>
                     <select class="form-select"
                             th:name="'corrects[' + ${stat.index} + ']'">
-                        <option value="A" th:selected="${q.correctAnswer == 'A'}">A</option>
-                        <option value="B" th:selected="${q.correctAnswer == 'B'}">B</option>
-                        <option value="C" th:selected="${q.correctAnswer == 'C'}">C</option>
-                        <option value="D" th:selected="${q.correctAnswer == 'D'}">D</option>
+                        <th:block th:with="correct=${#strings.toUpperCase(#strings.trim(q.correctAnswer != null ? q.correctAnswer : ''))}">
+                            <option value="A" th:selected="${correct == 'A'}">A</option>
+                            <option value="B" th:selected="${correct == 'B'}">B</option>
+                            <option value="C" th:selected="${correct == 'C'}">C</option>
+                            <option value="D" th:selected="${correct == 'D'}">D</option>
+                        </th:block>
                     </select>
                 </div>
 

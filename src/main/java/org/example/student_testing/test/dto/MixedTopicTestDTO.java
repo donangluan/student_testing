@@ -18,6 +18,8 @@ public class MixedTopicTestDTO {
     private LocalDateTime startTime;
     private LocalDateTime endTime;
 
+    private String accessCode;
+
 }
 
 

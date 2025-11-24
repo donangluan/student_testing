@@ -39,12 +39,18 @@
     </div>
 
     <div class="mb-3">
-        <label for="startTime" class="form-label">⏰ Thời gian Bắt đầu (Mở đề):</label>
+        <label for="startTime" class="form-label"> Thời gian Bắt đầu (Mở đề):</label>
         <input type="datetime-local" th:field="*{startTime}" id="startTime" class="form-control" required/>
     </div>
     <div class="mb-3">
-        <label for="endTime" class="form-label">🔒 Thời gian Kết thúc (Khóa đề):</label>
+        <label for="endTime" class="form-label"> Thời gian Kết thúc (Khóa đề):</label>
         <input type="datetime-local" th:field="*{endTime}" id="endTime" class="form-control" required/>
+    </div>
+
+    <div class="mb-3">
+        <label for="accessCodeSingle" class="form-label"> Mã Truy Cập (Tùy chọn):</label>
+        <input type="text" class="form-control" id="accessCodeSingle" name="accessCode"
+               maxlength="20" placeholder="Để trống nếu không cần mật khẩu"/>
     </div>
 
     <div class="card mb-4">

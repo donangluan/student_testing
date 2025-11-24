@@ -20,4 +20,7 @@ public class TestSubmissionDTO {
     private Boolean hasSubmitted;
     private LocalDateTime lastAnswered;
 
+    private String studentEmail;
+    private String studentFullName;
+
 }

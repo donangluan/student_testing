@@ -42,12 +42,18 @@
 
 
     <div class="mb-3">
-        <label for="startTimeSingle" class="form-label">⏰ Thời gian Bắt đầu (Mở đề):</label>
+        <label for="startTimeSingle" class="form-label"> Thời gian Bắt đầu (Mở đề):</label>
         <input type="datetime-local" class="form-control" id="startTimeSingle" name="startTime" required/>
     </div>
     <div class="mb-3">
-        <label for="endTimeSingle" class="form-label">🔒 Thời gian Kết thúc (Khóa đề):</label>
+        <label for="endTimeSingle" class="form-label"> Thời gian Kết thúc (Khóa đề):</label>
         <input type="datetime-local" class="form-control" id="endTimeSingle" name="endTime" required/>
+    </div>
+
+    <div class="mb-3">
+        <label for="accessCodeSingle" class="form-label"> Mã Truy Cập (Tùy chọn):</label>
+        <input type="text" class="form-control" id="accessCodeSingle" name="accessCode"
+               maxlength="20" placeholder="Để trống nếu không cần mật khẩu"/>
     </div>
 
     <div class="mb-3">

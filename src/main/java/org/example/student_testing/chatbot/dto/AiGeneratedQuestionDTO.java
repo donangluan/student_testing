@@ -12,7 +12,7 @@ public class AiGeneratedQuestionDTO {
     private Integer id;
     private Integer teacherId;
 
-    private String questionContent;
+    private String content;
 
     private String options;
 
@@ -23,12 +23,20 @@ public class AiGeneratedQuestionDTO {
     private String topic;
 
     private String status;
-    private Integer topicId;
-
-    private LocalDateTime createdAt;
 
     private Map<String, String> optionsMap;
-    private String source;
+
+    private String optionA;
+    private String optionB;
+    private String optionC;
+    private String optionD;
+
     private Integer courseId;
     private String courseName;
+    private String source;
+    private LocalDateTime createdAt;
+    private Integer topicId;
+    private String createdBy;
+
+    private Integer officialQuestionId;
 }

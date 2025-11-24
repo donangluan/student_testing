@@ -8,7 +8,7 @@
     <resultMap id="aiGeneratedQuestionMap" type="org.example.student_testing.chatbot.entity.AiGeneratedQuestion">
         <result property="id" column="id"/>
         <result property="teacherId" column="teacher_id"/>
-        <result property="questionContent" column="question_content"/>
+        <result property="content" column="question_content"/>
         <result property="options" column="options"/>
         <result property="correctAnswer" column="correct_answer"/>
         <result property="difficulty" column="difficulty"/>
@@ -42,7 +42,7 @@
             question_content, options, correct_answer,
             difficulty, topic, topic_id, source, status, created_at, teacher_id
             ) VALUES (
-            #{q.questionContent}, #{q.options}::jsonb, #{q.correctAnswer},
+            #{q.content}, #{q.options}::jsonb, #{q.correctAnswer},
             #{q.difficulty}, #{q.topic}, #{q.topicId}, #{q.source}, #{q.status}, #{q.createdAt}, #{q.teacherId}
             )
         </foreach>
@@ -58,7 +58,7 @@
             difficulty, topic, topic_id, source, status, created_at
         )
         VALUES (
-                   #{teacherId}, #{questionContent}, CAST(#{options} AS jsonb), #{correctAnswer},
+                   #{teacherId}, #{content}, CAST(#{options} AS jsonb), #{correctAnswer},
                    #{difficulty}, #{topic}, #{topicId}, #{source}, #{status}, #{createdAt}
                )
     </insert>

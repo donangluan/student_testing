@@ -38,6 +38,67 @@ public class StudentTestController {
     private final TestSessionService testSessionService;
 
 
+    private static final String ACCESS_KEY_PREFIX = "TEST_ACCESS_STATUS_";
+
+
+    @GetMapping("/test/access-form/{testId}")
+    public String showAccessCodeForm(@PathVariable Integer testId,
+                                     Model model,
+                                     RedirectAttributes redirectAttributes) {
+
+        TestDTO test = testService.getTestById(testId);
+        if (test == null) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Bài kiểm tra không tồn tại.");
+            return "redirect:/student/tests";
+        }
+
+        // Chỉ hiển thị form nếu bài thi thực sự có mật khẩu
+        if (test.getAccessCode() == null || test.getAccessCode().trim().isEmpty()) {
+            return "redirect:/student/do/" + testId; // Không cần mật khẩu, chuyển hướng thẳng
+        }
+
+        model.addAttribute("testId", testId);
+        return "test/student/access_form";
+    }
+
+    // ----------------------------------------------------------------------
+    // PHƯƠNG THỨC 2: XÁC THỰC MÃ TRUY CẬP (MỚI)
+    // ----------------------------------------------------------------------
+
+    @PostMapping("/test/validate-access")
+    public String validateAccessCode(@RequestParam Integer testId,
+                                     @RequestParam String accessCode,
+                                     HttpSession session,
+                                     RedirectAttributes redirectAttributes) {
+
+        TestDTO test = testService.getTestById(testId);
+
+        if (test == null || test.getAccessCode() == null) {
+            log.warn("Lỗi xác thực: Test ID {} không tồn tại hoặc không yêu cầu mã.", testId);
+            return "redirect:/student/tests";
+        }
+
+        String requiredCode = test.getAccessCode();
+
+        // Kiểm tra mã truy cập có khớp không
+        if (requiredCode.equals(accessCode)) {
+            // Mật khẩu đúng -> Đặt cờ trạng thái vào Session
+            String sessionKey = ACCESS_KEY_PREFIX + testId;
+            session.setAttribute(sessionKey, true);
+            log.info("🔐 Access granted for Test ID {}. Code matched.", testId);
+
+            // Chuyển hướng về trang làm bài để tiếp tục luồng kiểm tra khác
+            return "redirect:/student/do/" + testId;
+        } else {
+            // Mật khẩu sai
+            redirectAttributes.addFlashAttribute("errorMessage", "Mã truy cập không hợp lệ. Vui lòng thử lại.");
+            log.warn("❌ Access denied for Test ID {}. Incorrect code provided.", testId);
+
+            // Quay lại form nhập mã
+            return "redirect:/student/test/access-form/" + testId;
+        }
+    }
+
     @GetMapping("/tests")
     public String showAvailableTests(@AuthenticationPrincipal UserDetails userDetails, Model model) {
         String username = userDetails.getUsername();
@@ -75,7 +136,32 @@ public class StudentTestController {
                                RedirectAttributes redirectAttributes) {
 
         String username = userDetails.getUsername();
+        TestDTO test = testService.getTestById(testId);
 
+        String requiredAccessCode = test.getAccessCode();
+        // Bài thi được bảo vệ nếu accessCode KHÔNG NULL và KHÔNG rỗng
+        boolean isProtected = requiredAccessCode != null && !requiredAccessCode.trim().isEmpty();
+
+        if (isProtected) {
+            String sessionKey = ACCESS_KEY_PREFIX + testId;
+
+            // Kiểm tra cờ session: nếu là null hoặc false, coi như chưa có quyền truy cập
+            boolean hasSessionAccess = Optional.ofNullable(session.getAttribute(sessionKey))
+                    .map(Boolean.class::cast)
+                    .orElse(false);
+
+            if (!hasSessionAccess) {
+                log.warn("🔒 BỊ CHẶN: Test ID {}. Yêu cầu mã truy cập.", testId);
+                redirectAttributes.addFlashAttribute("infoMessage", "Vui lòng nhập Mã truy cập để bắt đầu bài thi.");
+                // Chuyển hướng đến form nhập mã truy cập
+                return "redirect:/student/test/access-form/" + testId;
+            }
+        }
+
+        if (test == null) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Bài kiểm tra không tồn tại.");
+            return "redirect:/student/tests";
+        }
 
         Optional<String> availabilityError = testService.isTestAvailable(testId, username);
         if (availabilityError.isPresent()) {
@@ -98,7 +184,7 @@ public class StudentTestController {
             return "redirect:/student/tests";
         }
 
-        TestDTO test = testService.getTestById(testId);
+
 
         LocalDateTime testEndTime = test.getEndTime();
         int maxRemainingSeconds = Integer.MAX_VALUE;
@@ -288,51 +374,18 @@ public class StudentTestController {
 
 
         log.info("Nộp bài cho Test ID {}. Số câu đã nộp: {}", testId, parsedAnswers.size());
-        answerService.saveAnswers(testId, userDetails.getUsername(), parsedAnswers);
 
         try {
 
-            int correctCount = 0;
-            List<QuestionDTO> questions = questionService.getQuestionsByTestId(testId);
-            int totalQuestions = questions.size();
+            TestResultDTO result = testSubmissionService.processSubmissionAndReport(
+                    testId, studentUsername, parsedAnswers);
 
-
-            for (QuestionDTO q : questions) {
-                String studentAnswer = parsedAnswers.get(q.getQuestionId());
-                String correctOption = questionService.getCorrectOption(q.getQuestionId());
-
-                if (studentAnswer != null && correctOption != null && studentAnswer.equalsIgnoreCase(correctOption)) {
-                    correctCount++;
-                }
-            }
-
-
-            double finalScore = 0.0;
-            if (totalQuestions > 0) {
-
-                finalScore = Math.round(((double) correctCount / totalQuestions) * 1000.0) / 100.0;
-            }
-
-
-
-            TestResultDTO result = new TestResultDTO();
-            result.setTestId(testId);
-            result.setStudentUsername(studentUsername);
-            result.setScore(finalScore);
-            result.setCompletedAt(LocalDateTime.now());
-
-
-            testResultService.save(result);
-
-
-
-            testSessionService.clearSession(testId, studentUsername);
-            log.info("Đã chấm điểm và xóa session thành công cho Test ID {}. Score: {}. Correct: {}/{}",
-                    testId, finalScore, correctCount, totalQuestions);
+            session.removeAttribute(ACCESS_KEY_PREFIX + testId);
+            log.info("ĐÃ XỬ LÝ NỘP BÀI HOÀN CHỈNH (Controller): Test ID {}. Score: {}",
+                    testId, result.getScore());
 
         } catch (Exception e) {
-            log.error("Lỗi chấm điểm sau khi nộp bài cho Test ID {}: {}", testId, e.getMessage(), e);
-            e.printStackTrace();
+            log.error("Lỗi xử lý nộp bài hoàn chỉnh cho Test ID {}: {}", testId, e.getMessage(), e);
             redirectAttributes.addFlashAttribute("errorMessage",
                     "Lỗi xử lý kết quả: " + e.getMessage() + ". Vui lòng liên hệ quản trị viên.");
             return "redirect:/student/tests";
@@ -341,7 +394,7 @@ public class StudentTestController {
         session.removeAttribute("startTime");
         session.removeAttribute("duration");
 
-        return "redirect:/student/result?testId=" + testId + "&studentUsername=" + userDetails.getUsername();
+        return "redirect:/student/result?testId=" + testId + "&studentUsername=" + studentUsername;
     }
 
     @GetMapping("/results")

@@ -19,6 +19,7 @@ public class TestDTO  implements Serializable {
 
     private String createdBy;
 
+    private String accessCode;
 
     private LocalDateTime createdAt;
 

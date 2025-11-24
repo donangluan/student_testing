@@ -151,7 +151,7 @@ public class GeminiService {
 
             for (JsonNode node : questionsNode) {
                 AiGeneratedQuestion q = new AiGeneratedQuestion();
-                q.setQuestionContent(node.get("content").asText());
+                q.setContent(node.get("content").asText());
 
                 Map<String, String> optionsMap = new LinkedHashMap<>();
                 optionsMap.put("A", node.get("optionA").asText());

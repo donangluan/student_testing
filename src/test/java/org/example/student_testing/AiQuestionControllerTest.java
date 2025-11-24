@@ -44,7 +44,7 @@ public class AiQuestionControllerTest {
     @WithMockUser(roles = "TEACHER")
     void testGenerateQuestions() throws Exception {
         AiGeneratedQuestion q = new AiGeneratedQuestion();
-        q.setQuestionContent("Câu hỏi 1");
+        q.setContent("Câu hỏi 1");
         q.setDifficulty("Medium");
         q.setTopic("Đạo hàm");
         q.setCorrectAnswer("A");

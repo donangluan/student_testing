@@ -16,6 +16,7 @@ public class UniqueTestRequest {
     private String createdBy;
     private Integer durationMinutes;
     private String testType;
+    private String accessCode;
 
     private LocalDateTime startTime; // Bổ sung
     private LocalDateTime endTime;

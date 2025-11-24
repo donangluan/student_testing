@@ -2,6 +2,7 @@ package org.example.student_testing.student.mapper;
 
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Select;
 import org.example.student_testing.student.dto.StudentDTO;
 import org.example.student_testing.student.entity.Student;
 
@@ -57,6 +58,15 @@ public interface StudentMapper {
     int countAllStudents();
 
     List<StudentDTO> findByUsernames(@Param("usernames") List<String> usernames);
+
+
+
+    @Select("SELECT email FROM students WHERE username = #{username}")
+    String findEmailByUsername(String username);
+
+
+    @Select("SELECT full_name FROM students WHERE username = #{username}")
+    String findFullNameByUsername(String username);
 
 
 }

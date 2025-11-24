@@ -93,7 +93,7 @@ public class AiGenerateQuestionService {
             Map<String, String> optionsMap = Map.of("A", a, "B", b, "C", c, "D", d);
 
             AiGeneratedQuestion q = new AiGeneratedQuestion();
-            q.setQuestionContent(content);
+            q.setContent(content);
             q.setCorrectAnswer(correct);
             q.setDifficulty(difficulty);
             q.setTopic(topic);
@@ -103,6 +103,11 @@ public class AiGenerateQuestionService {
             q.setCreatedAt(LocalDateTime.now());
             q.setTeacherId(teacherId);
             q.setSource("ai");
+            q.setOptionA(a);
+            q.setOptionB(b);
+            q.setOptionC(c);
+            q.setOptionD(d);
+
 
             q.setOptionsMap(optionsMap);
 
@@ -119,12 +124,12 @@ public class AiGenerateQuestionService {
         List<AiGeneratedQuestion> savedAndOfficial = new ArrayList<>();
         for (AiGeneratedQuestion q : toSave) {
             aiGeneratedQuestionMapper.insertQuestion(q);
-            System.out.println(" Đã lưu: " + q.getQuestionContent() + " → ID: " + q.getId());
+            System.out.println(" Đã lưu: " + q.getContent() + " → ID: " + q.getId());
             if (q.getId() != null) {
 
 
                 QuestionDTO qDTO = new QuestionDTO();
-                qDTO.setContent(q.getQuestionContent());
+                qDTO.setContent(q.getContent());
 
 
                 qDTO.setOptionA(q.getOptionsMap().get("A"));
@@ -208,7 +213,7 @@ public class AiGenerateQuestionService {
         for (AiGeneratedQuestion aiQ : aiQuestions) {
 
 
-            Integer existingId = questionMapper.findIdByContent(aiQ.getQuestionContent());
+            Integer existingId = questionMapper.findIdByContent(aiQ.getContent());
             if (existingId != null) {
 
                 continue;
@@ -238,7 +243,7 @@ public class AiGenerateQuestionService {
 
 
             QuestionDTO q = new QuestionDTO();
-            q.setContent(aiQ.getQuestionContent());
+            q.setContent(aiQ.getContent());
             q.setOptionA(aiQ.getOptionA());
             q.setOptionB(aiQ.getOptionB());
             q.setOptionC(aiQ.getOptionC());

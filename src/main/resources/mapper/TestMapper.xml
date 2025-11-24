@@ -13,7 +13,9 @@
             created_at,
             topic_id,
             duration_minutes,
-            is_published,     start_time  ,end_time      )
+            is_published,     start_time  ,end_time    ,
+            access_code
+        )
         VALUES (
                    #{testName},
                    #{testType},
@@ -21,7 +23,9 @@
                    current_timestamp,
                    #{topicId},
                    #{durationMinutes},
-                   #{isPublished},   #{startTime} ,#{endTime}     )
+                   #{isPublished},   #{startTime} ,#{endTime}  ,
+                    #{accessCode}
+        )
     </insert>
 
 
@@ -61,7 +65,8 @@
                t.max_attempts AS maxAttempts,
                t.is_dynamic AS isDynamic,
                tp.topic_name AS topicName,
-               c.course_name AS courseName
+               c.course_name AS courseName,
+                t.access_code AS accessCode
         FROM tests t
                  LEFT JOIN topics tp ON t.topic_id = tp.topic_id
                  LEFT JOIN courses c ON tp.course_id = c.course_id
@@ -103,7 +108,7 @@
         t.end_time AS endTime,
         t.is_dynamic AS isDynamic,
         t.max_attempts AS maxAttempts,
-
+        t.access_code AS accessCode,
         tp.topic_name AS topicName
         FROM tests t
         JOIN test_assignments ta ON ta.test_id = t.test_id

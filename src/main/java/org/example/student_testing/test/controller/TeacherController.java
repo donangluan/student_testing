@@ -233,7 +233,8 @@
         @PostMapping("/create-mixed")
         public String createMixedTopicTest(@ModelAttribute MixedTopicTestDTO mixedTestDTO,
                                            @RequestParam List<String> studentUsernames,
-                                           @AuthenticationPrincipal UserDetails userDetails
+                                           @AuthenticationPrincipal UserDetails userDetails,
+                                           RedirectAttributes redirectAttributes
                                            ) {
             System.out.println("testName = " + mixedTestDTO.getTestName());
             System.out.println(" topicDistribution = " + mixedTestDTO.getTopicDistribution());
@@ -241,13 +242,16 @@
 
             mixedTestDTO.setCreatedBy(userDetails.getUsername());
             testService.createMixedTopicTest(mixedTestDTO, studentUsernames);
+            redirectAttributes.addFlashAttribute("successMessage",
+                    "Tạo thành công bài kiểm tra Hỗn hợp (Mixed Test)!");
             return "redirect:/teacher/tests";
         }
 
         @PostMapping("/generate")
         public String generateTest(@ModelAttribute UniqueTestRequest request,
                                    @AuthenticationPrincipal UserDetails userDetails,
-                                   Model model
+                                   Model model,
+                                   RedirectAttributes redirectAttributes
                                    ) {
 
             request.setCreatedBy(userDetails.getUsername());
@@ -273,6 +277,8 @@
                 return "teacher/test/generate";
             }
             testService.generateUniqueTest(request,userDetails.getUsername());
+            redirectAttributes.addFlashAttribute("successMessage",
+                    " Tạo thành công bài kiểm tra Độc nhất (Unique Test)!");
             return "redirect:/teacher/tests";
         }
 
@@ -590,6 +596,9 @@
                 redirectAttributes.addFlashAttribute("error",
                         "Lỗi trong quá trình tạo hoặc gán đề: " + e.getMessage());
                 redirectAttributes.addFlashAttribute("test", testDTO);
+                redirectAttributes.addFlashAttribute("successMessage",
+                        "Tạo thành công bài kiểm tra Động (Dynamic Test) và gán cho " +
+                                studentUsernames.size() + " học sinh!");
                 return "redirect:/teacher/tests/create-dynamic";
             }
         }

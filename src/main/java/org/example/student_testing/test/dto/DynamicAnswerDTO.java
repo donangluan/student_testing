@@ -12,4 +12,5 @@ public class DynamicAnswerDTO {
     private Integer currentDifficulty;
     private Integer topicId;
     private String testType;
+    private String accessCode;
 }

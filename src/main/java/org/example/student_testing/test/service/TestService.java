@@ -21,7 +21,7 @@ import java.time.LocalDateTime;
 import java.util.*;
 
 @Service
-public class TestService {
+public class    TestService {
 
     private final TestMapper testMapper;
     private final QuestionMapper questionMapper;
@@ -48,6 +48,12 @@ public class TestService {
     public TestService(TestMapper testMapper, QuestionMapper questionMapper) {
         this.testMapper = testMapper;
         this.questionMapper = questionMapper;
+    }
+
+    private void cleanAccessCode(TestDTO test) {
+        if (test.getAccessCode() != null && test.getAccessCode().trim().isEmpty()) {
+            test.setAccessCode(null);
+        }
     }
 
     public Question toEntity(QuestionDTO dto) {
@@ -85,6 +91,9 @@ public class TestService {
         test.setPublished(true);
         test.setStartTime(request.getStartTime());
         test.setEndTime(request.getEndTime());
+
+        test.setAccessCode(request.getAccessCode());
+        cleanAccessCode(test);
 
         testMapper.insertTest(test);
 
@@ -175,6 +184,10 @@ public class TestService {
         testDTO.setPublished(true);
         testDTO.setStartTime(dto.getStartTime());
         testDTO.setEndTime(dto.getEndTime());
+
+        testDTO.setAccessCode(dto.getAccessCode()); // Lấy mã từ DTO
+        cleanAccessCode(testDTO);
+
         testMapper.insertTest(testDTO);
 
         Integer testId = testDTO.getTestId();
@@ -437,12 +450,14 @@ public class TestService {
         test.setTestType("Dynamic");
         test.setIsDynamic(true);
 
+
+
         if (test.getCreatedAt() == null) {
             test.setCreatedAt(LocalDateTime.now());
         }
         test.setPublished(true);
 
-
+        cleanAccessCode(test);
 
         testMapper.insertTest(test);
 

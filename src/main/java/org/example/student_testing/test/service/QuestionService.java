@@ -221,7 +221,7 @@ public class QuestionService {
         for (AiGeneratedQuestion ai : aiQuestions) {
             QuestionDTO dto = new QuestionDTO();
             dto.setQuestionId(ai.getId());
-            dto.setContent(ai.getQuestionContent());
+            dto.setContent(ai.getContent());
             dto.setCorrectOption(ai.getCorrectAnswer());
             dto.setDifficultyId(convertDifficulty(ai.getDifficulty()));
             dto.setTopicName(ai.getTopic());
@@ -303,7 +303,7 @@ public class QuestionService {
 
 
                 QuestionDTO q = new QuestionDTO();
-                q.setContent(ai.getQuestionContent());
+                q.setContent(ai.getContent());
                 q.setCorrectOption(ai.getCorrectAnswer());
                 q.setTopicName(ai.getTopic());
                 q.setSource("ai");
