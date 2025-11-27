@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import java.io.PrintWriter;
 import java.io.Writer;
 
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -209,6 +210,12 @@ public class TestResultService {
         details.put("questions", questionsWithAnswers);
 
         return details;
+    }
+
+    public LocalDateTime getSubmissionTime(Integer testId, String username) {
+
+
+        return testResultMapper.findSubmissionTimeByTestIdAndUsername(testId, username);
     }
 
 }

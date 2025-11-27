@@ -158,4 +158,11 @@
         and status = 'COMPLETED'
     </select>
 
+
+    <select id="findSubmissionTimeByTestIdAndUsername" resultType="java.time.LocalDateTime">
+        SELECT completed_at
+        FROM test_results
+        WHERE test_id = #{testId} AND student_username = #{studentUsername}
+    </select>
+
 </mapper>

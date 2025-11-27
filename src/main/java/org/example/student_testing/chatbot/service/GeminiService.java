@@ -154,10 +154,28 @@ public class GeminiService {
                 q.setContent(node.get("content").asText());
 
                 Map<String, String> optionsMap = new LinkedHashMap<>();
+
+                String optionA = node.get("optionA").asText();
+                String optionB = node.get("optionB").asText();
+                String optionC = node.get("optionC").asText();
+                String optionD = node.get("optionD").asText();
+
                 optionsMap.put("A", node.get("optionA").asText());
                 optionsMap.put("B", node.get("optionB").asText());
                 optionsMap.put("C", node.get("optionC").asText());
                 optionsMap.put("D", node.get("optionD").asText());
+
+                q.setOptions(mapper.writeValueAsString(optionsMap));
+                q.setOptionsMap(optionsMap);
+
+                String correctAnswerContent = node.get("correctAnswer").asText().trim();
+
+                // =========================================================
+                // !!! BƯỚC CHUẨN HÓA MỚI: Tìm ký tự đáp án (A, B, C, D)
+                String correctLetter = findCorrectAnswerLetter(correctAnswerContent, optionsMap);
+                // =========================================================
+
+                q.setCorrectAnswer(correctLetter);
 
                 q.setOptions(mapper.writeValueAsString(optionsMap));
                 q.setOptionsMap(optionsMap);
@@ -245,6 +263,25 @@ public class GeminiService {
                         ? " Bạn đã chọn đúng rồi đó! Giỏi lắm! Cùng xem vì sao đáp án này là chính xác nhé \n\n Tại sao \"" + dto.getCorrectAnswer() + "\" là đúng?\n→ [Giải thích chi tiết 2–3 câu]"
                         : " Tại sao \"" + dto.getStudentAnswer() + "\" không đúng?\n→ [Giải thích 1–2 câu]\n\n Tại sao \"" + dto.getCorrectAnswer() + "\" là đúng?\n→ [Giải thích chi tiết 2–3 câu]"
         );
+    }
+
+
+    private String findCorrectAnswerLetter(String content, Map<String, String> optionsMap) {
+        if (content == null || content.isEmpty()) {
+            return "UNKNOWN";
+        }
+
+
+        for (Map.Entry<String, String> entry : optionsMap.entrySet()) {
+
+            if (entry.getValue().trim().equalsIgnoreCase(content)) {
+                return entry.getKey(); // Trả về 'A', 'B', 'C', hoặc 'D'
+            }
+        }
+
+        // Trường hợp không tìm thấy (AI bịa ra nội dung đáp án không có trong Options)
+        logger.warn("Không tìm thấy ký tự đáp án cho nội dung: {}. Nội dung Options: {}", content, optionsMap);
+        return "UNKNOWN"; // Trả về giá trị mặc định để Frontend dễ xử lý lỗi
     }
 
 }

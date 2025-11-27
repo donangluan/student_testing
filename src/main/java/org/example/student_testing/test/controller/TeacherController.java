@@ -4,6 +4,7 @@
     import jakarta.servlet.http.HttpSession;
     import org.example.student_testing.chatbot.dto.AiGeneratedQuestionDTO;
     import org.example.student_testing.chatbot.entity.AiGeneratedQuestion;
+    import org.example.student_testing.chatbot.exception.AiServiceException;
     import org.example.student_testing.chatbot.service.AiGenerateQuestionService;
     import org.example.student_testing.chatbot.service.GeminiService;
     import org.example.student_testing.student.dto.CourseDTO;
@@ -318,6 +319,7 @@
                                           @RequestParam String difficulty,
                                           @RequestParam Integer count,
                                           @AuthenticationPrincipal UserDetails userDetails,
+                                          RedirectAttributes redirectAttributes,
                                           Model model,
                                           HttpSession session
                                           ) {
@@ -343,16 +345,41 @@
         Chỉ trả về JSON, không thêm văn bản bên ngoài.
         """, count, topic, difficulty, difficulty, topic);
 
-            String rawText = geminiService.chat(prompt, List.of());
-            String json = geminiService.extractJsonFromText(rawText);
-            List<AiGeneratedQuestion> questions = geminiService.parseQuestionsFromJson(json);
-            session.setAttribute("previewQuestions", questions);
+            try {
+                String rawText = geminiService.chat(prompt, List.of());
+                String json = geminiService.extractJsonFromText(rawText);
+                List<AiGeneratedQuestion> questions = geminiService.parseQuestionsFromJson(json);
+                session.setAttribute("previewQuestions", questions);
 
-            model.addAttribute("questions", questions);
-            model.addAttribute("topic", topic);
-            model.addAttribute("difficulty", difficulty);
-            model.addAttribute("count", count);
-            return "teacher/test/review-ai";
+                if (questions.isEmpty()) {
+                    redirectAttributes.addFlashAttribute("errorMessage",
+                            "AI không thể tạo câu hỏi nào dựa trên yêu cầu của bạn. Vui lòng thử lại với prompt khác hoặc giảm số lượng."
+                    );
+                    return "redirect:/teacher/tests/generate-ai";
+                }
+
+                model.addAttribute("questions", questions);
+                model.addAttribute("topic", topic);
+                model.addAttribute("difficulty", difficulty);
+                model.addAttribute("count", count);
+                return "teacher/test/review-ai";
+
+            } catch (AiServiceException e) {
+                // Xử lý lỗi dịch vụ AI (quá tải, key sai, v.v.)
+                System.err.println("LỖI AI SERVICE: " + e.getMessage());
+                redirectAttributes.addFlashAttribute("errorMessage",
+                        "Lỗi khi gọi dịch vụ AI: " + e.getMessage() + ". Vui lòng kiểm tra API key hoặc dịch vụ có bị quá tải."
+                );
+                return "redirect:/teacher/tests/generate-ai";
+
+            } catch (Exception e) {
+                // Xử lý các lỗi parse JSON hoặc lỗi không mong muốn khác
+                System.err.println("LỖI HỆ THỐNG KHÔNG MONG MUỐN: " + e.getMessage());
+                redirectAttributes.addFlashAttribute("errorMessage",
+                        "Lỗi không xác định khi tạo câu hỏi: " + e.getMessage()
+                );
+                return "redirect:/teacher/tests/generate-ai";
+            }
         }
 
         @GetMapping("/generate-ai")

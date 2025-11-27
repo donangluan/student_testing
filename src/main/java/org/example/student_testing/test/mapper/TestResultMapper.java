@@ -6,6 +6,7 @@ import org.example.student_testing.test.dto.SubmissionViewDTO;
 import org.example.student_testing.test.dto.TestResultDTO;
 import org.example.student_testing.test.dto.TopicScoreDTO;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Mapper
@@ -35,5 +36,10 @@ public interface TestResultMapper {
     List<TestResultDTO> findResultsByUsername(@Param("studentUsername") String studentUsername);
 
     Integer countCompletedAttempts(@Param("testId")  Integer testId, @Param("username") String username);
+
+
+    LocalDateTime findSubmissionTimeByTestIdAndUsername(
+            @Param("testId") Integer testId,
+            @Param("studentUsername") String studentUsername);
 
 }

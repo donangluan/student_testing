@@ -104,16 +104,38 @@ public class StudentTestController {
         String username = userDetails.getUsername();
         List<TestDTO> tests = testService.findTestsForStudent(username);
         Map<Integer, Boolean> testResultMap = new HashMap<>();
-        Map<Integer,Boolean> testExpiedMap = new HashMap<>();
+        Map<Integer,Boolean> testExpiredMap = new HashMap<>();
         for (TestDTO test : tests) {
             boolean submitted = testResultService.hasSubmitted(test.getTestId(), username);
             testResultMap.put(test.getTestId(), submitted);
 
             boolean isExpired = false;
+
             if (test.getEndTime() != null) {
-                isExpired = test.getEndTime().isBefore(LocalDateTime.now());
+
+                if (submitted) {
+                    // TRƯỜNG HỢP 1: ĐÃ NỘP BÀI. Kiểm tra thời gian nộp bài.
+
+                    // Cần một phương thức mới để lấy thời gian nộp bài.
+                    // Giả định: testResultService.getSubmissionTime(test.getTestId(), username)
+                    LocalDateTime submissionTime = testResultService.getSubmissionTime(test.getTestId(), username);
+
+                    if (submissionTime != null) {
+                        // Bài nộp bị thu hồi nếu thời gian nộp bài (submissionTime) LỚN HƠN hạn chót chung (test.getEndTime)
+                        isExpired = submissionTime.isAfter(test.getEndTime());
+                    } else {
+                        // Nếu đã nộp nhưng không tìm thấy thời gian nộp (lỗi dữ liệu),
+                        // chúng ta kiểm tra theo thời điểm hiện tại như trường hợp chưa nộp (để đảm bảo tính an toàn)
+                        isExpired = test.getEndTime().isBefore(LocalDateTime.now());
+                    }
+
+                } else {
+                    // TRƯỜNG HỢP 2: CHƯA NỘP BÀI. Kiểm tra thời điểm hiện tại.
+                    isExpired = test.getEndTime().isBefore(LocalDateTime.now());
+                }
             }
-            testExpiedMap.put(test.getTestId(), isExpired);
+
+            testExpiredMap.put(test.getTestId(), isExpired);
 
             if (submitted) {
                 Integer resultId = testResultService.getResultId(test.getTestId(), username);
@@ -124,7 +146,7 @@ public class StudentTestController {
         model.addAttribute("tests", tests);
         model.addAttribute("studentUsername", username);
         model.addAttribute("testResultMap", testResultMap);
-        model.addAttribute("testExpiredMap", testExpiedMap);
+        model.addAttribute("testExpiredMap", testExpiredMap);
         return "test/student/list";
     }
 
