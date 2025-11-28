@@ -113,11 +113,11 @@ public class SecurityConfig {
                                     .anyMatch(auth -> auth.getAuthority().equals("ROLE_ADMIN"));
 
                             if (isStudent) {
-                                response.sendRedirect("/student/dashboard");
+                                response.sendRedirect("/student/dashboard?success=true");
                             } else if (isTeacher) {
-                                response.sendRedirect("/teacher/dashboard");
+                                response.sendRedirect("/teacher/dashboard?success=true");
                             } else if (isAdmin) {
-                                response.sendRedirect("/admin/dashboard");
+                                response.sendRedirect("/admin/dashboard?success=true");
                             } else {
                                 response.sendRedirect("/access-denied");
                             }

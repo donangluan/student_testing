@@ -12,10 +12,8 @@ import org.example.student_testing.test.service.TestResultService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.security.Principal;
 import java.util.ArrayList;
@@ -42,7 +40,19 @@ public class StudentDashboardController {
     }
 
     @GetMapping("/dashboard")
-    public String showDashboard(Principal principal, Model model) {
+    public String showDashboard(Principal principal, Model model,
+                                @RequestParam(value="success", required = false) String success,
+                                RedirectAttributes redirectAttributes
+                                ) {
+
+        if(success != null && success.equals("true")) {
+            redirectAttributes.addFlashAttribute("loginSuccess", true);
+            System.out.println("Log: Login success parameter detected. Setting Toast and redirecting to clear URL");
+
+            return "redirect:/student/dashboard";
+        }
+
+
         String username = principal.getName();
 
 

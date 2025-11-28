@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>Dashboard Teacher</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </head>
 
@@ -60,6 +61,24 @@
         <button type="submit" class="btn btn-sm btn-danger">Đăng xuất</button>
     </form>
 </div>
+
+<div class="toast-container position-fixed top-0 start-50 translate-middle-x p-3" style="z-index: 1080;">
+    <div id="loadToast" class="toast align-items-center text-bg-success border-0"
+         role="alert" aria-live="assertive" aria-atomic="true">
+
+        <div class="d-flex">
+            <div class="toast-body fw-bold">
+                <i class="bi bi-check-circle-fill me-2" ></i>Đăng nhập thành công!Chào mừng bạn đến với Dashboard
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto"
+                    data-bs-dismiss="toast" aria-label="Close"></button>
+
+        </div>
+
+    </div>
+</div>
+
+
 <div class="container mt-4">
     <h2> Trang chính giáo viên</h2>
     <div class="row">
@@ -105,4 +124,30 @@
 </div>
 
 </body>
+
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    // 🟢 ĐÃ SỬA: Đọc biến loginSuccess
+    var isLoginSuccess = /*[[${loginSuccess}]]*/ false;
+
+    document.addEventListener('DOMContentLoaded', function () {
+
+        // 🟢 ĐÃ SỬA: Sử dụng ID của Toast đăng nhập là loadToast
+        var toastEl = document.getElementById('loadToast');
+
+        if (isLoginSuccess) {
+            var toast = new bootstrap.Toast(toastEl, {
+                autohide: true,
+                delay: 5000,
+            });
+            toast.show();
+            console.log("Toast: Đăng nhập thành công đã được kích hoạt.");
+        }
+
+
+
+    });
+    /*]]>*/
+</script>
+
 </html>

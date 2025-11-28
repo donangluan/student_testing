@@ -10,6 +10,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 @RequestMapping("/teacher")
@@ -28,7 +30,18 @@ public class TeacherDashboardController {
     private TestSubmissionService testSubmissionService;
 
     @GetMapping("/dashboard")
-    public String dashboard(Model model) {
+    public String dashboard(Model model,
+                            @RequestParam(value = "success", required = false) String success,
+                            RedirectAttributes redirectAttributes
+
+                            ) {
+        if(success != null && success.equals("true")) {
+            redirectAttributes.addFlashAttribute("loginSuccess", true);
+            System.out.println("Log: login success parameter detected. Setting Toast and redirecting to clear URL");
+            return "redirect:/teacher/dashboard";
+
+        }
+
         model.addAttribute("totalTests", testService.getTotalTests());
         int gradedSubmissions = testSubmissionService.countGraded();
         model.addAttribute("gradedSubmissions", gradedSubmissions);

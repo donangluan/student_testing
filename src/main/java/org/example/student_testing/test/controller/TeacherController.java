@@ -623,9 +623,7 @@
                 redirectAttributes.addFlashAttribute("error",
                         "Lỗi trong quá trình tạo hoặc gán đề: " + e.getMessage());
                 redirectAttributes.addFlashAttribute("test", testDTO);
-                redirectAttributes.addFlashAttribute("successMessage",
-                        "Tạo thành công bài kiểm tra Động (Dynamic Test) và gán cho " +
-                                studentUsernames.size() + " học sinh!");
+
                 return "redirect:/teacher/tests/create-dynamic";
             }
         }

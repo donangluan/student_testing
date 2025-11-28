@@ -56,6 +56,22 @@
     </div>
 </nav>
 
+<div class="toast-container position-fixed top-0 start-50 translate-middle-x p-3" style="z-index: 1080;">
+    <div id="loadToast" class="toast align-items-center text-bg-success border-0"
+         role="alert" aria-live="assertive" aria-atomic="true">
+
+        <div class="d-flex">
+            <div class="toast-body fw-bold">
+                <i class="bi bi-check-circle-fill me-2" ></i>Đăng nhập thành công!Chào mừng bạn đến với Dashboard
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto"
+                    data-bs-dismiss="toast" aria-label="Close"></button>
+
+        </div>
+
+    </div>
+</div>
+
 <div class="container mt-4">
 
     <div class="row mb-5 p-4 bg-white rounded-3 shadow-sm align-items-center">
@@ -160,6 +176,39 @@
         <p class="text-muted">&copy; 2025 Hệ thống Kiểm tra Sinh viên</p>
     </div>
 </div>
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    // Sửa lỗi cú pháp an toàn và đảm bảo gán giá trị từ Model
+    // Nếu biến ${loginSuccess} là null, nó sẽ được gán giá trị mặc định là false
+    var isLoginSuccess = /*[[${loginSuccess}]]*/ false;
+
+    // Đảm bảo mã JavaScript chỉ chạy sau khi DOM đã sẵn sàng
+    document.addEventListener('DOMContentLoaded', function () {
+
+        if (isLoginSuccess === true) {
+
+            var toastEl = document.getElementById('loadToast');
+
+            if (toastEl) { // Kiểm tra Toast Element có tồn tại không
+                // Đặt cấu hình cho Toast
+                var toastConfig = {
+                    autohide: true,
+                    delay: 5000 // Tăng thời gian hiển thị lên 5 giây
+                };
+
+                // Khởi tạo và hiển thị Toast
+                var toast = new bootstrap.Toast(toastEl, toastConfig);
+                toast.show();
+
+                // Ghi log ra console để Debug (Bạn nên bật Console của trình duyệt để xem)
+                console.log("Toast: Đăng nhập thành công, Toast đã được hiển thị!");
+            } else {
+                console.error("Toast Error: Không tìm thấy element có ID 'loadToast'.");
+            }
+        }
+    });
+    /*]]>*/
+</script>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
